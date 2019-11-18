@@ -17,14 +17,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"net"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_authorize"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_error"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_json"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
@@ -45,12 +43,10 @@ const (
 func main() {
 	httpport := flag.String("httpport", ":8080", "Serve httpport")
 	httpfolder := flag.String("httpdir", "www", "Serve http Dir")
-	tcpport := flag.String("tcpport", ":8081", "Serve tcpport")
-	marshaltype := flag.String("marshaltype", "json", "msgp,json,gob")
 	flag.Parse()
 
-	svr := NewServer(*marshaltype)
-	svr.Run(*tcpport, *httpport, *httpfolder)
+	svr := NewServer()
+	svr.Run(*httpport, *httpfolder)
 }
 
 type Server struct {
@@ -65,7 +61,7 @@ type Server struct {
 		w2d_packet.Header, interface{}, error)
 }
 
-func NewServer(marshaltype string) *Server {
+func NewServer() *Server {
 	svr := &Server{
 		apiStat:  w2d_statserveapi.New(),
 		notiStat: w2d_statnoti.New(),
@@ -74,31 +70,16 @@ func NewServer(marshaltype string) *Server {
 	svr.sendRecvStop = func() {
 		fmt.Printf("Too early sendRecvStop call\n")
 	}
-
-	switch marshaltype {
-	default:
-		fmt.Printf("unsupported marshaltype %v\n", marshaltype)
-		return nil
-	// case "msgp":
-	// 	gMarshalBodyFn = w2d_msgp.MarshalBodyFn
-	// 	gUnmarshalPacket = w2d_msgp.UnmarshalPacket
-	case "json":
-		svr.marshalBodyFn = w2d_json.MarshalBodyFn
-		svr.unmarshalPacketFn = w2d_json.UnmarshalPacket
-	case "gob":
-		svr.marshalBodyFn = w2d_gob.MarshalBodyFn
-		svr.unmarshalPacketFn = w2d_gob.UnmarshalPacket
-	}
-	fmt.Printf("start using marshaltype %v\n", marshaltype)
+	svr.marshalBodyFn = w2d_json.MarshalBodyFn
+	svr.unmarshalPacketFn = w2d_json.UnmarshalPacket
 	return svr
 }
 
-func (svr *Server) Run(tcpport string, httpport string, httpfolder string) {
+func (svr *Server) Run(httpport string, httpfolder string) {
 	ctx, stopFn := context.WithCancel(context.Background())
 	svr.sendRecvStop = stopFn
 	defer svr.sendRecvStop()
 
-	go svr.serveTCP(ctx, tcpport)
 	go svr.serveHTTP(ctx, httpport, httpfolder)
 
 	timerInfoTk := time.NewTicker(1 * time.Second)
@@ -153,53 +134,6 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 	c2sc.StartServeWS(ctx, wsConn,
 		readTimeoutSec, writeTimeoutSec, svr.marshalBodyFn)
 	wsConn.Close()
-}
-
-func (svr *Server) serveTCP(ctx context.Context, port string) {
-	fmt.Printf("tcp server port=%v\n", port)
-	tcpaddr, err := net.ResolveTCPAddr("tcp", port)
-	if err != nil {
-		fmt.Printf("error %v\n", err)
-		return
-	}
-	listener, err := net.ListenTCP("tcp", tcpaddr)
-	if err != nil {
-		fmt.Printf("error %v\n", err)
-		return
-	}
-	defer listener.Close()
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			listener.SetDeadline(time.Now().Add(time.Duration(1 * time.Second)))
-			conn, err := listener.AcceptTCP()
-			if err != nil {
-				operr, ok := err.(*net.OpError)
-				if ok && operr.Timeout() {
-					continue
-				}
-				fmt.Printf("error %#v\n", err)
-			} else {
-				go svr.serveTCPClient(ctx, conn)
-			}
-		}
-	}
-}
-
-func (svr *Server) serveTCPClient(ctx context.Context, conn *net.TCPConn) {
-	c2sc := w2d_serveconnbyte.NewWithStats(
-		nil,
-		sendBufferSize,
-		w2d_authorize.NewAllSet(),
-		svr.apiStat,
-		svr.notiStat,
-		svr.errStat,
-		DemuxReq2BytesAPIFnMap)
-	c2sc.StartServeTCP(ctx, conn,
-		readTimeoutSec, writeTimeoutSec, svr.marshalBodyFn)
-	conn.Close()
 }
 
 ///////////////////////////////////////////////////////////////

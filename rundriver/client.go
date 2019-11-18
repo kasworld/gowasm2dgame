@@ -22,7 +22,6 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_conntcp"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connwsgorilla"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_error"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_json"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
@@ -44,30 +43,14 @@ var gUnmarshalPacket func(h w2d_packet.Header, bodyData []byte) (interface{}, er
 
 func main() {
 	addr := flag.String("addr", "localhost:8080", "server addr")
-	marshaltype := flag.String("marshaltype", "json", "msgp,json,gob")
-	nettype := flag.String("nettype", "ws", "tcp,ws websocket")
-
 	flag.Parse()
 	fmt.Printf("addr %v \n", *addr)
 
-	switch *marshaltype {
-	default:
-		fmt.Printf("unsupported marshaltype %v\n", *marshaltype)
-		return
-	// case "msgp":
-	// 	gMarshalBodyFn = w2d_msgp.MarshalBodyFn
-	// 	gUnmarshalPacket = w2d_msgp.UnmarshalPacket
-	case "json":
-		gMarshalBodyFn = w2d_json.MarshalBodyFn
-		gUnmarshalPacket = w2d_json.UnmarshalPacket
-	case "gob":
-		gMarshalBodyFn = w2d_gob.MarshalBodyFn
-		gUnmarshalPacket = w2d_gob.UnmarshalPacket
-	}
-	fmt.Printf("start using marshaltype %v\n", *marshaltype)
+	gMarshalBodyFn = w2d_json.MarshalBodyFn
+	gUnmarshalPacket = w2d_json.UnmarshalPacket
 
 	app := NewApp(*addr)
-	app.Run(*nettype)
+	app.Run()
 }
 
 type App struct {
@@ -104,21 +87,12 @@ func NewApp(addr string) *App {
 	return app
 }
 
-func (app *App) Run(nettype string) {
+func (app *App) Run() {
 	ctx, stopFn := context.WithCancel(context.Background())
 	app.sendRecvStop = stopFn
 	defer app.sendRecvStop()
 
-	switch nettype {
-	default:
-		fmt.Printf("unsupported nettype %v\n", nettype)
-		return
-	case "tcp":
-		go app.connectTCP(ctx)
-	case "ws":
-		go app.connectWS(ctx)
-	}
-	fmt.Printf("start using nettype %v\n", nettype)
+	go app.connectWS(ctx)
 
 	time.Sleep(time.Second)
 	app.sendTestPacket()
@@ -167,22 +141,6 @@ func (app *App) connectWS(ctx context.Context) {
 	}
 	app.EnqueueSendPacket = app.c2scWS.EnqueueSendPacket
 	app.c2scWS.Run(ctx)
-}
-
-func (app *App) connectTCP(ctx context.Context) {
-	app.c2scTCP = w2d_conntcp.New(
-		readTimeoutSec, writeTimeoutSec,
-		gMarshalBodyFn,
-		app.handleRecvPacket,
-		app.handleSentPacket,
-	)
-	if err := app.c2scTCP.ConnectTo(app.addr); err != nil {
-		fmt.Printf("%v\n", err)
-		app.sendRecvStop()
-		return
-	}
-	app.EnqueueSendPacket = app.c2scTCP.EnqueueSendPacket
-	app.c2scTCP.Run(ctx)
 }
 
 func (app *App) handleSentPacket(header w2d_packet.Header) error {
