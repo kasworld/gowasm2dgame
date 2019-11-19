@@ -14,13 +14,23 @@ package wasmclient
 import (
 	"fmt"
 	"syscall/js"
+
+	"github.com/kasworld/gowasm2dgame/lib/stroll8way"
+	"github.com/kasworld/wrapper"
 )
 
 type Viewport2d struct {
 	Canvas    js.Value
 	context2d js.Value
 
-	background js.Value
+	W         int
+	H         int
+	XWrapper  *wrapper.Wrapper `prettystring:"simple"`
+	YWrapper  *wrapper.Wrapper `prettystring:"simple"`
+	XWrapSafe func(i int) int
+	YWrapSafe func(i int) int
+
+	background *Sprite
 	clouds     js.Value
 
 	grayball js.Value
@@ -29,58 +39,71 @@ type Viewport2d struct {
 	explodeetc  js.Value
 	explodeball js.Value
 	spawn       js.Value
+
+	scroll stroll8way.Stroll8
 }
 
-func NewViewport2d(cnvid string) *Viewport2d {
+func NewViewport2d() *Viewport2d {
 	vp := &Viewport2d{}
+	vp.W = 1000
+	vp.H = 1000
+	vp.XWrapper = wrapper.New(vp.W)
+	vp.YWrapper = wrapper.New(vp.H)
+	vp.XWrapSafe = vp.XWrapper.GetWrapSafeFn()
+	vp.YWrapSafe = vp.YWrapper.GetWrapSafeFn()
 
-	vp.Canvas = js.Global().Get("document").Call("getElementById", cnvid)
+	vp.Canvas = js.Global().Get("document").Call("getElementById", "viewport2DCanvas")
 	if !vp.Canvas.Truthy() {
-		fmt.Printf("fail to get canvas %v\n", cnvid)
+		fmt.Printf("fail to get canvas viewport2DCanvas\n")
 	}
+	vp.Canvas.Set("width", vp.W)
+	vp.Canvas.Set("height", vp.H)
+
 	vp.context2d = vp.Canvas.Call("getContext", "2d")
 	vp.context2d.Set("imageSmoothingEnabled", false)
 	if !vp.context2d.Truthy() {
-		fmt.Printf("fail to get context2d context2d\n")
+		fmt.Printf("fail to get context2d\n")
 	}
 
-	vp.background = vp.LoadImage("background")
+	vp.background = LoadSprite("background", 0)
 
-	vp.grayball = vp.LoadImage("grayball") // color change
-	vp.spiral = vp.LoadImage("spiral")     // color change, rotate (0, 360, 10)
-	// ('bounceball', "grayball.png", None),
-	// ('bullet', "grayball.png", None),
-	// ('hommingbullet', "spiral.png", (0, 360, 10)),
-	// ('superbullet', "spiral.png", (0, 360, 10)),
-	// ('circularbullet', "grayball.png", None),
-	// ('shield', "grayball.png", None),
-	// ('supershield', "spiral.png", (0, 360, 10))
+	/*
+		vp.grayball = vp.LoadImage("grayball") // color change
+		vp.spiral = vp.LoadImage("spiral")     // color change, rotate (0, 360, 10)
+		// ('bounceball', "grayball.png", None),
+		// ('bullet', "grayball.png", None),
+		// ('hommingbullet', "spiral.png", (0, 360, 10)),
+		// ('superbullet', "spiral.png", (0, 360, 10)),
+		// ('circularbullet', "grayball.png", None),
+		// ('shield', "grayball.png", None),
+		// ('supershield', "spiral.png", (0, 360, 10))
 
-	vp.clouds = vp.LoadImage("clouds")           // slicearg=(1, 4
-	vp.explodeetc = vp.LoadImage("explodeetc")   // slicearg=(1, 8, spriteexplosioneffect
-	vp.explodeball = vp.LoadImage("explodeball") // slicearg=(8, 1 ballexplosioneffect
-	vp.spawn = vp.LoadImage("spawn")             // slicearg=(1, 6, reverse spawneffect
+		vp.clouds = vp.LoadImage("clouds")           // slicearg=(1, 4
+		vp.explodeetc = vp.LoadImage("explodeetc")   // slicearg=(1, 8, spriteexplosioneffect
+		vp.explodeball = vp.LoadImage("explodeball") // slicearg=(8, 1 ballexplosioneffect
+		vp.spawn = vp.LoadImage("spawn")             // slicearg=(1, 6, reverse spawneffect
+	*/
+	vp.scroll.SetDxy(1, -1)
 	return vp
-}
-
-func (vp *Viewport2d) LoadImage(name string) js.Value {
-	img := js.Global().Get("document").Call("getElementById", name)
-	if !img.Truthy() {
-		fmt.Printf("fail to get %v", name)
-		return js.Null()
-	}
-	return img
-}
-
-func (vp *Viewport2d) DrawImage(img js.Value, dstx, dsty int) {
-	vp.context2d.Call("drawImage", img, dstx, dsty)
 }
 
 func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 	defer func() {
 		js.Global().Call("requestAnimationFrame", js.FuncOf(app.drawCanvas))
 	}()
+	// dispCount := app.DispInterDur.GetCount()
+	act := app.DispInterDur.BeginAct()
+	defer act.End()
 
-	app.vp2d.DrawImage(app.vp2d.background, 0, 0)
+	app.vp.scroll.Move()
+
+	x := app.vp.XWrapSafe(app.vp.scroll.X)
+	y := app.vp.YWrapSafe(app.vp.scroll.Y)
+	sp := app.vp.background
+	sp.PutImageData(app.vp.context2d, x, y)
+	sp.PutImageData(app.vp.context2d, x-sp.W, y)
+	sp.PutImageData(app.vp.context2d, x, y-sp.H)
+	sp.PutImageData(app.vp.context2d, x-sp.W, y-sp.H)
+
 	return nil
 }

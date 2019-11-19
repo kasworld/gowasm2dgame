@@ -20,6 +20,7 @@ import (
 	"github.com/kasworld/actjitter"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connwasm"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_pid2rspfn"
+	"github.com/kasworld/intervalduration"
 )
 
 type WasmClient struct {
@@ -30,8 +31,9 @@ type WasmClient struct {
 	ClientJitter         *actjitter.ActJitter
 	PingDur              time.Duration
 	ServerClientTimeDiff time.Duration
+	DispInterDur         *intervalduration.IntervalDuration
 
-	vp2d *Viewport2d
+	vp *Viewport2d
 }
 
 func InitApp() {
@@ -41,7 +43,8 @@ func InitApp() {
 		pid2recv:     w2d_pid2rspfn.New(),
 		ServerJitter: actjitter.New("Server"),
 		ClientJitter: actjitter.New("Client"),
-		vp2d:         NewViewport2d("viewport2DCanvas"),
+		DispInterDur: intervalduration.New("Display"),
+		vp:           NewViewport2d(),
 	}
 	go app.run()
 }
@@ -68,6 +71,7 @@ loop:
 
 		case <-timerPingTk.C:
 			go app.reqHeartbeat()
+			fmt.Printf("%v", app.DispInterDur)
 		}
 	}
 }
