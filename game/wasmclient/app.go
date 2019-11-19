@@ -30,6 +30,8 @@ type WasmClient struct {
 	ClientJitter         *actjitter.ActJitter
 	PingDur              time.Duration
 	ServerClientTimeDiff time.Duration
+
+	vp2d *Viewport2d
 }
 
 func InitApp() {
@@ -39,6 +41,7 @@ func InitApp() {
 		pid2recv:     w2d_pid2rspfn.New(),
 		ServerJitter: actjitter.New("Server"),
 		ClientJitter: actjitter.New("Client"),
+		vp2d:         NewViewport2d("viewport2DCanvas"),
 	}
 	go app.run()
 }
