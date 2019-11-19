@@ -21,6 +21,14 @@ type Viewport2d struct {
 	context2d js.Value
 
 	background js.Value
+	clouds     js.Value
+
+	grayball js.Value
+	spiral   js.Value
+
+	explodeetc  js.Value
+	explodeball js.Value
+	spawn       js.Value
 }
 
 func NewViewport2d(cnvid string) *Viewport2d {
@@ -35,7 +43,23 @@ func NewViewport2d(cnvid string) *Viewport2d {
 	if !vp.context2d.Truthy() {
 		fmt.Printf("fail to get context2d context2d\n")
 	}
+
 	vp.background = vp.LoadImage("background")
+
+	vp.grayball = vp.LoadImage("grayball") // color change
+	vp.spiral = vp.LoadImage("spiral")     // color change, rotate (0, 360, 10)
+	// ('bounceball', "grayball.png", None),
+	// ('bullet', "grayball.png", None),
+	// ('hommingbullet', "spiral.png", (0, 360, 10)),
+	// ('superbullet', "spiral.png", (0, 360, 10)),
+	// ('circularbullet', "grayball.png", None),
+	// ('shield', "grayball.png", None),
+	// ('supershield', "spiral.png", (0, 360, 10))
+
+	vp.clouds = vp.LoadImage("clouds")           // slicearg=(1, 4
+	vp.explodeetc = vp.LoadImage("explodeetc")   // slicearg=(1, 8, spriteexplosioneffect
+	vp.explodeball = vp.LoadImage("explodeball") // slicearg=(8, 1 ballexplosioneffect
+	vp.spawn = vp.LoadImage("spawn")             // slicearg=(1, 6, reverse spawneffect
 	return vp
 }
 
