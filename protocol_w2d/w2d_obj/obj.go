@@ -2,6 +2,8 @@
 
 package w2d_obj
 
+import "github.com/kasworld/gowasm2dgame/enums/acttype"
+
 type ReqInvalid_data struct {
 	Dummy uint8
 }
@@ -10,24 +12,41 @@ type RspInvalid_data struct {
 }
 
 type ReqMakeTeam_data struct {
-	Dummy uint8
+	TeamName string
 }
 type RspMakeTeam_data struct {
-	Dummy uint8
+	TeamName string
+	TeamID   int
 }
 
 type ReqAct_data struct {
-	Dummy uint8
+	TeamID string
+	Acts   []Act
 }
 type RspAct_data struct {
 	Dummy uint8
+}
+
+type Act struct {
+	Act      acttype.ActType
+	DstPos   [2]int
+	DstObjID string
+	// some more?
 }
 
 type ReqState_data struct {
 	Dummy uint8
 }
 type RspState_data struct {
-	Dummy uint8
+	FrameInfo  interface{}
+	Players    []*Player
+	EffectObjs []*EffectObj
+}
+
+type Player struct {
+}
+
+type EffectObj struct {
 }
 
 type ReqHeartbeat_data struct {
