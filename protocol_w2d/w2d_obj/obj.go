@@ -2,7 +2,11 @@
 
 package w2d_obj
 
-import "github.com/kasworld/gowasm2dgame/enums/acttype"
+import (
+	"time"
+
+	"github.com/kasworld/gowasm2dgame/enums/acttype"
+)
 
 type ReqInvalid_data struct {
 	Dummy uint8
@@ -50,10 +54,10 @@ type EffectObj struct {
 }
 
 type ReqHeartbeat_data struct {
-	Dummy uint8
+	Time time.Time
 }
 type RspHeartbeat_data struct {
-	Dummy uint8
+	Time time.Time
 }
 
 type NotiInvalid_data struct {

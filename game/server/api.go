@@ -12,8 +12,11 @@
 package server
 
 import (
+	"fmt"
+
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_error"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_json"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 )
@@ -113,19 +116,21 @@ func bytesAPIFn_ReqState(
 func bytesAPIFn_ReqHeartbeat(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {
-	// robj, err := w2d_json.UnmarshalPacket(hd, rbody)
-	// if err != nil {
-	// 	return hd, nil, fmt.Errorf("Packet type miss match %v", rbody)
-	// }
-	// recvBody, ok := robj.(*w2d_obj.ReqHeartbeat_data)
-	// if !ok {
-	// 	return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
-	// }
-	// _ = recvBody
+	robj, err := w2d_json.UnmarshalPacket(hd, rbody)
+	if err != nil {
+		return hd, nil, fmt.Errorf("Packet type miss match %v", rbody)
+	}
+	recvBody, ok := robj.(*w2d_obj.ReqHeartbeat_data)
+	if !ok {
+		return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
+	}
+	_ = recvBody
 
 	sendHeader := w2d_packet.Header{
 		ErrorCode: w2d_error.None,
 	}
-	sendBody := &w2d_obj.RspHeartbeat_data{}
+	sendBody := &w2d_obj.RspHeartbeat_data{
+		Time: recvBody.Time,
+	}
 	return sendHeader, sendBody, nil
 }

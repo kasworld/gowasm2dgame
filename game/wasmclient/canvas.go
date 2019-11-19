@@ -1,5 +1,3 @@
-// +build ignore
-
 // Copyright 2015,2016,2017,2018,2019 SeukWon Kang (kasworld@gmail.com)
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,13 +9,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package wasmclient
 
-import "github.com/kasworld/gowasm2dgame/game/wasmclient"
+import "syscall/js"
 
-var done chan struct{}
-
-func main() {
-	wasmclient.InitApp()
-	<-done
+func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
+	defer func() {
+		js.Global().Call("requestAnimationFrame", js.FuncOf(app.drawCanvas))
+	}()
+	return nil
 }
