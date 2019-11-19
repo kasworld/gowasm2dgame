@@ -28,7 +28,7 @@ type Config struct {
 	ActTurnPerSec         float64        `default:"30.0" argname:""`
 }
 
-func (config *Config) MakeLogDir() string {
+func (config Config) MakeLogDir() string {
 	rstr := filepath.Join(
 		config.BaseLogDir,
 		"w2dserver.logfiles",
@@ -41,7 +41,7 @@ func (config *Config) MakeLogDir() string {
 	return rtn
 }
 
-func (config *Config) MakePIDFileFullpath() string {
+func (config Config) MakePIDFileFullpath() string {
 	rstr := filepath.Join(
 		config.BaseLogDir,
 		"w2dserver.pid",
@@ -54,7 +54,7 @@ func (config *Config) MakePIDFileFullpath() string {
 	return rtn
 }
 
-func (config *Config) MakeOutfileFullpath() string {
+func (config Config) MakeOutfileFullpath() string {
 	rstr := "w2dserver.out"
 	rtn, err := filepath.Abs(rstr)
 	if err != nil {
@@ -64,7 +64,7 @@ func (config *Config) MakeOutfileFullpath() string {
 	return rtn
 }
 
-func (config *Config) StringForm() string {
+func (config Config) StringForm() string {
 	return prettystring.PrettyString(config, 4)
 }
 

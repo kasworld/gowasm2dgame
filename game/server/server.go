@@ -18,6 +18,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/kasworld/prettystring"
+
 	"github.com/kasworld/actpersec"
 	"github.com/kasworld/gowasm2dgame/game/serverconfig"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
@@ -96,9 +98,10 @@ func (svr *Server) ServiceCleanup() {
 
 // called from signal handler
 func (svr *Server) ServiceMain(ctx context.Context) {
+	fmt.Println(prettystring.PrettyString(svr.config, 4))
 	svr.startTime = time.Now()
 
-	ctx, stopFn := context.WithCancel(context.Background())
+	ctx, stopFn := context.WithCancel(ctx)
 	svr.sendRecvStop = stopFn
 	defer svr.sendRecvStop()
 
