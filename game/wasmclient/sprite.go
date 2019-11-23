@@ -28,6 +28,7 @@ type Sprite struct {
 	YCount int
 }
 
+// GetSrcXY return nth slice pos
 func (sp *Sprite) GetSrcXY(n int) (int, int) {
 	srcxn := n % sp.XCount
 	srcyn := (n / sp.XCount) % sp.YCount
@@ -64,7 +65,7 @@ func getImgWH(srcImageID string) (js.Value, int, int) {
 	return img, srcw, srch
 }
 
-func getCtxCnv(dstCanvasID string) (js.Value, js.Value) {
+func getCnv2dCtx(dstCanvasID string) (js.Value, js.Value) {
 	dstcnv := js.Global().Get("document").Call("getElementById", dstCanvasID)
 	if !dstcnv.Truthy() {
 		fmt.Printf("fail to get canvas\n")
@@ -82,7 +83,7 @@ func getCtxCnv(dstCanvasID string) (js.Value, js.Value) {
 // LoadSpriteXYN load multi image sprite
 func LoadSpriteXYN(srcImageID string, dstCanvasID string, xn, yn int) *Sprite {
 	img, srcw, srch := getImgWH(srcImageID)
-	dstcnv, dstctx := getCtxCnv(dstCanvasID)
+	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
 
 	dstcnv.Set("width", srcw)
 	dstcnv.Set("height", srch)
@@ -101,7 +102,7 @@ func LoadSpriteXYN(srcImageID string, dstCanvasID string, xn, yn int) *Sprite {
 // LoadSpriteRotate load a image and make multi rotated image sptite
 func LoadSpriteRotate(srcImageID string, dstCanvasID string, start, end, step float64) *Sprite {
 	img, srcw, srch := getImgWH(srcImageID)
-	dstcnv, dstctx := getCtxCnv(dstCanvasID)
+	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
 
 	dstcount := int((end - start) / step)
 	dstcnv.Set("width", srcw*dstcount)

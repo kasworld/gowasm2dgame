@@ -23,12 +23,10 @@ type Viewport2d struct {
 	Canvas    js.Value
 	context2d js.Value
 
-	W         int
-	H         int
-	XWrapper  *wrapper.Wrapper `prettystring:"simple"`
-	YWrapper  *wrapper.Wrapper `prettystring:"simple"`
-	XWrapSafe func(i int) int
-	YWrapSafe func(i int) int
+	W       int
+	H       int
+	bgXWrap func(i int) int
+	bgYWrap func(i int) int
 
 	background *Sprite
 	clouds     *Sprite
@@ -40,37 +38,35 @@ type Viewport2d struct {
 	explodeball *Sprite
 	spawn       *Sprite
 
-	scroll stroll8way.Stroll8
+	bgscroll stroll8way.Stroll8
 }
 
 func NewViewport2d() *Viewport2d {
 	vp := &Viewport2d{}
 	vp.W = 1000
 	vp.H = 1000
-	vp.XWrapper = wrapper.New(vp.W)
-	vp.YWrapper = wrapper.New(vp.H)
-	vp.XWrapSafe = vp.XWrapper.GetWrapSafeFn()
-	vp.YWrapSafe = vp.YWrapper.GetWrapSafeFn()
+	vp.bgXWrap = wrapper.New(vp.W).GetWrapSafeFn()
+	vp.bgYWrap = wrapper.New(vp.H).GetWrapSafeFn()
 
-	vp.Canvas = js.Global().Get("document").Call("getElementById", "viewport2DCanvas")
+	vp.Canvas, vp.context2d = getCnv2dCtx("viewport2DCanvas")
 	if !vp.Canvas.Truthy() {
 		fmt.Printf("fail to get canvas viewport2DCanvas\n")
+	}
+	if !vp.context2d.Truthy() {
+		fmt.Printf("fail to get context2d\n")
 	}
 	vp.Canvas.Set("width", vp.W)
 	vp.Canvas.Set("height", vp.H)
 
-	vp.context2d = vp.Canvas.Call("getContext", "2d")
-	vp.context2d.Set("imageSmoothingEnabled", false)
-	if !vp.context2d.Truthy() {
-		fmt.Printf("fail to get context2d\n")
-	}
-
 	vp.background = LoadSpriteXYN("background", "bgStore", 1, 1)
-	vp.spiral = LoadSpriteRotate("spiral", "spiralStore", 0, 360, 10)
+	vp.bgXWrap = wrapper.New(vp.background.W).GetWrapSafeFn()
+	vp.bgYWrap = wrapper.New(vp.background.H).GetWrapSafeFn()
+
 	vp.clouds = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
 	vp.spawn = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
 	vp.explodeetc = LoadSpriteXYN("explodeetc", "explodeetcStore", 1, 8)
 	vp.explodeball = LoadSpriteXYN("explodeball", "explodeballStore", 8, 1)
+	vp.spiral = LoadSpriteRotate("spiral", "spiralStore", 0, 360, 10)
 
 	/*
 		vp.grayball = vp.LoadImage("grayball") // color change
@@ -88,8 +84,23 @@ func NewViewport2d() *Viewport2d {
 		vp.explodeball = vp.LoadImage("explodeball") // slicearg=(8, 1 ballexplosioneffect
 		vp.spawn = vp.LoadImage("spawn")             // slicearg=(1, 6, reverse spawneffect
 	*/
-	vp.scroll.SetDxy(1, 0)
+	vp.bgscroll.SetDxy(1, -1)
 	return vp
+}
+
+func (vp *Viewport2d) drawBG() {
+	vp.bgscroll.Move()
+	x := vp.bgXWrap(vp.bgscroll.X)
+	y := vp.bgYWrap(vp.bgscroll.Y)
+	sp := vp.background
+	sp.DrawImageSlice(vp.context2d, x-sp.W, y-sp.H, 0)
+	sp.DrawImageSlice(vp.context2d, x-sp.W, y, 0)
+	sp.DrawImageSlice(vp.context2d, x, y-sp.H, 0)
+	sp.DrawImageSlice(vp.context2d, x, y, 0)
+}
+
+func (vp *Viewport2d) drawObj() {
+	vp.clouds.DrawImageSliceAlignCenter(vp.context2d, vp.W/2, vp.H/2, 0)
 }
 
 func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
@@ -101,13 +112,8 @@ func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 	act := app.DispInterDur.BeginAct()
 	defer act.End()
 
-	app.vp.scroll.Move()
-
-	x := app.vp.XWrapSafe(app.vp.scroll.X)
-	y := app.vp.YWrapSafe(app.vp.scroll.Y)
-	app.vp.background.DrawImageSliceAlignCenter(app.vp.context2d, x, y, 0)
-
-	app.vp.clouds.DrawImageSliceAlignCenter(app.vp.context2d, x, y, 0)
+	app.vp.drawBG()
+	app.vp.drawObj()
 
 	return nil
 }
