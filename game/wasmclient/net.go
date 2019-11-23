@@ -121,7 +121,7 @@ func (app *WasmClient) reqHeartbeat() error {
 			rpk := rsp.(*w2d_obj.RspHeartbeat_data)
 			pingDur := time.Now().Sub(rpk.Time)
 			app.PingDur = (app.PingDur + pingDur) / 2
-			fmt.Println("ping", app.PingDur)
+			// fmt.Println("ping", app.PingDur)
 			return nil
 		},
 	)

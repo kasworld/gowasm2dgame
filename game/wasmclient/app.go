@@ -71,7 +71,7 @@ loop:
 
 		case <-timerPingTk.C:
 			go app.reqHeartbeat()
-			fmt.Printf("%v", app.DispInterDur)
+			// fmt.Printf("%v", app.DispInterDur)
 		}
 	}
 }

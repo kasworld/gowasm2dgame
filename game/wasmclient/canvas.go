@@ -31,14 +31,14 @@ type Viewport2d struct {
 	YWrapSafe func(i int) int
 
 	background *Sprite
-	clouds     js.Value
+	clouds     *Sprite
 
-	grayball js.Value
-	spiral   js.Value
+	grayball *Sprite
+	spiral   *Sprite
 
-	explodeetc  js.Value
-	explodeball js.Value
-	spawn       js.Value
+	explodeetc  *Sprite
+	explodeball *Sprite
+	spawn       *Sprite
 
 	scroll stroll8way.Stroll8
 }
@@ -65,7 +65,9 @@ func NewViewport2d() *Viewport2d {
 		fmt.Printf("fail to get context2d\n")
 	}
 
-	vp.background = LoadSprite("background", 0)
+	vp.background = LoadSpriteXYN("background", "bgStore", 1, 1)
+	vp.clouds = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
+	vp.spiral = LoadSpriteRotate("spiral", "spiralStore", 0, 360, 10)
 
 	/*
 		vp.grayball = vp.LoadImage("grayball") // color change
@@ -91,7 +93,8 @@ func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 	defer func() {
 		js.Global().Call("requestAnimationFrame", js.FuncOf(app.drawCanvas))
 	}()
-	// dispCount := app.DispInterDur.GetCount()
+	dispCount := app.DispInterDur.GetCount()
+	_ = dispCount
 	act := app.DispInterDur.BeginAct()
 	defer act.End()
 
@@ -99,11 +102,10 @@ func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 
 	x := app.vp.XWrapSafe(app.vp.scroll.X)
 	y := app.vp.YWrapSafe(app.vp.scroll.Y)
-	sp := app.vp.background
-	sp.PutImageData(app.vp.context2d, x, y)
-	sp.PutImageData(app.vp.context2d, x-sp.W, y)
-	sp.PutImageData(app.vp.context2d, x, y-sp.H)
-	sp.PutImageData(app.vp.context2d, x-sp.W, y-sp.H)
+	_ = x
+	_ = y
+	app.vp.background.DrawImageSlice(app.vp.context2d, x-app.vp.W, y-app.vp.H, 0)
+	app.vp.clouds.DrawImageSlice(app.vp.context2d, 4, 9, 0)
 
 	return nil
 }
