@@ -28,16 +28,24 @@ type Sprite struct {
 	YCount int
 }
 
-// GetSrcXY return nth slice pos
-func (sp *Sprite) GetSrcXY(n int) (int, int) {
+// GetSliceXY return nth slice pos
+func (sp *Sprite) GetSliceXY(n int) (int, int) {
 	srcxn := n % sp.XCount
 	srcyn := (n / sp.XCount) % sp.YCount
 	return sp.W * srcxn, sp.H * srcyn
 }
+func (sp *Sprite) CalcAlignDstTopLeft(dstx, dsty int) (int, int) {
+	return dstx, dsty
+}
 
-// DrawImageSlice draw nth sprite image
-func (sp *Sprite) DrawImageSlice(dstctx js.Value, dstx, dsty int, n int) {
-	srcx, srcy := sp.GetSrcXY(n)
+func (sp *Sprite) CalcAlignDstCenter(dstx, dsty int) (int, int) {
+	return dstx - sp.W/2, dsty - sp.H/2
+}
+
+// drawImageSlice draw nth sprite image
+func (sp *Sprite) drawImageSlice(dstctx js.Value, dstx, dsty int, n int) {
+	srcx, srcy := sp.GetSliceXY(n)
+	dstx, dsty = sp.CalcAlignDstTopLeft(dstx, dsty)
 	dstctx.Call("drawImage",
 		sp.ImgCanvas,
 		srcx, srcy, sp.W, sp.H,
@@ -45,12 +53,13 @@ func (sp *Sprite) DrawImageSlice(dstctx js.Value, dstx, dsty int, n int) {
 	)
 }
 
-func (sp *Sprite) DrawImageSliceAlignCenter(dstctx js.Value, dstx, dsty int, n int) {
-	srcx, srcy := sp.GetSrcXY(n)
+func (sp *Sprite) drawImageSliceAlignCenter(dstctx js.Value, dstx, dsty int, n int) {
+	srcx, srcy := sp.GetSliceXY(n)
+	dstx, dsty = sp.CalcAlignDstCenter(dstx, dsty)
 	dstctx.Call("drawImage",
 		sp.ImgCanvas,
 		srcx, srcy, sp.W, sp.H,
-		dstx-sp.W/2, dsty-sp.H/2, sp.W, sp.H,
+		dstx, dsty, sp.W, sp.H,
 	)
 }
 
