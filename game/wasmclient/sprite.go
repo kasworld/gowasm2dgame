@@ -28,38 +28,64 @@ type Sprite struct {
 	YCount int
 }
 
-// DrawImageSlice draw nth sprite image
-func (sp *Sprite) DrawImageSlice(dstctx js.Value, dstx, dsty int, n int) {
+func (sp *Sprite) GetSrcXY(n int) (int, int) {
 	srcxn := n % sp.XCount
 	srcyn := (n / sp.XCount) % sp.YCount
+	return sp.W * srcxn, sp.H * srcyn
+}
+
+// DrawImageSlice draw nth sprite image
+func (sp *Sprite) DrawImageSlice(dstctx js.Value, dstx, dsty int, n int) {
+	srcx, srcy := sp.GetSrcXY(n)
 	dstctx.Call("drawImage",
 		sp.ImgCanvas,
-		sp.W*srcxn, sp.H*srcyn, sp.W, sp.H,
+		srcx, srcy, sp.W, sp.H,
 		dstx, dsty, sp.W, sp.H,
 	)
 }
 
-// LoadSpriteXYN load multi image sprite
-func LoadSpriteXYN(srcImageID string, dstCanvasID string, xn, yn int) *Sprite {
+func (sp *Sprite) DrawImageSliceAlignCenter(dstctx js.Value, dstx, dsty int, n int) {
+	srcx, srcy := sp.GetSrcXY(n)
+	dstctx.Call("drawImage",
+		sp.ImgCanvas,
+		srcx, srcy, sp.W, sp.H,
+		dstx-sp.W/2, dsty-sp.H/2, sp.W, sp.H,
+	)
+}
+
+func getImgWH(srcImageID string) (js.Value, int, int) {
 	img := js.Global().Get("document").Call("getElementById", srcImageID)
 	if !img.Truthy() {
 		fmt.Printf("fail to get %v", srcImageID)
-		return nil
+		return js.Null(), 0, 0
 	}
 	srcw := img.Get("naturalWidth").Int()
 	srch := img.Get("naturalHeight").Int()
+	return img, srcw, srch
+}
 
+func getCtxCnv(dstCanvasID string) (js.Value, js.Value) {
 	dstcnv := js.Global().Get("document").Call("getElementById", dstCanvasID)
 	if !dstcnv.Truthy() {
 		fmt.Printf("fail to get canvas\n")
+		return js.Null(), js.Null()
 	}
-	dstcnv.Set("width", srcw)
-	dstcnv.Set("height", srch)
 	dstctx := dstcnv.Call("getContext", "2d")
 	if !dstctx.Truthy() {
 		fmt.Printf("fail to get context\n")
+		return js.Null(), js.Null()
 	}
 	dstctx.Set("imageSmoothingEnabled", false)
+	return dstcnv, dstctx
+}
+
+// LoadSpriteXYN load multi image sprite
+func LoadSpriteXYN(srcImageID string, dstCanvasID string, xn, yn int) *Sprite {
+	img, srcw, srch := getImgWH(srcImageID)
+	dstcnv, dstctx := getCtxCnv(dstCanvasID)
+
+	dstcnv.Set("width", srcw)
+	dstcnv.Set("height", srch)
 	dstctx.Call("clearRect", 0, 0, srcw, srch)
 	dstctx.Call("drawImage", img, 0, 0)
 	return &Sprite{
@@ -74,27 +100,12 @@ func LoadSpriteXYN(srcImageID string, dstCanvasID string, xn, yn int) *Sprite {
 
 // LoadSpriteRotate load a image and make multi rotated image sptite
 func LoadSpriteRotate(srcImageID string, dstCanvasID string, start, end, step float64) *Sprite {
+	img, srcw, srch := getImgWH(srcImageID)
+	dstcnv, dstctx := getCtxCnv(dstCanvasID)
+
 	dstcount := int((end - start) / step)
-
-	img := js.Global().Get("document").Call("getElementById", srcImageID)
-	if !img.Truthy() {
-		fmt.Printf("fail to get %v", srcImageID)
-		return nil
-	}
-	srcw := img.Get("naturalWidth").Int()
-	srch := img.Get("naturalHeight").Int()
-
-	dstcnv := js.Global().Get("document").Call("getElementById", dstCanvasID)
-	if !dstcnv.Truthy() {
-		fmt.Printf("fail to get canvas\n")
-	}
 	dstcnv.Set("width", srcw*dstcount)
 	dstcnv.Set("height", srch)
-	dstctx := dstcnv.Call("getContext", "2d")
-	if !dstctx.Truthy() {
-		fmt.Printf("fail to get context\n")
-	}
-	dstctx.Set("imageSmoothingEnabled", false)
 	dstctx.Call("clearRect", 0, 0, srcw*dstcount, srch)
 	for i := 0; i < dstcount; i++ {
 		dstctx.Call("save")

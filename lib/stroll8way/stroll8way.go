@@ -27,7 +27,6 @@ func (s8 Stroll8) String() string {
 func (s8 *Stroll8) Move() {
 	s8.X += s8.Dx
 	s8.Y += s8.Dy
-
 }
 
 func (s8 *Stroll8) SetDxy(dx, dy int) {

@@ -66,8 +66,11 @@ func NewViewport2d() *Viewport2d {
 	}
 
 	vp.background = LoadSpriteXYN("background", "bgStore", 1, 1)
-	vp.clouds = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
 	vp.spiral = LoadSpriteRotate("spiral", "spiralStore", 0, 360, 10)
+	vp.clouds = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
+	vp.spawn = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
+	vp.explodeetc = LoadSpriteXYN("explodeetc", "explodeetcStore", 1, 8)
+	vp.explodeball = LoadSpriteXYN("explodeball", "explodeballStore", 8, 1)
 
 	/*
 		vp.grayball = vp.LoadImage("grayball") // color change
@@ -85,7 +88,7 @@ func NewViewport2d() *Viewport2d {
 		vp.explodeball = vp.LoadImage("explodeball") // slicearg=(8, 1 ballexplosioneffect
 		vp.spawn = vp.LoadImage("spawn")             // slicearg=(1, 6, reverse spawneffect
 	*/
-	vp.scroll.SetDxy(1, -1)
+	vp.scroll.SetDxy(1, 0)
 	return vp
 }
 
@@ -102,10 +105,9 @@ func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 
 	x := app.vp.XWrapSafe(app.vp.scroll.X)
 	y := app.vp.YWrapSafe(app.vp.scroll.Y)
-	_ = x
-	_ = y
-	app.vp.background.DrawImageSlice(app.vp.context2d, x-app.vp.W, y-app.vp.H, 0)
-	app.vp.clouds.DrawImageSlice(app.vp.context2d, 4, 9, 0)
+	app.vp.background.DrawImageSliceAlignCenter(app.vp.context2d, x, y, 0)
+
+	app.vp.clouds.DrawImageSliceAlignCenter(app.vp.context2d, x, y, 0)
 
 	return nil
 }
