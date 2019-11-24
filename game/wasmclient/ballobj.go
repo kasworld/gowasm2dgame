@@ -12,15 +12,44 @@
 package wasmclient
 
 import (
+	"math"
 	"syscall/js"
 
 	"github.com/kasworld/direction"
 	"github.com/kasworld/wrapper"
 )
 
+func calcCircularPos(cx, cy int, angle, r int) (int, int) {
+	rad := float64(angle) * math.Pi / 180
+	dstx := float64(cx) + float64(r)*math.Cos(rad)
+	dsty := float64(cy) + float64(r)*math.Sin(rad)
+	return int(dstx), int(dsty)
+}
+
+type SuperShield struct {
+	sp     *Sprite
+	DispW  int
+	DispH  int
+	r      int
+	angle  int
+	angleV int
+	frame  int
+}
+
+type Shield struct {
+	sp     *Sprite
+	DispW  int
+	DispH  int
+	r      int
+	angle  int
+	angleV int
+}
 type Ball struct {
 	sp  *Sprite
 	spn int
+
+	shiels      []*Shield
+	superShiels []*SuperShield
 
 	bgXWrap func(i int) int
 	bgYWrap func(i int) int
@@ -37,6 +66,7 @@ type Ball struct {
 }
 
 func NewBall(sp *Sprite, spn int,
+	ssp *Sprite,
 	initdir direction.Direction_Type,
 	x, y int,
 	w, h int,
@@ -54,13 +84,32 @@ func NewBall(sp *Sprite, spn int,
 	bl.bgXWrap = wrapper.New(w).GetWrapSafeFn()
 	bl.bgYWrap = wrapper.New(h).GetWrapSafeFn()
 	bl.SetDir(initdir)
+	bl.shiels = make([]*Shield, 12)
+	bl.superShiels = make([]*SuperShield, 12)
+	for i := 0; i < 12; i++ {
+		bl.shiels[i] = &Shield{
+			sp:     sp,
+			DispW:  16,
+			DispH:  16,
+			r:      48,
+			angle:  i * 30,
+			angleV: 1,
+		}
+		bl.superShiels[i] = &SuperShield{
+			sp:     ssp,
+			DispW:  16,
+			DispH:  16,
+			r:      80,
+			angle:  i * 30,
+			angleV: -1,
+			frame:  i * 3,
+		}
+	}
 	return bl
 }
 
 func (bl *Ball) DrawTo(ctx js.Value) {
 	bl.Move()
-	// x := bl.bgXWrap(bl.X)
-	// y := bl.bgYWrap(bl.Y)
 	srcx, srcy := bl.sp.GetSliceXY(bl.spn)
 	dstx, dsty := bl.X-bl.DispW/2, bl.Y-bl.DispH/2
 	ctx.Call("drawImage",
@@ -68,8 +117,27 @@ func (bl *Ball) DrawTo(ctx js.Value) {
 		srcx, srcy, bl.sp.W, bl.sp.H,
 		dstx, dsty, bl.DispW, bl.DispH,
 	)
-
-	// bl.sp.drawImageSliceAlignCenter(ctx, x, y, bl.spn)
+	for _, v := range bl.shiels {
+		v.angle += v.angleV
+		srcx, srcy := v.sp.GetSliceXY(0)
+		x, y := calcCircularPos(bl.X, bl.Y, v.angle, v.r)
+		ctx.Call("drawImage",
+			v.sp.ImgCanvas,
+			srcx, srcy, v.sp.W, v.sp.H,
+			x-v.DispW/2, y-v.DispH/2, v.DispW, v.DispH,
+		)
+	}
+	for _, v := range bl.superShiels {
+		v.angle += v.angleV
+		v.frame++
+		srcx, srcy := v.sp.GetSliceXY(v.frame)
+		x, y := calcCircularPos(bl.X, bl.Y, v.angle, v.r)
+		ctx.Call("drawImage",
+			v.sp.ImgCanvas,
+			srcx, srcy, v.sp.W, v.sp.H,
+			x-v.DispW/2, y-v.DispH/2, v.DispW, v.DispH,
+		)
+	}
 }
 
 // check bounce

@@ -69,10 +69,16 @@ func NewViewport2d() *Viewport2d {
 		)
 	}
 
+	// ball, sheld
 	vp.grayball = LoadSpriteXYN("grayball", "grayballStore", 1, 1)
+	// super shield
+	vp.spiral = LoadSpriteRotate("spiral", "spiralStore", 0, 360, 10)
+
 	vp.ball = make([]*Ball, 10)
 	for i := range vp.ball {
-		vp.ball[i] = NewBall(vp.grayball, i,
+		vp.ball[i] = NewBall(
+			vp.grayball, i,
+			vp.spiral,
 			direction.Direction_Type(i%direction.Direction_Count),
 			vp.rnd.Intn(vp.W), vp.rnd.Intn(vp.H),
 			vp.W, vp.H,
