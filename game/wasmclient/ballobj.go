@@ -84,24 +84,36 @@ func NewBall(sp *Sprite, spn int,
 	bl.bgXWrap = wrapper.New(w).GetWrapSafeFn()
 	bl.bgYWrap = wrapper.New(h).GetWrapSafeFn()
 	bl.SetDir(initdir)
-	bl.shiels = make([]*Shield, 12)
-	bl.superShiels = make([]*SuperShield, 12)
-	for i := 0; i < 12; i++ {
+
+	bl.shiels = make([]*Shield, 24)
+	for i := range bl.shiels {
+		av := 1
+		if i%2 == 0 {
+			av = -1
+		}
 		bl.shiels[i] = &Shield{
 			sp:     sp,
 			DispW:  16,
 			DispH:  16,
-			r:      48,
-			angle:  i * 30,
-			angleV: 1,
+			r:      44,
+			angle:  i * 15,
+			angleV: av,
+		}
+	}
+
+	bl.superShiels = make([]*SuperShield, 24)
+	for i := range bl.superShiels {
+		av := 1
+		if i%2 == 0 {
+			av = -1
 		}
 		bl.superShiels[i] = &SuperShield{
 			sp:     ssp,
 			DispW:  16,
 			DispH:  16,
-			r:      80,
-			angle:  i * 30,
-			angleV: -1,
+			r:      64,
+			angle:  15 + i*15,
+			angleV: av,
 			frame:  i * 3,
 		}
 	}
