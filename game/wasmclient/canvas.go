@@ -30,6 +30,7 @@ type Viewport2d struct {
 
 	background *BGObj
 	clouds     []*Cloud
+	ball       []*Ball
 
 	grayball *Sprite
 	spiral   *Sprite
@@ -68,10 +69,19 @@ func NewViewport2d() *Viewport2d {
 		)
 	}
 
+	vp.grayball = LoadSpriteXYN("grayball", "grayballStore", 1, 1)
+	vp.ball = make([]*Ball, 10)
+	for i := range vp.ball {
+		vp.ball[i] = NewBall(vp.grayball, i,
+			direction.Direction_Type(i%direction.Direction_Count),
+			vp.rnd.Intn(vp.W), vp.rnd.Intn(vp.H),
+			vp.W, vp.H,
+		)
+	}
+
 	vp.spawn = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
 	vp.explodeetc = LoadSpriteXYN("explodeetc", "explodeetcStore", 1, 8)
 	vp.explodeball = LoadSpriteXYN("explodeball", "explodeballStore", 8, 1)
-	vp.grayball = LoadSpriteXYN("grayball", "grayballStore", 1, 1)
 	vp.spiral = LoadSpriteRotate("spiral", "spiralStore", 0, 360, 10)
 
 	/*
@@ -98,6 +108,9 @@ func (vp *Viewport2d) drawBG() {
 }
 
 func (vp *Viewport2d) drawObj() {
+	for _, v := range vp.ball {
+		v.DrawTo(vp.context2d)
+	}
 	for _, v := range vp.clouds {
 		v.DrawTo(vp.context2d)
 	}
