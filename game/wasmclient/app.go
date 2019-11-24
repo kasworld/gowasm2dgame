@@ -71,7 +71,8 @@ loop:
 
 		case <-timerPingTk.C:
 			go app.reqHeartbeat()
-			// fmt.Printf("%v", app.DispInterDur)
+			div := js.Global().Get("document").Call("getElementById", "sysmsg")
+			div.Set("innerHTML", fmt.Sprintf("%v", app.DispInterDur))
 		}
 	}
 }
