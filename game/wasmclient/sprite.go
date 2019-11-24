@@ -28,6 +28,10 @@ type Sprite struct {
 	YCount int
 }
 
+func (sp *Sprite) GetSliceCount() int {
+	return sp.XCount * sp.YCount
+}
+
 // GetSliceXY return nth slice pos
 func (sp *Sprite) GetSliceXY(n int) (int, int) {
 	srcxn := n % sp.XCount

@@ -13,23 +13,23 @@ package wasmclient
 
 import (
 	"fmt"
+	"math/rand"
 	"syscall/js"
+	"time"
 
-	"github.com/kasworld/gowasm2dgame/lib/stroll8way"
-	"github.com/kasworld/wrapper"
+	"github.com/kasworld/direction"
 )
 
 type Viewport2d struct {
 	Canvas    js.Value
 	context2d js.Value
+	rnd       *rand.Rand
 
-	W       int
-	H       int
-	bgXWrap func(i int) int
-	bgYWrap func(i int) int
+	W int
+	H int
 
-	background *Sprite
-	clouds     *Sprite
+	background *BGObj
+	clouds     []*Cloud
 
 	grayball *Sprite
 	spiral   *Sprite
@@ -37,16 +37,14 @@ type Viewport2d struct {
 	explodeetc  *Sprite
 	explodeball *Sprite
 	spawn       *Sprite
-
-	bgscroll stroll8way.Stroll8
 }
 
 func NewViewport2d() *Viewport2d {
-	vp := &Viewport2d{}
+	vp := &Viewport2d{
+		rnd: rand.New(rand.NewSource(time.Now().UnixNano())),
+	}
 	vp.W = 1000
 	vp.H = 1000
-	vp.bgXWrap = wrapper.New(vp.W).GetWrapSafeFn()
-	vp.bgYWrap = wrapper.New(vp.H).GetWrapSafeFn()
 
 	vp.Canvas, vp.context2d = getCnv2dCtx("viewport2DCanvas")
 	if !vp.Canvas.Truthy() {
@@ -58,11 +56,18 @@ func NewViewport2d() *Viewport2d {
 	vp.Canvas.Set("width", vp.W)
 	vp.Canvas.Set("height", vp.H)
 
-	vp.background = LoadSpriteXYN("background", "bgStore", 1, 1)
-	vp.bgXWrap = wrapper.New(vp.background.W).GetWrapSafeFn()
-	vp.bgYWrap = wrapper.New(vp.background.H).GetWrapSafeFn()
+	vp.background = NewBG()
 
-	vp.clouds = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
+	cloudsp := LoadSpriteXYN("clouds", "cloudStore", 1, 4)
+	vp.clouds = make([]*Cloud, 10)
+	for i := range vp.clouds {
+		vp.clouds[i] = NewCloud(cloudsp, i,
+			direction.Direction_Type(i%direction.Direction_Count),
+			vp.rnd.Intn(vp.W), vp.rnd.Intn(vp.H),
+			vp.W, vp.H,
+		)
+	}
+
 	vp.spawn = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
 	vp.explodeetc = LoadSpriteXYN("explodeetc", "explodeetcStore", 1, 8)
 	vp.explodeball = LoadSpriteXYN("explodeball", "explodeballStore", 8, 1)
@@ -85,23 +90,17 @@ func NewViewport2d() *Viewport2d {
 		vp.explodeball = vp.LoadImage("explodeball") // slicearg=(8, 1 ballexplosioneffect
 		vp.spawn = vp.LoadImage("spawn")             // slicearg=(1, 6, reverse spawneffect
 	*/
-	vp.bgscroll.SetDxy(1, -1)
 	return vp
 }
 
 func (vp *Viewport2d) drawBG() {
-	vp.bgscroll.Move()
-	x := vp.bgXWrap(vp.bgscroll.X)
-	y := vp.bgYWrap(vp.bgscroll.Y)
-	sp := vp.background
-	sp.drawImageSlice(vp.context2d, x-sp.W, y-sp.H, 0)
-	sp.drawImageSlice(vp.context2d, x-sp.W, y, 0)
-	sp.drawImageSlice(vp.context2d, x, y-sp.H, 0)
-	sp.drawImageSlice(vp.context2d, x, y, 0)
+	vp.background.DrawTo(vp.context2d)
 }
 
 func (vp *Viewport2d) drawObj() {
-	vp.clouds.drawImageSliceAlignCenter(vp.context2d, vp.W/2, vp.H/2, 0)
+	for _, v := range vp.clouds {
+		v.DrawTo(vp.context2d)
+	}
 }
 
 func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
