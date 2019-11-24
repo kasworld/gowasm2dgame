@@ -44,6 +44,48 @@ type Shield struct {
 	angle  int
 	angleV int
 }
+
+type HommingShield struct {
+	sp    *Sprite
+	DispW int
+	DispH int
+	X     int
+	Y     int
+	Dx    int
+	Dy    int
+}
+
+type Bullet struct {
+	sp    *Sprite
+	DispW int
+	DispH int
+	X     int
+	Y     int
+	Dx    int
+	Dy    int
+}
+
+type HommingBullet struct {
+	sp    *Sprite
+	DispW int
+	DispH int
+	X     int
+	Y     int
+	Dx    int
+	Dy    int
+	DstID int
+}
+
+type SuperBullet struct {
+	sp    *Sprite
+	DispW int
+	DispH int
+	X     int
+	Y     int
+	Dx    int
+	Dy    int
+}
+
 type Ball struct {
 	sp  *Sprite
 	spn int
@@ -78,8 +120,8 @@ func NewBall(sp *Sprite, spn int,
 		Y:       y,
 		BorderW: w,
 		BorderH: h,
-		DispW:   64,
-		DispH:   64,
+		DispW:   32,
+		DispH:   32,
 	}
 	bl.bgXWrap = wrapper.New(w).GetWrapSafeFn()
 	bl.bgYWrap = wrapper.New(h).GetWrapSafeFn()
@@ -95,7 +137,7 @@ func NewBall(sp *Sprite, spn int,
 			sp:     sp,
 			DispW:  16,
 			DispH:  16,
-			r:      44,
+			r:      28,
 			angle:  i * 15,
 			angleV: av,
 		}
@@ -111,7 +153,7 @@ func NewBall(sp *Sprite, spn int,
 			sp:     ssp,
 			DispW:  16,
 			DispH:  16,
-			r:      64,
+			r:      48,
 			angle:  15 + i*15,
 			angleV: av,
 			frame:  i * 3,
@@ -124,8 +166,7 @@ func (bl *Ball) DrawTo(ctx js.Value) {
 	bl.Move()
 	srcx, srcy := bl.sp.GetSliceXY(bl.spn)
 	dstx, dsty := bl.X-bl.DispW/2, bl.Y-bl.DispH/2
-	ctx.Call("drawImage",
-		bl.sp.ImgCanvas,
+	ctx.Call("drawImage", bl.sp.ImgCanvas,
 		srcx, srcy, bl.sp.W, bl.sp.H,
 		dstx, dsty, bl.DispW, bl.DispH,
 	)
@@ -133,8 +174,7 @@ func (bl *Ball) DrawTo(ctx js.Value) {
 		v.angle += v.angleV
 		srcx, srcy := v.sp.GetSliceXY(0)
 		x, y := calcCircularPos(bl.X, bl.Y, v.angle, v.r)
-		ctx.Call("drawImage",
-			v.sp.ImgCanvas,
+		ctx.Call("drawImage", v.sp.ImgCanvas,
 			srcx, srcy, v.sp.W, v.sp.H,
 			x-v.DispW/2, y-v.DispH/2, v.DispW, v.DispH,
 		)
@@ -144,8 +184,7 @@ func (bl *Ball) DrawTo(ctx js.Value) {
 		v.frame++
 		srcx, srcy := v.sp.GetSliceXY(v.frame)
 		x, y := calcCircularPos(bl.X, bl.Y, v.angle, v.r)
-		ctx.Call("drawImage",
-			v.sp.ImgCanvas,
+		ctx.Call("drawImage", v.sp.ImgCanvas,
 			srcx, srcy, v.sp.W, v.sp.H,
 			x-v.DispW/2, y-v.DispH/2, v.DispW, v.DispH,
 		)

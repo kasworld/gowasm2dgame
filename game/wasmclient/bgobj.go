@@ -43,10 +43,24 @@ func (bg *BGObj) DrawTo(ctx js.Value) {
 	bg.Move()
 	x := bg.bgXWrap(bg.X)
 	y := bg.bgYWrap(bg.Y)
-	bg.sp.drawImageSlice(ctx, x-bg.sp.W, y-bg.sp.H, 0)
-	bg.sp.drawImageSlice(ctx, x-bg.sp.W, y, 0)
-	bg.sp.drawImageSlice(ctx, x, y-bg.sp.H, 0)
-	bg.sp.drawImageSlice(ctx, x, y, 0)
+
+	srcx, srcy := bg.sp.GetSliceXY(0)
+	ctx.Call("drawImage", bg.sp.ImgCanvas,
+		srcx, srcy, bg.sp.W, bg.sp.H,
+		x-bg.sp.W, y-bg.sp.H, bg.sp.W, bg.sp.H,
+	)
+	ctx.Call("drawImage", bg.sp.ImgCanvas,
+		srcx, srcy, bg.sp.W, bg.sp.H,
+		x-bg.sp.W, y, bg.sp.W, bg.sp.H,
+	)
+	ctx.Call("drawImage", bg.sp.ImgCanvas,
+		srcx, srcy, bg.sp.W, bg.sp.H,
+		x, y-bg.sp.H, bg.sp.W, bg.sp.H,
+	)
+	ctx.Call("drawImage", bg.sp.ImgCanvas,
+		srcx, srcy, bg.sp.W, bg.sp.H,
+		x, y, bg.sp.W, bg.sp.H,
+	)
 }
 
 func (bg *BGObj) Move() {

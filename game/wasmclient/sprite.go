@@ -46,27 +46,6 @@ func (sp *Sprite) CalcAlignDstCenter(dstx, dsty int) (int, int) {
 	return dstx - sp.W/2, dsty - sp.H/2
 }
 
-// drawImageSlice draw nth sprite image
-func (sp *Sprite) drawImageSlice(dstctx js.Value, dstx, dsty int, n int) {
-	srcx, srcy := sp.GetSliceXY(n)
-	dstx, dsty = sp.CalcAlignDstTopLeft(dstx, dsty)
-	dstctx.Call("drawImage",
-		sp.ImgCanvas,
-		srcx, srcy, sp.W, sp.H,
-		dstx, dsty, sp.W, sp.H,
-	)
-}
-
-func (sp *Sprite) drawImageSliceAlignCenter(dstctx js.Value, dstx, dsty int, n int) {
-	srcx, srcy := sp.GetSliceXY(n)
-	dstx, dsty = sp.CalcAlignDstCenter(dstx, dsty)
-	dstctx.Call("drawImage",
-		sp.ImgCanvas,
-		srcx, srcy, sp.W, sp.H,
-		dstx, dsty, sp.W, sp.H,
-	)
-}
-
 func getImgWH(srcImageID string) (js.Value, int, int) {
 	img := js.Global().Get("document").Call("getElementById", srcImageID)
 	if !img.Truthy() {
@@ -94,7 +73,9 @@ func getCnv2dCtx(dstCanvasID string) (js.Value, js.Value) {
 }
 
 // LoadSpriteXYN load multi image sprite
-func LoadSpriteXYN(srcImageID string, dstCanvasID string, xn, yn int) *Sprite {
+func LoadSpriteXYN(
+	srcImageID string, dstCanvasID string,
+	xn, yn int) *Sprite {
 	img, srcw, srch := getImgWH(srcImageID)
 	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
 
@@ -113,7 +94,9 @@ func LoadSpriteXYN(srcImageID string, dstCanvasID string, xn, yn int) *Sprite {
 }
 
 // LoadSpriteRotate load a image and make multi rotated image sptite
-func LoadSpriteRotate(srcImageID string, dstCanvasID string, start, end, step float64) *Sprite {
+func LoadSpriteRotate(
+	srcImageID string, dstCanvasID string,
+	start, end, step float64) *Sprite {
 	img, srcw, srch := getImgWH(srcImageID)
 	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
 

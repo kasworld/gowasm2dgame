@@ -52,7 +52,11 @@ func (cld *Cloud) DrawTo(ctx js.Value) {
 	cld.Move()
 	x := cld.bgXWrap(cld.X)
 	y := cld.bgYWrap(cld.Y)
-	cld.sp.drawImageSliceAlignCenter(ctx, x, y, cld.spn)
+	srcx, srcy := cld.sp.GetSliceXY(cld.spn)
+	ctx.Call("drawImage", cld.sp.ImgCanvas,
+		srcx, srcy, cld.sp.W, cld.sp.H,
+		x-cld.sp.W/2, y-cld.sp.H/2, cld.sp.W, cld.sp.H,
+	)
 }
 
 func (cld *Cloud) Move() {
