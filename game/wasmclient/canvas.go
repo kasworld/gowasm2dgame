@@ -18,7 +18,6 @@ import (
 	"time"
 
 	"github.com/kasworld/direction"
-	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 )
 
@@ -29,12 +28,6 @@ type Viewport2d struct {
 
 	W int
 	H int
-
-	ballSprites       [teamtype.TeamType_Count][gameobjtype.GameObjType_Count]*Sprite
-	explodeetcSprite  *Sprite
-	explodeballSprite *Sprite
-	spawnSprite       *Sprite
-	cloudSprite       *Sprite
 
 	background *BGObj
 	cloudObjs  []*Cloud
@@ -54,37 +47,21 @@ func NewViewport2d() *Viewport2d {
 	}
 	vp.Canvas.Set("width", vp.W)
 	vp.Canvas.Set("height", vp.H)
-
 	vp.background = NewBG()
-	vp.spawnSprite = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
-	vp.explodeetcSprite = LoadSpriteXYN("explodeetc", "explodeetcStore", 1, 8)
-	vp.explodeballSprite = LoadSpriteXYN("explodeball", "explodeballStore", 8, 1)
-	vp.cloudSprite = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
 
 	vp.cloudObjs = make([]*Cloud, 10)
 	for i := range vp.cloudObjs {
-		vp.cloudObjs[i] = NewCloud(vp.cloudSprite, i,
+		vp.cloudObjs[i] = NewCloud(gSprites.CloudSprite, i,
 			direction.Direction_Type(i%direction.Direction_Count),
 			vp.rnd.Intn(vp.W), vp.rnd.Intn(vp.H),
 			vp.W, vp.H,
 		)
 	}
 
-	// load team sprite
-	teamAttrib := teamtype.SpriteFilter
-	for i := 0; i < teamtype.TeamType_Count; i++ {
-		vp.ballSprites[i] = LoadBallSprite(teamAttrib[i].Name)
-		for j := range vp.ballSprites[i] {
-			for _, x := range teamAttrib[i].IV {
-				vp.ballSprites[i][j].Filter(x.Index, x.Value)
-			}
-		}
-	}
-
 	vp.ballTeams = make([]*BallTeam, teamtype.TeamType_Count)
 	for i := range vp.ballTeams {
 		vp.ballTeams[i] = NewBallTeam(
-			vp.ballSprites[i],
+			teamtype.TeamType(i),
 			direction.Direction_Type(i%direction.Direction_Count),
 			vp.rnd.Intn(vp.W), vp.rnd.Intn(vp.H),
 			vp.W, vp.H,

@@ -44,8 +44,9 @@ func InitApp() {
 		ServerJitter: actjitter.New("Server"),
 		ClientJitter: actjitter.New("Client"),
 		DispInterDur: intervalduration.New("Display"),
-		vp:           NewViewport2d(),
 	}
+	gSprites = LoadSprites()
+	app.vp = NewViewport2d()
 	go app.run()
 }
 

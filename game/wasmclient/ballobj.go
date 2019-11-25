@@ -16,24 +16,22 @@ import (
 
 	"github.com/kasworld/direction"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/wrapper"
 )
 
 type SuperShield struct {
-	sp     *Sprite
 	angle  int
 	angleV int
 	frame  int
 }
 
 type Shield struct {
-	sp     *Sprite
 	angle  int
 	angleV int
 }
 
 type HommingShield struct {
-	sp *Sprite
 	X  int
 	Y  int
 	Dx int
@@ -41,7 +39,6 @@ type HommingShield struct {
 }
 
 type Bullet struct {
-	sp *Sprite
 	X  int
 	Y  int
 	Dx int
@@ -49,7 +46,6 @@ type Bullet struct {
 }
 
 type HommingBullet struct {
-	sp    *Sprite
 	X     int
 	Y     int
 	Dx    int
@@ -58,7 +54,6 @@ type HommingBullet struct {
 }
 
 type SuperBullet struct {
-	sp *Sprite
 	X  int
 	Y  int
 	Dx int
@@ -66,7 +61,7 @@ type SuperBullet struct {
 }
 
 type BallTeam struct {
-	sp *Sprite
+	TeamType teamtype.TeamType
 
 	shiels        []*Shield
 	superShields  []*SuperShield
@@ -84,17 +79,17 @@ type BallTeam struct {
 }
 
 func NewBallTeam(
-	sp [gameobjtype.GameObjType_Count]*Sprite,
+	TeamType teamtype.TeamType,
 	initdir direction.Direction_Type,
 	x, y int,
 	w, h int,
 ) *BallTeam {
 	bl := &BallTeam{
-		sp:      sp[gameobjtype.Ball],
-		X:       x,
-		Y:       y,
-		BorderW: w,
-		BorderH: h,
+		TeamType: TeamType,
+		X:        x,
+		Y:        y,
+		BorderW:  w,
+		BorderH:  h,
 	}
 	bl.bgXWrap = wrapper.New(w).GetWrapSafeFn()
 	bl.bgYWrap = wrapper.New(h).GetWrapSafeFn()
@@ -107,7 +102,6 @@ func NewBallTeam(
 			av = -1
 		}
 		bl.shiels[i] = &Shield{
-			sp:     sp[gameobjtype.Shield],
 			angle:  i * 15,
 			angleV: av,
 		}
@@ -120,7 +114,6 @@ func NewBallTeam(
 			av = -1
 		}
 		bl.superShields[i] = &SuperShield{
-			sp:     sp[gameobjtype.SuperShield],
 			angle:  15 + i*15,
 			angleV: av,
 			frame:  i * 3,
@@ -132,31 +125,34 @@ func NewBallTeam(
 func (bl *BallTeam) DrawTo(ctx js.Value) {
 	bl.Move()
 	dispSize := gameobjtype.Attrib[gameobjtype.Ball].Size
-	srcx, srcy := bl.sp.GetSliceXY(0)
+	sp := gSprites.BallSprites[bl.TeamType][gameobjtype.Ball]
+	srcx, srcy := sp.GetSliceXY(0)
 	dstx, dsty := bl.X-dispSize/2, bl.Y-dispSize/2
-	ctx.Call("drawImage", bl.sp.ImgCanvas,
+	ctx.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, dispSize, dispSize,
 		dstx, dsty, dispSize, dispSize,
 	)
 	dispSize = gameobjtype.Attrib[gameobjtype.Shield].Size
 	dispR := gameobjtype.Attrib[gameobjtype.Shield].R
+	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.Shield]
 	for _, v := range bl.shiels {
 		v.angle += v.angleV
-		srcx, srcy := v.sp.GetSliceXY(0)
+		srcx, srcy := sp.GetSliceXY(0)
 		x, y := calcCircularPos(bl.X, bl.Y, v.angle, dispR)
-		ctx.Call("drawImage", v.sp.ImgCanvas,
+		ctx.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
 		)
 	}
 	dispSize = gameobjtype.Attrib[gameobjtype.SuperShield].Size
 	dispR = gameobjtype.Attrib[gameobjtype.SuperShield].R
+	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.SuperShield]
 	for _, v := range bl.superShields {
 		v.angle += v.angleV
 		v.frame++
-		srcx, srcy := v.sp.GetSliceXY(v.frame)
+		srcx, srcy := sp.GetSliceXY(v.frame)
 		x, y := calcCircularPos(bl.X, bl.Y, v.angle, dispR)
-		ctx.Call("drawImage", v.sp.ImgCanvas,
+		ctx.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
 		)
