@@ -75,13 +75,18 @@ func NewViewport2d() *Viewport2d {
 		{"red", 0, 255},
 		{"blue", 1, 255},
 		{"green", 2, 255},
+		{"rred", 0, 0},
+		{"rblue", 1, 0},
+		{"rgreen", 2, 0},
 	}
 	vp.ball = make([]*Ball, len(team))
 	for i := range vp.ball {
-		ballSprite := vp.loadBallSprite(
-			team[i].name,
-			team[i].index,
-			team[i].value)
+		ballSprite := vp.loadBallSprite(team[i].name)
+
+		for j := range ballSprite {
+			ballSprite[j].Filter(team[i].index, team[i].value)
+		}
+
 		vp.ball[i] = NewBall(
 			ballSprite,
 			direction.Direction_Type(i%direction.Direction_Count),
@@ -113,10 +118,7 @@ func NewViewport2d() *Viewport2d {
 	return vp
 }
 
-func (vp *Viewport2d) loadBallSprite(
-	teamname string,
-	filterindex int, filtervalue int,
-) [gameobjtype.GameObjType_Count]*Sprite {
+func (vp *Viewport2d) loadBallSprite(teamname string) [gameobjtype.GameObjType_Count]*Sprite {
 	var rtn [gameobjtype.GameObjType_Count]*Sprite
 	rtn[gameobjtype.Ball] = LoadSpriteXYNResize(
 		"grayball", teamname+"_ball",
@@ -162,9 +164,6 @@ func (vp *Viewport2d) loadBallSprite(
 		gameobjtype.Attrib[gameobjtype.HommingBullet].Size,
 		gameobjtype.Attrib[gameobjtype.HommingBullet].Size,
 	)
-	for i := range rtn {
-		rtn[i].Filter(filterindex, filtervalue)
-	}
 	return rtn
 }
 
