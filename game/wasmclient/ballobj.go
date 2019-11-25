@@ -17,19 +17,18 @@ import (
 	"github.com/kasworld/direction"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/lib/anglemove"
 	"github.com/kasworld/gowasm2dgame/lib/posacc"
 	"github.com/kasworld/wrapper"
 )
 
 type SuperShield struct {
-	angle  int
-	angleV int
-	frame  int
+	Am    anglemove.AngleMove
+	frame int
 }
 
 type Shield struct {
-	angle  int
-	angleV int
+	Am anglemove.AngleMove
 }
 
 type HommingShield struct {
@@ -90,8 +89,10 @@ func NewBallTeam(
 			av = -1
 		}
 		bl.shiels[i] = &Shield{
-			angle:  i * 15,
-			angleV: av,
+			Am: anglemove.AngleMove{
+				Angle:  i * 15,
+				AngleV: av,
+			},
 		}
 	}
 
@@ -102,9 +103,11 @@ func NewBallTeam(
 			av = -1
 		}
 		bl.superShields[i] = &SuperShield{
-			angle:  15 + i*15,
-			angleV: av,
-			frame:  i * 3,
+			Am: anglemove.AngleMove{
+				Angle:  15 + i*15,
+				AngleV: av,
+			},
+			frame: i * 3,
 		}
 	}
 	return bl
@@ -112,6 +115,13 @@ func NewBallTeam(
 
 func (bl *BallTeam) DrawTo(ctx js.Value) {
 	bl.Pa.Move()
+	for _, v := range bl.shiels {
+		v.Am.Move()
+	}
+	for _, v := range bl.superShields {
+		v.Am.Move()
+	}
+
 	bl.Pa.BounceNormalize(bl.BorderW, bl.BorderH)
 	dispSize := gameobjtype.Attrib[gameobjtype.Ball].Size
 	sp := gSprites.BallSprites[bl.TeamType][gameobjtype.Ball]
@@ -125,9 +135,8 @@ func (bl *BallTeam) DrawTo(ctx js.Value) {
 	dispR := gameobjtype.Attrib[gameobjtype.Shield].R
 	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.Shield]
 	for _, v := range bl.shiels {
-		v.angle += v.angleV
 		srcx, srcy := sp.GetSliceXY(0)
-		x, y := calcCircularPos(bl.Pa.X, bl.Pa.Y, v.angle, dispR)
+		x, y := calcCircularPos(bl.Pa.X, bl.Pa.Y, v.Am.Angle, dispR)
 		ctx.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
@@ -137,10 +146,9 @@ func (bl *BallTeam) DrawTo(ctx js.Value) {
 	dispR = gameobjtype.Attrib[gameobjtype.SuperShield].R
 	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.SuperShield]
 	for _, v := range bl.superShields {
-		v.angle += v.angleV
 		v.frame++
 		srcx, srcy := sp.GetSliceXY(v.frame)
-		x, y := calcCircularPos(bl.Pa.X, bl.Pa.Y, v.angle, dispR)
+		x, y := calcCircularPos(bl.Pa.X, bl.Pa.Y, v.Am.Angle, dispR)
 		ctx.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,

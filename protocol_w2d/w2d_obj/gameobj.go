@@ -1,20 +1,19 @@
 package w2d_obj
 
 import (
+	"github.com/kasworld/gowasm2dgame/lib/anglemove"
 	"github.com/kasworld/gowasm2dgame/lib/gobase"
 	"github.com/kasworld/gowasm2dgame/lib/posacc"
 )
 
 type SuperShield struct {
 	GOBase gobase.GOBase
-	Angle  int
-	AngleV int
+	Am     anglemove.AngleMove
 }
 
 type Shield struct {
 	GOBase gobase.GOBase
-	Angle  int
-	AngleV int
+	Am     anglemove.AngleMove
 }
 
 type HommingShield struct {
