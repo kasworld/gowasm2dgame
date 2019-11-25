@@ -19,6 +19,7 @@ import (
 
 	"github.com/kasworld/direction"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
 type Viewport2d struct {
@@ -31,7 +32,7 @@ type Viewport2d struct {
 
 	background *BGObj
 	cloudObjs  []*Cloud
-	ballTeams  []*BallTeam
+	ballTeams  []*w2d_obj.BallTeam
 }
 
 func NewViewport2d() *Viewport2d {
@@ -58,7 +59,7 @@ func NewViewport2d() *Viewport2d {
 		)
 	}
 
-	vp.ballTeams = make([]*BallTeam, teamtype.TeamType_Count)
+	vp.ballTeams = make([]*w2d_obj.BallTeam, teamtype.TeamType_Count)
 	for i := range vp.ballTeams {
 		vp.ballTeams[i] = NewBallTeam(
 			teamtype.TeamType(i),
@@ -74,8 +75,8 @@ func (vp *Viewport2d) drawObj() {
 
 	vp.background.DrawTo(vp.context2d)
 	for _, v := range vp.ballTeams {
-		v.Move(vp.W, vp.H)
-		v.DrawTo(vp.context2d)
+		Move(v, vp.W, vp.H)
+		DrawTo(v, vp.context2d)
 	}
 	for _, v := range vp.cloudObjs {
 		v.DrawTo(vp.context2d)

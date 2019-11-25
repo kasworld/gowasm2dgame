@@ -1,6 +1,7 @@
 package w2d_obj
 
 import (
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/lib/anglemove"
 	"github.com/kasworld/gowasm2dgame/lib/gobase"
 	"github.com/kasworld/gowasm2dgame/lib/posacc"
@@ -27,9 +28,10 @@ type Ball struct {
 }
 
 type BallTeam struct {
+	TeamType      teamtype.TeamType
 	Ball          *Ball
-	Shiels        []*Shield
-	SuperShiels   []*SuperShield
+	Shields       []*Shield
+	SuperShields  []*SuperShield
 	HommingShiels []*HommingShield
 }
 

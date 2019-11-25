@@ -19,65 +19,29 @@ import (
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/lib/anglemove"
 	"github.com/kasworld/gowasm2dgame/lib/posacc"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
-type SuperShield struct {
-	Am    anglemove.AngleMove
-	frame int
-}
-
-type Shield struct {
-	Am anglemove.AngleMove
-}
-
-type HommingShield struct {
-	Pa posacc.PosAcc
-}
-
-type Bullet struct {
-	Pa posacc.PosAcc
-}
-
-type HommingBullet struct {
-	Pa    posacc.PosAcc
-	DstID int
-}
-
-type SuperBullet struct {
-	Pa posacc.PosAcc
-}
-
-type BallTeam struct {
-	TeamType teamtype.TeamType
-
-	shiels        []*Shield
-	superShields  []*SuperShield
-	hommingShiels []*HommingShield
-
-	Pa posacc.PosAcc
-}
-
-func NewBallTeam(
-	TeamType teamtype.TeamType,
-	initdir direction.Direction_Type,
-	x, y int,
-) *BallTeam {
-	bl := &BallTeam{
+func NewBallTeam(TeamType teamtype.TeamType,
+	initdir direction.Direction_Type, x, y int,
+) *w2d_obj.BallTeam {
+	bl := &w2d_obj.BallTeam{
 		TeamType: TeamType,
+		Ball:     &w2d_obj.Ball{},
 	}
-	bl.Pa = posacc.PosAcc{
+	bl.Ball.Pa = posacc.PosAcc{
 		X: x,
 		Y: y,
 	}
-	bl.Pa.SetDir(initdir)
+	bl.Ball.Pa.SetDir(initdir)
 
-	bl.shiels = make([]*Shield, 24)
-	for i := range bl.shiels {
+	bl.Shields = make([]*w2d_obj.Shield, 24)
+	for i := range bl.Shields {
 		av := 1
 		if i%2 == 0 {
 			av = -1
 		}
-		bl.shiels[i] = &Shield{
+		bl.Shields[i] = &w2d_obj.Shield{
 			Am: anglemove.AngleMove{
 				Angle:  i * 15,
 				AngleV: av,
@@ -85,28 +49,28 @@ func NewBallTeam(
 		}
 	}
 
-	bl.superShields = make([]*SuperShield, 24)
-	for i := range bl.superShields {
+	bl.SuperShields = make([]*w2d_obj.SuperShield, 24)
+	for i := range bl.SuperShields {
 		av := 1
 		if i%2 == 0 {
 			av = -1
 		}
-		bl.superShields[i] = &SuperShield{
+		bl.SuperShields[i] = &w2d_obj.SuperShield{
 			Am: anglemove.AngleMove{
 				Angle:  15 + i*15,
 				AngleV: av,
 			},
-			frame: i * 3,
+			// frame: i * 3,
 		}
 	}
 	return bl
 }
 
-func (bl *BallTeam) DrawTo(ctx js.Value) {
+func DrawTo(bl *w2d_obj.BallTeam, ctx js.Value) {
 	dispSize := gameobjtype.Attrib[gameobjtype.Ball].Size
 	sp := gSprites.BallSprites[bl.TeamType][gameobjtype.Ball]
 	srcx, srcy := sp.GetSliceXY(0)
-	dstx, dsty := bl.Pa.X-dispSize/2, bl.Pa.Y-dispSize/2
+	dstx, dsty := bl.Ball.Pa.X-dispSize/2, bl.Ball.Pa.Y-dispSize/2
 	ctx.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, dispSize, dispSize,
 		dstx, dsty, dispSize, dispSize,
@@ -114,9 +78,9 @@ func (bl *BallTeam) DrawTo(ctx js.Value) {
 	dispSize = gameobjtype.Attrib[gameobjtype.Shield].Size
 	dispR := gameobjtype.Attrib[gameobjtype.Shield].R
 	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.Shield]
-	for _, v := range bl.shiels {
+	for _, v := range bl.Shields {
 		srcx, srcy := sp.GetSliceXY(0)
-		x, y := calcCircularPos(bl.Pa.X, bl.Pa.Y, v.Am.Angle, dispR)
+		x, y := calcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, v.Am.Angle, dispR)
 		ctx.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
@@ -125,10 +89,10 @@ func (bl *BallTeam) DrawTo(ctx js.Value) {
 	dispSize = gameobjtype.Attrib[gameobjtype.SuperShield].Size
 	dispR = gameobjtype.Attrib[gameobjtype.SuperShield].R
 	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.SuperShield]
-	for _, v := range bl.superShields {
-		v.frame++
-		srcx, srcy := sp.GetSliceXY(v.frame)
-		x, y := calcCircularPos(bl.Pa.X, bl.Pa.Y, v.Am.Angle, dispR)
+	for _, v := range bl.SuperShields {
+		// v.frame++
+		srcx, srcy := sp.GetSliceXY(0)
+		x, y := calcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, v.Am.Angle, dispR)
 		ctx.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
@@ -136,13 +100,13 @@ func (bl *BallTeam) DrawTo(ctx js.Value) {
 	}
 }
 
-func (bl *BallTeam) Move(w, h int) {
-	bl.Pa.Move()
-	bl.Pa.BounceNormalize(w, h)
-	for _, v := range bl.shiels {
+func Move(bl *w2d_obj.BallTeam, w, h int) {
+	bl.Ball.Pa.Move()
+	bl.Ball.Pa.BounceNormalize(w, h)
+	for _, v := range bl.Shields {
 		v.Am.Move()
 	}
-	for _, v := range bl.superShields {
+	for _, v := range bl.SuperShields {
 		v.Am.Move()
 	}
 }
