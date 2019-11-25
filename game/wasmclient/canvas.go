@@ -19,6 +19,7 @@ import (
 
 	"github.com/kasworld/direction"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 )
 
 type Viewport2d struct {
@@ -29,13 +30,15 @@ type Viewport2d struct {
 	W int
 	H int
 
-	background *BGObj
-	clouds     []*Cloud
-	ball       []*Ball
+	ballSprites       [teamtype.TeamType_Count][gameobjtype.GameObjType_Count]*Sprite
+	explodeetcSprite  *Sprite
+	explodeballSprite *Sprite
+	spawnSprite       *Sprite
+	cloudSprite       *Sprite
 
-	explodeetc  *Sprite
-	explodeball *Sprite
-	spawn       *Sprite
+	background *BGObj
+	cloudObjs  []*Cloud
+	ballTeams  []*BallTeam
 }
 
 func NewViewport2d() *Viewport2d {
@@ -56,48 +59,40 @@ func NewViewport2d() *Viewport2d {
 	vp.Canvas.Set("height", vp.H)
 
 	vp.background = NewBG()
+	vp.spawnSprite = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
+	vp.explodeetcSprite = LoadSpriteXYN("explodeetc", "explodeetcStore", 1, 8)
+	vp.explodeballSprite = LoadSpriteXYN("explodeball", "explodeballStore", 8, 1)
+	vp.cloudSprite = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
 
-	cloudsp := LoadSpriteXYN("clouds", "cloudStore", 1, 4)
-	vp.clouds = make([]*Cloud, 10)
-	for i := range vp.clouds {
-		vp.clouds[i] = NewCloud(cloudsp, i,
+	vp.cloudObjs = make([]*Cloud, 10)
+	for i := range vp.cloudObjs {
+		vp.cloudObjs[i] = NewCloud(vp.cloudSprite, i,
 			direction.Direction_Type(i%direction.Direction_Count),
 			vp.rnd.Intn(vp.W), vp.rnd.Intn(vp.H),
 			vp.W, vp.H,
 		)
 	}
 
-	team := [...]struct {
-		name  string
-		index int
-		value int
-	}{
-		{"red", 0, 255},
-		{"blue", 1, 255},
-		{"green", 2, 255},
-		{"rred", 0, 0},
-		{"rblue", 1, 0},
-		{"rgreen", 2, 0},
-	}
-	vp.ball = make([]*Ball, len(team))
-	for i := range vp.ball {
-		ballSprite := vp.loadBallSprite(team[i].name)
-
-		for j := range ballSprite {
-			ballSprite[j].Filter(team[i].index, team[i].value)
+	// load team sprite
+	teamAttrib := teamtype.SpriteFilter
+	for i := 0; i < teamtype.TeamType_Count; i++ {
+		vp.ballSprites[i] = LoadBallSprite(teamAttrib[i].Name)
+		for j := range vp.ballSprites[i] {
+			for _, x := range teamAttrib[i].IV {
+				vp.ballSprites[i][j].Filter(x.Index, x.Value)
+			}
 		}
+	}
 
-		vp.ball[i] = NewBall(
-			ballSprite,
+	vp.ballTeams = make([]*BallTeam, teamtype.TeamType_Count)
+	for i := range vp.ballTeams {
+		vp.ballTeams[i] = NewBallTeam(
+			vp.ballSprites[i],
 			direction.Direction_Type(i%direction.Direction_Count),
 			vp.rnd.Intn(vp.W), vp.rnd.Intn(vp.H),
 			vp.W, vp.H,
 		)
 	}
-
-	vp.spawn = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
-	vp.explodeetc = LoadSpriteXYN("explodeetc", "explodeetcStore", 1, 8)
-	vp.explodeball = LoadSpriteXYN("explodeball", "explodeballStore", 8, 1)
 
 	/*
 		vp.grayball = vp.LoadImage("grayball") // color change
@@ -118,64 +113,15 @@ func NewViewport2d() *Viewport2d {
 	return vp
 }
 
-func (vp *Viewport2d) loadBallSprite(teamname string) [gameobjtype.GameObjType_Count]*Sprite {
-	var rtn [gameobjtype.GameObjType_Count]*Sprite
-	rtn[gameobjtype.Ball] = LoadSpriteXYNResize(
-		"grayball", teamname+"_ball",
-		1, 1,
-		gameobjtype.Attrib[gameobjtype.Ball].Size,
-		gameobjtype.Attrib[gameobjtype.Ball].Size,
-	)
-
-	rtn[gameobjtype.Shield] = LoadSpriteXYNResize(
-		"grayball", teamname+"_shield",
-		1, 1,
-		gameobjtype.Attrib[gameobjtype.Shield].Size,
-		gameobjtype.Attrib[gameobjtype.Shield].Size,
-	)
-
-	rtn[gameobjtype.SuperShield] = LoadSpriteRotateResize(
-		"spiral", teamname+"_supershield",
-		0, 360, 10,
-		gameobjtype.Attrib[gameobjtype.SuperShield].Size,
-		gameobjtype.Attrib[gameobjtype.SuperShield].Size,
-	)
-	rtn[gameobjtype.HommingShield] = LoadSpriteRotateResize(
-		"spiral", teamname+"_hommingshield",
-		0, 360, 10,
-		gameobjtype.Attrib[gameobjtype.HommingShield].Size,
-		gameobjtype.Attrib[gameobjtype.HommingShield].Size,
-	)
-	rtn[gameobjtype.Bullet] = LoadSpriteXYNResize(
-		"grayball", teamname+"_bullet",
-		1, 1,
-		gameobjtype.Attrib[gameobjtype.Bullet].Size,
-		gameobjtype.Attrib[gameobjtype.Bullet].Size,
-	)
-	rtn[gameobjtype.SuperBullet] = LoadSpriteRotateResize(
-		"spiral", teamname+"_superbullet",
-		0, 360, 10,
-		gameobjtype.Attrib[gameobjtype.SuperBullet].Size,
-		gameobjtype.Attrib[gameobjtype.SuperBullet].Size,
-	)
-	rtn[gameobjtype.HommingBullet] = LoadSpriteRotateResize(
-		"spiral", teamname+"_hommingbullet",
-		0, 360, 10,
-		gameobjtype.Attrib[gameobjtype.HommingBullet].Size,
-		gameobjtype.Attrib[gameobjtype.HommingBullet].Size,
-	)
-	return rtn
-}
-
 func (vp *Viewport2d) drawBG() {
 	vp.background.DrawTo(vp.context2d)
 }
 
 func (vp *Viewport2d) drawObj() {
-	for _, v := range vp.ball {
+	for _, v := range vp.ballTeams {
 		v.DrawTo(vp.context2d)
 	}
-	for _, v := range vp.clouds {
+	for _, v := range vp.cloudObjs {
 		v.DrawTo(vp.context2d)
 	}
 }

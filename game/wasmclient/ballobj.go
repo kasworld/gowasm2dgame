@@ -79,7 +79,7 @@ type SuperBullet struct {
 	Dy    int
 }
 
-type Ball struct {
+type BallTeam struct {
 	sp *Sprite
 
 	shiels      []*Shield
@@ -99,13 +99,13 @@ type Ball struct {
 	Dy int
 }
 
-func NewBall(
+func NewBallTeam(
 	sp [gameobjtype.GameObjType_Count]*Sprite,
 	initdir direction.Direction_Type,
 	x, y int,
 	w, h int,
-) *Ball {
-	bl := &Ball{
+) *BallTeam {
+	bl := &BallTeam{
 		sp:      sp[gameobjtype.Ball],
 		X:       x,
 		Y:       y,
@@ -153,7 +153,7 @@ func NewBall(
 	return bl
 }
 
-func (bl *Ball) DrawTo(ctx js.Value) {
+func (bl *BallTeam) DrawTo(ctx js.Value) {
 	bl.Move()
 	srcx, srcy := bl.sp.GetSliceXY(0)
 	dstx, dsty := bl.X-bl.DispW/2, bl.Y-bl.DispH/2
@@ -183,7 +183,7 @@ func (bl *Ball) DrawTo(ctx js.Value) {
 }
 
 // check bounce
-func (bl *Ball) Normalize() {
+func (bl *BallTeam) Normalize() {
 	if bl.X < 0 {
 		bl.X = 0
 		bl.Dx = bl.GetAbsDx()
@@ -203,23 +203,23 @@ func (bl *Ball) Normalize() {
 	}
 }
 
-func (bl *Ball) Move() {
+func (bl *BallTeam) Move() {
 	bl.X += bl.Dx
 	bl.Y += bl.Dy
 	bl.Normalize()
 }
 
-func (bl *Ball) SetDxy(dx, dy int) {
+func (bl *BallTeam) SetDxy(dx, dy int) {
 	bl.Dx = dx
 	bl.Dy = dy
 }
 
-func (bl *Ball) SetDir(dir direction.Direction_Type) {
+func (bl *BallTeam) SetDir(dir direction.Direction_Type) {
 	bl.Dx = dir.Vector()[0]
 	bl.Dy = dir.Vector()[1]
 }
 
-func (bl *Ball) AccelerateDir(dir direction.Direction_Type) {
+func (bl *BallTeam) AccelerateDir(dir direction.Direction_Type) {
 	if dir == direction.Dir_stop {
 		bl.Dx = dir.Vector()[0]
 		bl.Dy = dir.Vector()[1]
@@ -229,13 +229,13 @@ func (bl *Ball) AccelerateDir(dir direction.Direction_Type) {
 	}
 }
 
-func (bl *Ball) GetAbsDx() int {
+func (bl *BallTeam) GetAbsDx() int {
 	if bl.Dx < 0 {
 		return -bl.Dx
 	}
 	return bl.Dx
 }
-func (bl *Ball) GetAbsDy() int {
+func (bl *BallTeam) GetAbsDy() int {
 	if bl.Dy < 0 {
 		return -bl.Dy
 	}

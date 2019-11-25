@@ -14,6 +14,8 @@ package wasmclient
 import (
 	"math"
 	"syscall/js"
+
+	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 )
 
 type Sprite struct {
@@ -164,4 +166,53 @@ func LoadSpriteRotateResize(
 		XCount:    xn,
 		YCount:    1,
 	}
+}
+
+func LoadBallSprite(teamname string) [gameobjtype.GameObjType_Count]*Sprite {
+	var rtn [gameobjtype.GameObjType_Count]*Sprite
+	rtn[gameobjtype.Ball] = LoadSpriteXYNResize(
+		"grayball", teamname+"_ball",
+		1, 1,
+		gameobjtype.Attrib[gameobjtype.Ball].Size,
+		gameobjtype.Attrib[gameobjtype.Ball].Size,
+	)
+
+	rtn[gameobjtype.Shield] = LoadSpriteXYNResize(
+		"grayball", teamname+"_shield",
+		1, 1,
+		gameobjtype.Attrib[gameobjtype.Shield].Size,
+		gameobjtype.Attrib[gameobjtype.Shield].Size,
+	)
+
+	rtn[gameobjtype.SuperShield] = LoadSpriteRotateResize(
+		"spiral", teamname+"_supershield",
+		0, 360, 10,
+		gameobjtype.Attrib[gameobjtype.SuperShield].Size,
+		gameobjtype.Attrib[gameobjtype.SuperShield].Size,
+	)
+	rtn[gameobjtype.HommingShield] = LoadSpriteRotateResize(
+		"spiral", teamname+"_hommingshield",
+		0, 360, 10,
+		gameobjtype.Attrib[gameobjtype.HommingShield].Size,
+		gameobjtype.Attrib[gameobjtype.HommingShield].Size,
+	)
+	rtn[gameobjtype.Bullet] = LoadSpriteXYNResize(
+		"grayball", teamname+"_bullet",
+		1, 1,
+		gameobjtype.Attrib[gameobjtype.Bullet].Size,
+		gameobjtype.Attrib[gameobjtype.Bullet].Size,
+	)
+	rtn[gameobjtype.SuperBullet] = LoadSpriteRotateResize(
+		"spiral", teamname+"_superbullet",
+		0, 360, 10,
+		gameobjtype.Attrib[gameobjtype.SuperBullet].Size,
+		gameobjtype.Attrib[gameobjtype.SuperBullet].Size,
+	)
+	rtn[gameobjtype.HommingBullet] = LoadSpriteRotateResize(
+		"spiral", teamname+"_hommingbullet",
+		0, 360, 10,
+		gameobjtype.Attrib[gameobjtype.HommingBullet].Size,
+		gameobjtype.Attrib[gameobjtype.HommingBullet].Size,
+	)
+	return rtn
 }
