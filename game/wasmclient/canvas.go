@@ -112,24 +112,22 @@ func NewBallTeam(TeamType teamtype.TeamType,
 				Angle:  15 + i*15,
 				AngleV: av,
 			},
-			// frame: i * 3,
 		}
 	}
 	return bl
 }
 
-func (vp *Viewport2d) draw() {
+func (vp *Viewport2d) draw(frame int) {
 	vp.background.DrawTo(vp.context2d)
 	for _, v := range vp.ballTeams {
-		vp.MoveBall(v)
-		vp.DrawBallTeam(v)
+		vp.DrawBallTeam(v, frame)
 	}
 	for _, v := range vp.cloudObjs {
 		v.DrawTo(vp.context2d)
 	}
 }
 
-func (vp *Viewport2d) MoveBall(bl *w2d_obj.BallTeam) {
+func (vp *Viewport2d) DrawBallTeam(bl *w2d_obj.BallTeam, frame int) {
 	bl.Ball.Pa.Move()
 	bl.Ball.Pa.BounceNormalize(vp.W, vp.H)
 	for _, v := range bl.Shields {
@@ -138,9 +136,7 @@ func (vp *Viewport2d) MoveBall(bl *w2d_obj.BallTeam) {
 	for _, v := range bl.SuperShields {
 		v.Am.Move()
 	}
-}
 
-func (vp *Viewport2d) DrawBallTeam(bl *w2d_obj.BallTeam) {
 	dispSize := gameobjtype.Attrib[gameobjtype.Ball].Size
 	sp := gSprites.BallSprites[bl.TeamType][gameobjtype.Ball]
 	srcx, srcy := sp.GetSliceXY(0)
@@ -149,23 +145,24 @@ func (vp *Viewport2d) DrawBallTeam(bl *w2d_obj.BallTeam) {
 		srcx, srcy, dispSize, dispSize,
 		dstx, dsty, dispSize, dispSize,
 	)
+
 	dispSize = gameobjtype.Attrib[gameobjtype.Shield].Size
 	dispR := gameobjtype.Attrib[gameobjtype.Shield].R
 	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.Shield]
+	srcx, srcy = sp.GetSliceXY(0)
 	for _, v := range bl.Shields {
-		srcx, srcy := sp.GetSliceXY(0)
 		x, y := calcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, v.Am.Angle, dispR)
 		vp.context2d.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
 		)
 	}
+
 	dispSize = gameobjtype.Attrib[gameobjtype.SuperShield].Size
 	dispR = gameobjtype.Attrib[gameobjtype.SuperShield].R
 	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.SuperShield]
 	for _, v := range bl.SuperShields {
-		// v.frame++
-		srcx, srcy := sp.GetSliceXY(0)
+		srcx, srcy := sp.GetSliceXY(frame)
 		x, y := calcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, v.Am.Angle, dispR)
 		vp.context2d.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
