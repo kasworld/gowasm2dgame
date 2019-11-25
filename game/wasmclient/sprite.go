@@ -12,7 +12,6 @@
 package wasmclient
 
 import (
-	"fmt"
 	"math"
 	"syscall/js"
 )
@@ -46,32 +45,6 @@ func (sp *Sprite) CalcAlignDstCenter(dstx, dsty int) (int, int) {
 	return dstx - sp.W/2, dsty - sp.H/2
 }
 
-func getImgWH(srcImageID string) (js.Value, int, int) {
-	img := js.Global().Get("document").Call("getElementById", srcImageID)
-	if !img.Truthy() {
-		fmt.Printf("fail to get %v", srcImageID)
-		return js.Null(), 0, 0
-	}
-	srcw := img.Get("naturalWidth").Int()
-	srch := img.Get("naturalHeight").Int()
-	return img, srcw, srch
-}
-
-func getCnv2dCtx(dstCanvasID string) (js.Value, js.Value) {
-	dstcnv := js.Global().Get("document").Call("getElementById", dstCanvasID)
-	if !dstcnv.Truthy() {
-		fmt.Printf("fail to get canvas\n")
-		return js.Null(), js.Null()
-	}
-	dstctx := dstcnv.Call("getContext", "2d")
-	if !dstctx.Truthy() {
-		fmt.Printf("fail to get context\n")
-		return js.Null(), js.Null()
-	}
-	dstctx.Set("imageSmoothingEnabled", false)
-	return dstcnv, dstctx
-}
-
 // LoadSpriteXYN load multi image sprite
 func LoadSpriteXYN(
 	srcImageID string, dstCanvasID string,
@@ -93,6 +66,32 @@ func LoadSpriteXYN(
 	}
 }
 
+func LoadSpriteXYNResize(
+	srcImageID string, dstCanvasID string,
+	xn, yn int,
+	xSliceW, ySliceH int,
+) *Sprite {
+	img, srcw, srch := getImgWH(srcImageID)
+	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
+
+	dstW := xn * xSliceW
+	dstH := yn * ySliceH
+	dstcnv.Set("width", dstW)
+	dstcnv.Set("height", dstH)
+	dstctx.Call("clearRect", 0, 0, dstW, dstH)
+	dstctx.Call("drawImage", img,
+		0, 0, srcw, srch,
+		0, 0, dstW, dstH)
+	return &Sprite{
+		W:         xSliceW,
+		H:         ySliceH,
+		XCount:    xn,
+		YCount:    yn,
+		ImgCanvas: dstcnv,
+		ImgCtx:    dstctx,
+	}
+}
+
 // LoadSpriteRotate load a image and make multi rotated image sptite
 func LoadSpriteRotate(
 	srcImageID string, dstCanvasID string,
@@ -100,11 +99,11 @@ func LoadSpriteRotate(
 	img, srcw, srch := getImgWH(srcImageID)
 	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
 
-	dstcount := int((end - start) / step)
-	dstcnv.Set("width", srcw*dstcount)
+	xn := int((end - start) / step)
+	dstcnv.Set("width", srcw*xn)
 	dstcnv.Set("height", srch)
-	dstctx.Call("clearRect", 0, 0, srcw*dstcount, srch)
-	for i := 0; i < dstcount; i++ {
+	dstctx.Call("clearRect", 0, 0, srcw*xn, srch)
+	for i := 0; i < xn; i++ {
 		dstctx.Call("save")
 		dstctx.Call("translate", srcw*i+srcw/2, srch/2)
 		dstctx.Call("rotate", float64(i)*step*math.Pi/180)
@@ -116,7 +115,43 @@ func LoadSpriteRotate(
 		H:         srch,
 		ImgCanvas: dstcnv,
 		ImgCtx:    dstctx,
-		XCount:    dstcount,
+		XCount:    xn,
+		YCount:    1,
+	}
+}
+
+func LoadSpriteRotateResize(
+	srcImageID string, dstCanvasID string,
+	start, end, step float64,
+	xSliceW, ySliceH int,
+) *Sprite {
+	img, srcw, srch := getImgWH(srcImageID)
+	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
+	_ = srcw
+	_ = srch
+	xn := int((end - start) / step)
+	yn := 1
+	dstW := xn * xSliceW
+	dstH := yn * ySliceH
+
+	dstcnv.Set("width", dstW)
+	dstcnv.Set("height", dstH)
+	dstctx.Call("clearRect", 0, 0, dstW, dstH)
+	for i := 0; i < xn; i++ {
+		dstctx.Call("save")
+		dstctx.Call("translate", xSliceW*i+xSliceW/2, ySliceH/2)
+		dstctx.Call("rotate", float64(i)*step*math.Pi/180)
+		dstctx.Call("drawImage", img,
+			0, 0, srcw, srch,
+			-xSliceW/2, -ySliceH/2, xSliceW, ySliceH)
+		dstctx.Call("restore")
+	}
+	return &Sprite{
+		W:         xSliceW,
+		H:         ySliceH,
+		ImgCanvas: dstcnv,
+		ImgCtx:    dstctx,
+		XCount:    xn,
 		YCount:    1,
 	}
 }

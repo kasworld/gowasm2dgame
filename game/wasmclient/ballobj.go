@@ -12,19 +12,11 @@
 package wasmclient
 
 import (
-	"math"
 	"syscall/js"
 
 	"github.com/kasworld/direction"
 	"github.com/kasworld/wrapper"
 )
-
-func calcCircularPos(cx, cy int, angle, r int) (int, int) {
-	rad := float64(angle) * math.Pi / 180
-	dstx := float64(cx) + float64(r)*math.Cos(rad)
-	dsty := float64(cy) + float64(r)*math.Sin(rad)
-	return int(dstx), int(dsty)
-}
 
 type SuperShield struct {
 	sp     *Sprite

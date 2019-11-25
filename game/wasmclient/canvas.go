@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/kasworld/direction"
+	"github.com/kasworld/gowasm2dgame/game/gameconst"
 )
 
 type Viewport2d struct {
@@ -70,11 +71,18 @@ func NewViewport2d() *Viewport2d {
 	}
 
 	// ball, sheld
-	vp.grayball = LoadSpriteXYN("grayball", "grayballStore", 1, 1)
+	vp.grayball = LoadSpriteXYNResize(
+		"grayball", "grayballStore",
+		1, 1,
+		gameconst.BallSize, gameconst.BallSize,
+	)
 	// super shield
-	vp.spiral = LoadSpriteRotate("spiral", "spiralStore", 0, 360, 10)
+	vp.spiral = LoadSpriteRotateResize("spiral", "spiralStore",
+		0, 360, 10,
+		gameconst.SuperShieldSize, gameconst.SuperShieldSize,
+	)
 
-	vp.ball = make([]*Ball, 10)
+	vp.ball = make([]*Ball, 8)
 	for i := range vp.ball {
 		vp.ball[i] = NewBall(
 			vp.grayball, i,
@@ -88,7 +96,6 @@ func NewViewport2d() *Viewport2d {
 	vp.spawn = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
 	vp.explodeetc = LoadSpriteXYN("explodeetc", "explodeetcStore", 1, 8)
 	vp.explodeball = LoadSpriteXYN("explodeball", "explodeballStore", 8, 1)
-	vp.spiral = LoadSpriteRotate("spiral", "spiralStore", 0, 360, 10)
 
 	/*
 		vp.grayball = vp.LoadImage("grayball") // color change
