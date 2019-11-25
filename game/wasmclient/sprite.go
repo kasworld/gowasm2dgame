@@ -45,6 +45,16 @@ func (sp *Sprite) CalcAlignDstCenter(dstx, dsty int) (int, int) {
 	return dstx - sp.W/2, dsty - sp.H/2
 }
 
+func (sp *Sprite) Filter(index int, value int) {
+	imgData := sp.ImgCtx.Call("getImageData", 0, 0, sp.W*sp.XCount, sp.H*sp.YCount)
+	pixels := imgData.Get("data") // Uint8ClampedArray
+	l := sp.W * sp.XCount * sp.H * sp.YCount
+	for i := 0; i < l; i++ {
+		pixels.SetIndex(i*4+index, value)
+	}
+	sp.ImgCtx.Call("putImageData", imgData, 0, 0)
+}
+
 // LoadSpriteXYN load multi image sprite
 func LoadSpriteXYN(
 	srcImageID string, dstCanvasID string,
