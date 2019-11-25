@@ -81,7 +81,10 @@ cd ..
 genenum -typename=ActType -packagename=acttype -basedir=enums -statstype=int
 goimports -w enums/acttype/acttype_gen.go
 goimports -w enums/acttype_stats/acttype_stats_gen.go
-GenMSGP "enums/acttype" acttype_gen
+
+genenum -typename=GameObjType -packagename=gameobjtype -basedir=enums -statstype=int
+goimports -w enums/gameobjtype/gameobjtype_gen.go
+goimports -w enums/gameobjtype_stats/gameobjtype_stats_gen.go
 
 
 GameDataFiles="

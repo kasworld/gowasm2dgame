@@ -18,7 +18,7 @@ import (
 	"time"
 
 	"github.com/kasworld/direction"
-	"github.com/kasworld/gowasm2dgame/game/gameconst"
+	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 )
 
 type Viewport2d struct {
@@ -32,9 +32,6 @@ type Viewport2d struct {
 	background *BGObj
 	clouds     []*Cloud
 	ball       []*Ball
-
-	grayball *Sprite
-	spiral   *Sprite
 
 	explodeetc  *Sprite
 	explodeball *Sprite
@@ -70,23 +67,11 @@ func NewViewport2d() *Viewport2d {
 		)
 	}
 
-	// ball, sheld
-	vp.grayball = LoadSpriteXYNResize(
-		"grayball", "grayballStore",
-		1, 1,
-		gameconst.BallSize, gameconst.BallSize,
-	)
-	// super shield
-	vp.spiral = LoadSpriteRotateResize("spiral", "spiralStore",
-		0, 360, 10,
-		gameconst.SuperShieldSize, gameconst.SuperShieldSize,
-	)
-
+	ballSprite := vp.loadBallSprite("gray")
 	vp.ball = make([]*Ball, 8)
 	for i := range vp.ball {
 		vp.ball[i] = NewBall(
-			vp.grayball, i,
-			vp.spiral,
+			ballSprite,
 			direction.Direction_Type(i%direction.Direction_Count),
 			vp.rnd.Intn(vp.W), vp.rnd.Intn(vp.H),
 			vp.W, vp.H,
@@ -114,6 +99,30 @@ func NewViewport2d() *Viewport2d {
 		vp.spawn = vp.LoadImage("spawn")             // slicearg=(1, 6, reverse spawneffect
 	*/
 	return vp
+}
+
+func (vp *Viewport2d) loadBallSprite(teamname string) [gameobjtype.GameObjType_Count]*Sprite {
+	var rtn [gameobjtype.GameObjType_Count]*Sprite
+	rtn[gameobjtype.Ball] = LoadSpriteXYNResize(
+		"grayball", teamname+"_ball",
+		1, 1,
+		gameobjtype.Attrib[gameobjtype.Ball].Size,
+		gameobjtype.Attrib[gameobjtype.Ball].Size,
+	)
+	rtn[gameobjtype.Shield] = LoadSpriteXYNResize(
+		"grayball", teamname+"_shield",
+		1, 1,
+		gameobjtype.Attrib[gameobjtype.Shield].Size,
+		gameobjtype.Attrib[gameobjtype.Shield].Size,
+	)
+
+	rtn[gameobjtype.SuperShield] = LoadSpriteRotateResize(
+		"spiral", teamname+"_supershield",
+		0, 360, 10,
+		gameobjtype.Attrib[gameobjtype.SuperShield].Size,
+		gameobjtype.Attrib[gameobjtype.SuperShield].Size,
+	)
+	return rtn
 }
 
 func (vp *Viewport2d) drawBG() {

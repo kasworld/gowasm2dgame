@@ -15,6 +15,7 @@ import (
 	"syscall/js"
 
 	"github.com/kasworld/direction"
+	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/wrapper"
 )
 
@@ -79,8 +80,7 @@ type SuperBullet struct {
 }
 
 type Ball struct {
-	sp  *Sprite
-	spn int
+	sp *Sprite
 
 	shiels      []*Shield
 	superShiels []*SuperShield
@@ -99,21 +99,20 @@ type Ball struct {
 	Dy int
 }
 
-func NewBall(sp *Sprite, spn int,
-	ssp *Sprite,
+func NewBall(
+	sp [gameobjtype.GameObjType_Count]*Sprite,
 	initdir direction.Direction_Type,
 	x, y int,
 	w, h int,
 ) *Ball {
 	bl := &Ball{
-		sp:      sp,
-		spn:     spn,
+		sp:      sp[gameobjtype.Ball],
 		X:       x,
 		Y:       y,
 		BorderW: w,
 		BorderH: h,
-		DispW:   32,
-		DispH:   32,
+		DispW:   gameobjtype.Attrib[gameobjtype.Ball].Size,
+		DispH:   gameobjtype.Attrib[gameobjtype.Ball].Size,
 	}
 	bl.bgXWrap = wrapper.New(w).GetWrapSafeFn()
 	bl.bgYWrap = wrapper.New(h).GetWrapSafeFn()
@@ -126,10 +125,10 @@ func NewBall(sp *Sprite, spn int,
 			av = -1
 		}
 		bl.shiels[i] = &Shield{
-			sp:     sp,
-			DispW:  16,
-			DispH:  16,
-			r:      28,
+			sp:     sp[gameobjtype.Shield],
+			DispW:  gameobjtype.Attrib[gameobjtype.Shield].Size,
+			DispH:  gameobjtype.Attrib[gameobjtype.Shield].Size,
+			r:      gameobjtype.Attrib[gameobjtype.Shield].R,
 			angle:  i * 15,
 			angleV: av,
 		}
@@ -142,10 +141,10 @@ func NewBall(sp *Sprite, spn int,
 			av = -1
 		}
 		bl.superShiels[i] = &SuperShield{
-			sp:     ssp,
-			DispW:  16,
-			DispH:  16,
-			r:      48,
+			sp:     sp[gameobjtype.SuperShield],
+			DispW:  gameobjtype.Attrib[gameobjtype.SuperShield].Size,
+			DispH:  gameobjtype.Attrib[gameobjtype.SuperShield].Size,
+			r:      gameobjtype.Attrib[gameobjtype.SuperShield].R,
 			angle:  15 + i*15,
 			angleV: av,
 			frame:  i * 3,
@@ -156,7 +155,7 @@ func NewBall(sp *Sprite, spn int,
 
 func (bl *Ball) DrawTo(ctx js.Value) {
 	bl.Move()
-	srcx, srcy := bl.sp.GetSliceXY(bl.spn)
+	srcx, srcy := bl.sp.GetSliceXY(0)
 	dstx, dsty := bl.X-bl.DispW/2, bl.Y-bl.DispH/2
 	ctx.Call("drawImage", bl.sp.ImgCanvas,
 		srcx, srcy, bl.sp.W, bl.sp.H,
