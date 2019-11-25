@@ -17,6 +17,7 @@ import (
 	"github.com/kasworld/direction"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/lib/posacc"
 	"github.com/kasworld/wrapper"
 )
 
@@ -32,32 +33,20 @@ type Shield struct {
 }
 
 type HommingShield struct {
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 }
 
 type Bullet struct {
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 }
 
 type HommingBullet struct {
-	X     int
-	Y     int
-	Dx    int
-	Dy    int
+	Pa    posacc.PosAcc
 	DstID int
 }
 
 type SuperBullet struct {
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 }
 
 type BallTeam struct {
@@ -72,10 +61,7 @@ type BallTeam struct {
 	BorderW int
 	BorderH int
 
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 }
 
 func NewBallTeam(
@@ -86,14 +72,16 @@ func NewBallTeam(
 ) *BallTeam {
 	bl := &BallTeam{
 		TeamType: TeamType,
-		X:        x,
-		Y:        y,
 		BorderW:  w,
 		BorderH:  h,
 	}
 	bl.bgXWrap = wrapper.New(w).GetWrapSafeFn()
 	bl.bgYWrap = wrapper.New(h).GetWrapSafeFn()
-	bl.SetDir(initdir)
+	bl.Pa = posacc.PosAcc{
+		X: x,
+		Y: y,
+	}
+	bl.Pa.SetDir(initdir)
 
 	bl.shiels = make([]*Shield, 24)
 	for i := range bl.shiels {
@@ -123,11 +111,12 @@ func NewBallTeam(
 }
 
 func (bl *BallTeam) DrawTo(ctx js.Value) {
-	bl.Move()
+	bl.Pa.Move()
+	bl.Pa.BounceNormalize(bl.BorderW, bl.BorderH)
 	dispSize := gameobjtype.Attrib[gameobjtype.Ball].Size
 	sp := gSprites.BallSprites[bl.TeamType][gameobjtype.Ball]
 	srcx, srcy := sp.GetSliceXY(0)
-	dstx, dsty := bl.X-dispSize/2, bl.Y-dispSize/2
+	dstx, dsty := bl.Pa.X-dispSize/2, bl.Pa.Y-dispSize/2
 	ctx.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, dispSize, dispSize,
 		dstx, dsty, dispSize, dispSize,
@@ -138,7 +127,7 @@ func (bl *BallTeam) DrawTo(ctx js.Value) {
 	for _, v := range bl.shiels {
 		v.angle += v.angleV
 		srcx, srcy := sp.GetSliceXY(0)
-		x, y := calcCircularPos(bl.X, bl.Y, v.angle, dispR)
+		x, y := calcCircularPos(bl.Pa.X, bl.Pa.Y, v.angle, dispR)
 		ctx.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
@@ -151,70 +140,10 @@ func (bl *BallTeam) DrawTo(ctx js.Value) {
 		v.angle += v.angleV
 		v.frame++
 		srcx, srcy := sp.GetSliceXY(v.frame)
-		x, y := calcCircularPos(bl.X, bl.Y, v.angle, dispR)
+		x, y := calcCircularPos(bl.Pa.X, bl.Pa.Y, v.angle, dispR)
 		ctx.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
 		)
 	}
-}
-
-// check bounce
-func (bl *BallTeam) Normalize() {
-	if bl.X < 0 {
-		bl.X = 0
-		bl.Dx = bl.GetAbsDx()
-	}
-	if bl.Y < 0 {
-		bl.Y = 0
-		bl.Dy = bl.GetAbsDy()
-	}
-
-	if bl.X > bl.BorderW {
-		bl.X = bl.BorderW
-		bl.Dx = -bl.GetAbsDx()
-	}
-	if bl.Y > bl.BorderH {
-		bl.Y = bl.BorderH
-		bl.Dy = -bl.GetAbsDy()
-	}
-}
-
-func (bl *BallTeam) Move() {
-	bl.X += bl.Dx
-	bl.Y += bl.Dy
-	bl.Normalize()
-}
-
-func (bl *BallTeam) SetDxy(dx, dy int) {
-	bl.Dx = dx
-	bl.Dy = dy
-}
-
-func (bl *BallTeam) SetDir(dir direction.Direction_Type) {
-	bl.Dx = dir.Vector()[0]
-	bl.Dy = dir.Vector()[1]
-}
-
-func (bl *BallTeam) AccelerateDir(dir direction.Direction_Type) {
-	if dir == direction.Dir_stop {
-		bl.Dx = dir.Vector()[0]
-		bl.Dy = dir.Vector()[1]
-	} else {
-		bl.Dx += dir.Vector()[0]
-		bl.Dy += dir.Vector()[1]
-	}
-}
-
-func (bl *BallTeam) GetAbsDx() int {
-	if bl.Dx < 0 {
-		return -bl.Dx
-	}
-	return bl.Dx
-}
-func (bl *BallTeam) GetAbsDy() int {
-	if bl.Dy < 0 {
-		return -bl.Dy
-	}
-	return bl.Dy
 }

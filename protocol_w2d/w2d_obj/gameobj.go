@@ -1,6 +1,10 @@
 package w2d_obj
 
-import "time"
+import (
+	"time"
+
+	"github.com/kasworld/gowasm2dgame/lib/posacc"
+)
 
 type SuperShield struct {
 	TeamUUID  string
@@ -25,10 +29,7 @@ type HommingShield struct {
 	UUID      string
 	BirthTime time.Time
 
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 }
 
 type Ball struct {
@@ -36,10 +37,7 @@ type Ball struct {
 	UUID      string
 	BirthTime time.Time
 
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 }
 
 type BallTeam struct {
@@ -54,10 +52,7 @@ type Bullet struct {
 	UUID      string
 	BirthTime time.Time
 
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 }
 
 type HommingBullet struct {
@@ -65,10 +60,7 @@ type HommingBullet struct {
 	UUID      string
 	BirthTime time.Time
 
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 
 	DstUUID string
 }
@@ -78,8 +70,5 @@ type SuperBullet struct {
 	UUID      string
 	BirthTime time.Time
 
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 }
