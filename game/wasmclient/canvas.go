@@ -49,9 +49,6 @@ func NewViewport2d() *Viewport2d {
 	vp.H = 1000
 
 	vp.Canvas, vp.context2d = getCnv2dCtx("viewport2DCanvas")
-	if !vp.Canvas.Truthy() {
-		fmt.Printf("fail to get canvas viewport2DCanvas\n")
-	}
 	if !vp.context2d.Truthy() {
 		fmt.Printf("fail to get context2d\n")
 	}
@@ -94,30 +91,11 @@ func NewViewport2d() *Viewport2d {
 		)
 	}
 
-	/*
-		vp.grayball = vp.LoadImage("grayball") // color change
-		vp.spiral = vp.LoadImage("spiral")     // color change, rotate (0, 360, 10)
-		// ('bounceball', "grayball.png", None),
-		// ('bullet', "grayball.png", None),
-		// ('hommingbullet', "spiral.png", (0, 360, 10)),
-		// ('superbullet', "spiral.png", (0, 360, 10)),
-		// ('circularbullet', "grayball.png", None),
-		// ('shield', "grayball.png", None),
-		// ('supershield', "spiral.png", (0, 360, 10))
-
-		vp.clouds = vp.LoadImage("clouds")           // slicearg=(1, 4
-		vp.explodeetc = vp.LoadImage("explodeetc")   // slicearg=(1, 8, spriteexplosioneffect
-		vp.explodeball = vp.LoadImage("explodeball") // slicearg=(8, 1 ballexplosioneffect
-		vp.spawn = vp.LoadImage("spawn")             // slicearg=(1, 6, reverse spawneffect
-	*/
 	return vp
 }
 
-func (vp *Viewport2d) drawBG() {
-	vp.background.DrawTo(vp.context2d)
-}
-
 func (vp *Viewport2d) drawObj() {
+	vp.background.DrawTo(vp.context2d)
 	for _, v := range vp.ballTeams {
 		v.DrawTo(vp.context2d)
 	}
@@ -135,7 +113,6 @@ func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 	act := app.DispInterDur.BeginAct()
 	defer act.End()
 
-	app.vp.drawBG()
 	app.vp.drawObj()
 
 	return nil

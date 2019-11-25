@@ -21,9 +21,9 @@ import (
 
 type SuperShield struct {
 	sp     *Sprite
-	DispW  int
-	DispH  int
-	r      int
+	DispW  int // const
+	DispH  int // const
+	r      int // const
 	angle  int
 	angleV int
 	frame  int
@@ -31,17 +31,17 @@ type SuperShield struct {
 
 type Shield struct {
 	sp     *Sprite
-	DispW  int
-	DispH  int
-	r      int
+	DispW  int // const
+	DispH  int // const
+	r      int // const
 	angle  int
 	angleV int
 }
 
 type HommingShield struct {
 	sp    *Sprite
-	DispW int
-	DispH int
+	DispW int // const
+	DispH int // const
 	X     int
 	Y     int
 	Dx    int
@@ -50,8 +50,8 @@ type HommingShield struct {
 
 type Bullet struct {
 	sp    *Sprite
-	DispW int
-	DispH int
+	DispW int // const
+	DispH int // const
 	X     int
 	Y     int
 	Dx    int
@@ -60,8 +60,8 @@ type Bullet struct {
 
 type HommingBullet struct {
 	sp    *Sprite
-	DispW int
-	DispH int
+	DispW int // const
+	DispH int // const
 	X     int
 	Y     int
 	Dx    int
@@ -71,8 +71,8 @@ type HommingBullet struct {
 
 type SuperBullet struct {
 	sp    *Sprite
-	DispW int
-	DispH int
+	DispW int // const
+	DispH int // const
 	X     int
 	Y     int
 	Dx    int
