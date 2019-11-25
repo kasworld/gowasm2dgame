@@ -21,9 +21,6 @@ import (
 
 type SuperShield struct {
 	sp     *Sprite
-	DispW  int // const
-	DispH  int // const
-	r      int // const
 	angle  int
 	angleV int
 	frame  int
@@ -31,37 +28,28 @@ type SuperShield struct {
 
 type Shield struct {
 	sp     *Sprite
-	DispW  int // const
-	DispH  int // const
-	r      int // const
 	angle  int
 	angleV int
 }
 
 type HommingShield struct {
-	sp    *Sprite
-	DispW int // const
-	DispH int // const
-	X     int
-	Y     int
-	Dx    int
-	Dy    int
+	sp *Sprite
+	X  int
+	Y  int
+	Dx int
+	Dy int
 }
 
 type Bullet struct {
-	sp    *Sprite
-	DispW int // const
-	DispH int // const
-	X     int
-	Y     int
-	Dx    int
-	Dy    int
+	sp *Sprite
+	X  int
+	Y  int
+	Dx int
+	Dy int
 }
 
 type HommingBullet struct {
 	sp    *Sprite
-	DispW int // const
-	DispH int // const
 	X     int
 	Y     int
 	Dx    int
@@ -70,28 +58,24 @@ type HommingBullet struct {
 }
 
 type SuperBullet struct {
-	sp    *Sprite
-	DispW int // const
-	DispH int // const
-	X     int
-	Y     int
-	Dx    int
-	Dy    int
+	sp *Sprite
+	X  int
+	Y  int
+	Dx int
+	Dy int
 }
 
 type BallTeam struct {
 	sp *Sprite
 
-	shiels      []*Shield
-	superShiels []*SuperShield
+	shiels        []*Shield
+	superShields  []*SuperShield
+	hommingShiels []*HommingShield
 
 	bgXWrap func(i int) int
 	bgYWrap func(i int) int
 	BorderW int
 	BorderH int
-
-	DispW int
-	DispH int
 
 	X  int
 	Y  int
@@ -111,8 +95,6 @@ func NewBallTeam(
 		Y:       y,
 		BorderW: w,
 		BorderH: h,
-		DispW:   gameobjtype.Attrib[gameobjtype.Ball].Size,
-		DispH:   gameobjtype.Attrib[gameobjtype.Ball].Size,
 	}
 	bl.bgXWrap = wrapper.New(w).GetWrapSafeFn()
 	bl.bgYWrap = wrapper.New(h).GetWrapSafeFn()
@@ -126,25 +108,19 @@ func NewBallTeam(
 		}
 		bl.shiels[i] = &Shield{
 			sp:     sp[gameobjtype.Shield],
-			DispW:  gameobjtype.Attrib[gameobjtype.Shield].Size,
-			DispH:  gameobjtype.Attrib[gameobjtype.Shield].Size,
-			r:      gameobjtype.Attrib[gameobjtype.Shield].R,
 			angle:  i * 15,
 			angleV: av,
 		}
 	}
 
-	bl.superShiels = make([]*SuperShield, 24)
-	for i := range bl.superShiels {
+	bl.superShields = make([]*SuperShield, 24)
+	for i := range bl.superShields {
 		av := 1
 		if i%2 == 0 {
 			av = -1
 		}
-		bl.superShiels[i] = &SuperShield{
+		bl.superShields[i] = &SuperShield{
 			sp:     sp[gameobjtype.SuperShield],
-			DispW:  gameobjtype.Attrib[gameobjtype.SuperShield].Size,
-			DispH:  gameobjtype.Attrib[gameobjtype.SuperShield].Size,
-			r:      gameobjtype.Attrib[gameobjtype.SuperShield].R,
 			angle:  15 + i*15,
 			angleV: av,
 			frame:  i * 3,
@@ -155,29 +131,34 @@ func NewBallTeam(
 
 func (bl *BallTeam) DrawTo(ctx js.Value) {
 	bl.Move()
+	dispSize := gameobjtype.Attrib[gameobjtype.Ball].Size
 	srcx, srcy := bl.sp.GetSliceXY(0)
-	dstx, dsty := bl.X-bl.DispW/2, bl.Y-bl.DispH/2
+	dstx, dsty := bl.X-dispSize/2, bl.Y-dispSize/2
 	ctx.Call("drawImage", bl.sp.ImgCanvas,
-		srcx, srcy, bl.sp.W, bl.sp.H,
-		dstx, dsty, bl.DispW, bl.DispH,
+		srcx, srcy, dispSize, dispSize,
+		dstx, dsty, dispSize, dispSize,
 	)
+	dispSize = gameobjtype.Attrib[gameobjtype.Shield].Size
+	dispR := gameobjtype.Attrib[gameobjtype.Shield].R
 	for _, v := range bl.shiels {
 		v.angle += v.angleV
 		srcx, srcy := v.sp.GetSliceXY(0)
-		x, y := calcCircularPos(bl.X, bl.Y, v.angle, v.r)
+		x, y := calcCircularPos(bl.X, bl.Y, v.angle, dispR)
 		ctx.Call("drawImage", v.sp.ImgCanvas,
-			srcx, srcy, v.sp.W, v.sp.H,
-			x-v.DispW/2, y-v.DispH/2, v.DispW, v.DispH,
+			srcx, srcy, dispSize, dispSize,
+			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
 		)
 	}
-	for _, v := range bl.superShiels {
+	dispSize = gameobjtype.Attrib[gameobjtype.SuperShield].Size
+	dispR = gameobjtype.Attrib[gameobjtype.SuperShield].R
+	for _, v := range bl.superShields {
 		v.angle += v.angleV
 		v.frame++
 		srcx, srcy := v.sp.GetSliceXY(v.frame)
-		x, y := calcCircularPos(bl.X, bl.Y, v.angle, v.r)
+		x, y := calcCircularPos(bl.X, bl.Y, v.angle, dispR)
 		ctx.Call("drawImage", v.sp.ImgCanvas,
-			srcx, srcy, v.sp.W, v.sp.H,
-			x-v.DispW/2, y-v.DispH/2, v.DispW, v.DispH,
+			srcx, srcy, dispSize, dispSize,
+			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
 		)
 	}
 }
