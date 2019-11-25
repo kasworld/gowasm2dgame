@@ -77,3 +77,17 @@ loop:
 		}
 	}
 }
+
+func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
+	defer func() {
+		js.Global().Call("requestAnimationFrame", js.FuncOf(app.drawCanvas))
+	}()
+	dispCount := app.DispInterDur.GetCount()
+	_ = dispCount
+	act := app.DispInterDur.BeginAct()
+	defer act.End()
+
+	app.vp.draw()
+
+	return nil
+}

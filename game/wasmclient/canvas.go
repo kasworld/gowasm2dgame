@@ -18,7 +18,10 @@ import (
 	"time"
 
 	"github.com/kasworld/direction"
+	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/lib/anglemove"
+	"github.com/kasworld/gowasm2dgame/lib/posacc"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
@@ -71,28 +74,102 @@ func NewViewport2d() *Viewport2d {
 	return vp
 }
 
-func (vp *Viewport2d) drawObj() {
+func NewBallTeam(TeamType teamtype.TeamType,
+	initdir direction.Direction_Type, x, y int,
+) *w2d_obj.BallTeam {
+	bl := &w2d_obj.BallTeam{
+		TeamType: TeamType,
+		Ball:     &w2d_obj.Ball{},
+	}
+	bl.Ball.Pa = posacc.PosAcc{
+		X: x,
+		Y: y,
+	}
+	bl.Ball.Pa.SetDir(initdir)
 
+	bl.Shields = make([]*w2d_obj.Shield, 24)
+	for i := range bl.Shields {
+		av := 1
+		if i%2 == 0 {
+			av = -1
+		}
+		bl.Shields[i] = &w2d_obj.Shield{
+			Am: anglemove.AngleMove{
+				Angle:  i * 15,
+				AngleV: av,
+			},
+		}
+	}
+
+	bl.SuperShields = make([]*w2d_obj.SuperShield, 24)
+	for i := range bl.SuperShields {
+		av := 1
+		if i%2 == 0 {
+			av = -1
+		}
+		bl.SuperShields[i] = &w2d_obj.SuperShield{
+			Am: anglemove.AngleMove{
+				Angle:  15 + i*15,
+				AngleV: av,
+			},
+			// frame: i * 3,
+		}
+	}
+	return bl
+}
+
+func (vp *Viewport2d) draw() {
 	vp.background.DrawTo(vp.context2d)
 	for _, v := range vp.ballTeams {
-		Move(v, vp.W, vp.H)
-		DrawTo(v, vp.context2d)
+		vp.MoveBall(v)
+		vp.DrawBallTeam(v)
 	}
 	for _, v := range vp.cloudObjs {
 		v.DrawTo(vp.context2d)
 	}
 }
 
-func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
-	defer func() {
-		js.Global().Call("requestAnimationFrame", js.FuncOf(app.drawCanvas))
-	}()
-	dispCount := app.DispInterDur.GetCount()
-	_ = dispCount
-	act := app.DispInterDur.BeginAct()
-	defer act.End()
+func (vp *Viewport2d) MoveBall(bl *w2d_obj.BallTeam) {
+	bl.Ball.Pa.Move()
+	bl.Ball.Pa.BounceNormalize(vp.W, vp.H)
+	for _, v := range bl.Shields {
+		v.Am.Move()
+	}
+	for _, v := range bl.SuperShields {
+		v.Am.Move()
+	}
+}
 
-	app.vp.drawObj()
-
-	return nil
+func (vp *Viewport2d) DrawBallTeam(bl *w2d_obj.BallTeam) {
+	dispSize := gameobjtype.Attrib[gameobjtype.Ball].Size
+	sp := gSprites.BallSprites[bl.TeamType][gameobjtype.Ball]
+	srcx, srcy := sp.GetSliceXY(0)
+	dstx, dsty := bl.Ball.Pa.X-dispSize/2, bl.Ball.Pa.Y-dispSize/2
+	vp.context2d.Call("drawImage", sp.ImgCanvas,
+		srcx, srcy, dispSize, dispSize,
+		dstx, dsty, dispSize, dispSize,
+	)
+	dispSize = gameobjtype.Attrib[gameobjtype.Shield].Size
+	dispR := gameobjtype.Attrib[gameobjtype.Shield].R
+	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.Shield]
+	for _, v := range bl.Shields {
+		srcx, srcy := sp.GetSliceXY(0)
+		x, y := calcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, v.Am.Angle, dispR)
+		vp.context2d.Call("drawImage", sp.ImgCanvas,
+			srcx, srcy, dispSize, dispSize,
+			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
+		)
+	}
+	dispSize = gameobjtype.Attrib[gameobjtype.SuperShield].Size
+	dispR = gameobjtype.Attrib[gameobjtype.SuperShield].R
+	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.SuperShield]
+	for _, v := range bl.SuperShields {
+		// v.frame++
+		srcx, srcy := sp.GetSliceXY(0)
+		x, y := calcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, v.Am.Angle, dispR)
+		vp.context2d.Call("drawImage", sp.ImgCanvas,
+			srcx, srcy, dispSize, dispSize,
+			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
+		)
+	}
 }
