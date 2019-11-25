@@ -64,7 +64,6 @@ func NewViewport2d() *Viewport2d {
 			teamtype.TeamType(i),
 			direction.Direction_Type(i%direction.Direction_Count),
 			vp.rnd.Intn(vp.W), vp.rnd.Intn(vp.H),
-			vp.W, vp.H,
 		)
 	}
 
@@ -72,8 +71,10 @@ func NewViewport2d() *Viewport2d {
 }
 
 func (vp *Viewport2d) drawObj() {
+
 	vp.background.DrawTo(vp.context2d)
 	for _, v := range vp.ballTeams {
+		v.Move(vp.W, vp.H)
 		v.DrawTo(vp.context2d)
 	}
 	for _, v := range vp.cloudObjs {

@@ -19,7 +19,6 @@ import (
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/lib/anglemove"
 	"github.com/kasworld/gowasm2dgame/lib/posacc"
-	"github.com/kasworld/wrapper"
 )
 
 type SuperShield struct {
@@ -55,11 +54,6 @@ type BallTeam struct {
 	superShields  []*SuperShield
 	hommingShiels []*HommingShield
 
-	bgXWrap func(i int) int
-	bgYWrap func(i int) int
-	BorderW int
-	BorderH int
-
 	Pa posacc.PosAcc
 }
 
@@ -67,15 +61,10 @@ func NewBallTeam(
 	TeamType teamtype.TeamType,
 	initdir direction.Direction_Type,
 	x, y int,
-	w, h int,
 ) *BallTeam {
 	bl := &BallTeam{
 		TeamType: TeamType,
-		BorderW:  w,
-		BorderH:  h,
 	}
-	bl.bgXWrap = wrapper.New(w).GetWrapSafeFn()
-	bl.bgYWrap = wrapper.New(h).GetWrapSafeFn()
 	bl.Pa = posacc.PosAcc{
 		X: x,
 		Y: y,
@@ -114,15 +103,6 @@ func NewBallTeam(
 }
 
 func (bl *BallTeam) DrawTo(ctx js.Value) {
-	bl.Pa.Move()
-	for _, v := range bl.shiels {
-		v.Am.Move()
-	}
-	for _, v := range bl.superShields {
-		v.Am.Move()
-	}
-
-	bl.Pa.BounceNormalize(bl.BorderW, bl.BorderH)
 	dispSize := gameobjtype.Attrib[gameobjtype.Ball].Size
 	sp := gSprites.BallSprites[bl.TeamType][gameobjtype.Ball]
 	srcx, srcy := sp.GetSliceXY(0)
@@ -153,5 +133,16 @@ func (bl *BallTeam) DrawTo(ctx js.Value) {
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
 		)
+	}
+}
+
+func (bl *BallTeam) Move(w, h int) {
+	bl.Pa.Move()
+	bl.Pa.BounceNormalize(w, h)
+	for _, v := range bl.shiels {
+		v.Am.Move()
+	}
+	for _, v := range bl.superShields {
+		v.Am.Move()
 	}
 }
