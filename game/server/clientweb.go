@@ -58,7 +58,6 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 		w2d_idcmd.Invalid:   svr.bytesAPIFn_ReqInvalid,
 		w2d_idcmd.MakeTeam:  svr.bytesAPIFn_ReqMakeTeam,
 		w2d_idcmd.Act:       svr.bytesAPIFn_ReqAct,
-		w2d_idcmd.State:     svr.bytesAPIFn_ReqState,
 		w2d_idcmd.Heartbeat: svr.bytesAPIFn_ReqHeartbeat,
 	} // DemuxReq2BytesAPIFnMap
 

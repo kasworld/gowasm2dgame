@@ -2,5 +2,4 @@
 Invalid
 MakeTeam // make team 
 Act // client user,ai action 
-State // request game state to display
 Heartbeat // sayHello? 

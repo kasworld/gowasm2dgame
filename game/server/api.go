@@ -82,26 +82,6 @@ func (svr *Server) bytesAPIFn_ReqAct(
 	return sendHeader, sendBody, nil
 }
 
-func (svr *Server) bytesAPIFn_ReqState(
-	me interface{}, hd w2d_packet.Header, rbody []byte) (
-	w2d_packet.Header, interface{}, error) {
-	// robj, err := w2d_json.UnmarshalPacket(hd, rbody)
-	// if err != nil {
-	// 	return hd, nil, fmt.Errorf("Packet type miss match %v", rbody)
-	// }
-	// recvBody, ok := robj.(*w2d_obj.ReqState_data)
-	// if !ok {
-	// 	return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
-	// }
-	// _ = recvBody
-
-	sendHeader := w2d_packet.Header{
-		ErrorCode: w2d_error.None,
-	}
-	sendBody := &w2d_obj.RspState_data{}
-	return sendHeader, sendBody, nil
-}
-
 func (svr *Server) bytesAPIFn_ReqHeartbeat(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {

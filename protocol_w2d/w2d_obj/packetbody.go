@@ -29,17 +29,6 @@ type RspAct_data struct {
 	Dummy uint8
 }
 
-type ReqState_data struct {
-	Dummy uint8
-}
-type RspState_data struct {
-	Time       time.Time // unixnano
-	Background *Background
-	Teams      []*BallTeam
-	Effects    []*Effect
-	Clouds     []*Cloud
-}
-
 type ReqHeartbeat_data struct {
 	Time time.Time
 }
@@ -49,6 +38,14 @@ type RspHeartbeat_data struct {
 
 type NotiInvalid_data struct {
 	Dummy uint8
+}
+
+type NotiStageInfo_data struct {
+	Time       time.Time
+	Background *Background
+	Teams      []*BallTeam
+	Effects    []*Effect
+	Clouds     []*Cloud
 }
 
 ////////////////

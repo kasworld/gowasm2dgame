@@ -18,13 +18,14 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
-func (vp *Viewport2d) makeTestObj() {
-	vp.bgObj = &w2d_obj.Background{}
-	vp.bgObj.Pa.SetDxy(vp.rnd.Float64()*5-2, vp.rnd.Float64()*5-2)
+func (vp *Viewport2d) makeStageInfo() *w2d_obj.NotiStageInfo_data {
+	si := &w2d_obj.NotiStageInfo_data{}
+	si.Background = &w2d_obj.Background{}
+	si.Background.Pa.SetDxy(vp.rnd.Float64()*5-2, vp.rnd.Float64()*5-2)
 
-	vp.cloudObjs = make([]*w2d_obj.Cloud, 10)
-	for i := range vp.cloudObjs {
-		vp.cloudObjs[i] = &w2d_obj.Cloud{
+	si.Clouds = make([]*w2d_obj.Cloud, 10)
+	for i := range si.Clouds {
+		si.Clouds[i] = &w2d_obj.Cloud{
 			SpriteNum: i,
 			Pa: posacc.PosAcc{
 				X:  vp.rnd.Float64() * vp.W,
@@ -34,10 +35,11 @@ func (vp *Viewport2d) makeTestObj() {
 			},
 		}
 	}
-	vp.ballTeams = make([]*w2d_obj.BallTeam, teamtype.TeamType_Count)
-	for i := range vp.ballTeams {
-		vp.ballTeams[i] = vp.newBallTeam(teamtype.TeamType(i))
+	si.Teams = make([]*w2d_obj.BallTeam, teamtype.TeamType_Count)
+	for i := range si.Teams {
+		si.Teams[i] = vp.newBallTeam(teamtype.TeamType(i))
 	}
+	return si
 }
 
 func (vp *Viewport2d) newBallTeam(TeamType teamtype.TeamType) *w2d_obj.BallTeam {

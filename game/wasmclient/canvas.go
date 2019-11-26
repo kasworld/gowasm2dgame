@@ -29,10 +29,7 @@ type Viewport2d struct {
 	W float64
 	H float64
 
-	bgObj     *w2d_obj.Background
-	ballTeams []*w2d_obj.BallTeam
-	effects   []*w2d_obj.Effect
-	cloudObjs []*w2d_obj.Cloud
+	stageInfo *w2d_obj.NotiStageInfo_data
 }
 
 func NewViewport2d() *Viewport2d {
@@ -46,13 +43,14 @@ func NewViewport2d() *Viewport2d {
 	vp.Canvas.Set("width", vp.W)
 	vp.Canvas.Set("height", vp.H)
 
-	vp.makeTestObj()
+	vp.stageInfo = vp.makeStageInfo()
 	return vp
 }
 
 func (vp *Viewport2d) move(frame int) {
-	vp.bgObj.Pa.Move()
-	for _, bt := range vp.ballTeams {
+	si := vp.stageInfo
+	si.Background.Pa.Move()
+	for _, bt := range si.Teams {
 		bt.Ball.Pa.Move()
 		bt.Ball.Pa.BounceNormalize(vp.W, vp.H)
 		for _, v := range bt.Shields {
@@ -74,24 +72,26 @@ func (vp *Viewport2d) move(frame int) {
 			v.Pa.Move()
 		}
 	}
-	for _, cld := range vp.cloudObjs {
+	for _, cld := range si.Clouds {
 		cld.Pa.Move()
 	}
 }
 
 func (vp *Viewport2d) draw() {
+	si := vp.stageInfo
 	vp.drawBG()
-	for _, v := range vp.ballTeams {
+	for _, v := range si.Teams {
 		vp.drawBallTeam(v)
 	}
-	for _, v := range vp.cloudObjs {
+	for _, v := range si.Clouds {
 		vp.drawCloud(v)
 	}
 }
 
 func (vp *Viewport2d) drawBG() {
+	si := vp.stageInfo
 	sp := gSprites.BGSprite
-	x, y := vp.bgObj.Pa.Wrap(sp.W, sp.H)
+	x, y := si.Background.Pa.Wrap(sp.W, sp.H)
 	srcx, srcy := sp.GetSliceXY(0)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, sp.W, sp.H,
