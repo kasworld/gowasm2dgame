@@ -2,6 +2,8 @@ package w2d_obj
 
 import (
 	"time"
+
+	"github.com/kasworld/gowasm2dgame/enums/acttype"
 )
 
 type ReqInvalid_data struct {
@@ -46,4 +48,13 @@ type RspHeartbeat_data struct {
 
 type NotiInvalid_data struct {
 	Dummy uint8
+}
+
+////////////////
+
+type Act struct {
+	Act      acttype.ActType
+	DstPos   [2]int
+	DstObjID string
+	// some more?
 }

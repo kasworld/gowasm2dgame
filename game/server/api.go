@@ -15,7 +15,6 @@ import (
 	"fmt"
 
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_error"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_json"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
@@ -23,17 +22,7 @@ import (
 
 ///////////////////////////////////////////////////////////////
 
-var DemuxReq2BytesAPIFnMap = [...]func(
-	me interface{}, hd w2d_packet.Header, rbody []byte) (
-	w2d_packet.Header, interface{}, error){
-	w2d_idcmd.Invalid:   bytesAPIFn_ReqInvalid,
-	w2d_idcmd.MakeTeam:  bytesAPIFn_ReqMakeTeam,
-	w2d_idcmd.Act:       bytesAPIFn_ReqAct,
-	w2d_idcmd.State:     bytesAPIFn_ReqState,
-	w2d_idcmd.Heartbeat: bytesAPIFn_ReqHeartbeat,
-} // DemuxReq2BytesAPIFnMap
-
-func bytesAPIFn_ReqInvalid(
+func (svr *Server) bytesAPIFn_ReqInvalid(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {
 	// robj, err := w2d_json.UnmarshalPacket(hd, rbody)
@@ -53,7 +42,7 @@ func bytesAPIFn_ReqInvalid(
 	return sendHeader, sendBody, nil
 }
 
-func bytesAPIFn_ReqMakeTeam(
+func (svr *Server) bytesAPIFn_ReqMakeTeam(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {
 	// robj, err := w2d_json.UnmarshalPacket(hd, rbody)
@@ -73,7 +62,7 @@ func bytesAPIFn_ReqMakeTeam(
 	return sendHeader, sendBody, nil
 }
 
-func bytesAPIFn_ReqAct(
+func (svr *Server) bytesAPIFn_ReqAct(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {
 	// robj, err := w2d_json.UnmarshalPacket(hd, rbody)
@@ -93,7 +82,7 @@ func bytesAPIFn_ReqAct(
 	return sendHeader, sendBody, nil
 }
 
-func bytesAPIFn_ReqState(
+func (svr *Server) bytesAPIFn_ReqState(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {
 	// robj, err := w2d_json.UnmarshalPacket(hd, rbody)
@@ -113,7 +102,7 @@ func bytesAPIFn_ReqState(
 	return sendHeader, sendBody, nil
 }
 
-func bytesAPIFn_ReqHeartbeat(
+func (svr *Server) bytesAPIFn_ReqHeartbeat(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {
 	robj, err := w2d_json.UnmarshalPacket(hd, rbody)

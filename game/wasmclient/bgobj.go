@@ -14,7 +14,7 @@ package wasmclient
 import (
 	"syscall/js"
 
-	"github.com/kasworld/direction"
+	"github.com/kasworld/gowasm2dgame/lib/posacc"
 	"github.com/kasworld/wrapper"
 )
 
@@ -24,10 +24,7 @@ type BGObj struct {
 	bgXWrap func(i int) int
 	bgYWrap func(i int) int
 
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 }
 
 func NewBG() *BGObj {
@@ -35,14 +32,14 @@ func NewBG() *BGObj {
 	bg.sp = LoadSpriteXYN("background", "bgStore", 1, 1)
 	bg.bgXWrap = wrapper.New(bg.sp.W).GetWrapSafeFn()
 	bg.bgYWrap = wrapper.New(bg.sp.H).GetWrapSafeFn()
-	bg.SetDxy(1, -1)
+	bg.Pa.SetDxy(1, -1)
 	return bg
 }
 
 func (bg *BGObj) DrawTo(ctx js.Value) {
-	bg.Move()
-	x := bg.bgXWrap(bg.X)
-	y := bg.bgYWrap(bg.Y)
+	bg.Pa.Move()
+	x := bg.bgXWrap(bg.Pa.X)
+	y := bg.bgYWrap(bg.Pa.Y)
 
 	srcx, srcy := bg.sp.GetSliceXY(0)
 	ctx.Call("drawImage", bg.sp.ImgCanvas,
@@ -61,29 +58,4 @@ func (bg *BGObj) DrawTo(ctx js.Value) {
 		srcx, srcy, bg.sp.W, bg.sp.H,
 		x, y, bg.sp.W, bg.sp.H,
 	)
-}
-
-func (bg *BGObj) Move() {
-	bg.X += bg.Dx
-	bg.Y += bg.Dy
-}
-
-func (bg *BGObj) SetDxy(dx, dy int) {
-	bg.Dx = dx
-	bg.Dy = dy
-}
-
-func (bg *BGObj) SetDir(dir direction.Direction_Type) {
-	bg.Dx = dir.Vector()[0]
-	bg.Dy = dir.Vector()[1]
-}
-
-func (bg *BGObj) AccelerateDir(dir direction.Direction_Type) {
-	if dir == direction.Dir_stop {
-		bg.Dx = dir.Vector()[0]
-		bg.Dy = dir.Vector()[1]
-	} else {
-		bg.Dx += dir.Vector()[0]
-		bg.Dy += dir.Vector()[1]
-	}
 }

@@ -15,6 +15,7 @@ import (
 	"syscall/js"
 
 	"github.com/kasworld/direction"
+	"github.com/kasworld/gowasm2dgame/lib/posacc"
 	"github.com/kasworld/wrapper"
 )
 
@@ -25,10 +26,7 @@ type Cloud struct {
 	bgXWrap func(i int) int
 	bgYWrap func(i int) int
 
-	X  int
-	Y  int
-	Dx int
-	Dy int
+	Pa posacc.PosAcc
 }
 
 func NewCloud(sp *Sprite, spn int,
@@ -39,47 +37,24 @@ func NewCloud(sp *Sprite, spn int,
 	cld := &Cloud{
 		sp:  sp,
 		spn: spn,
-		X:   x,
-		Y:   y,
 	}
 	cld.bgXWrap = wrapper.New(w).GetWrapSafeFn()
 	cld.bgYWrap = wrapper.New(h).GetWrapSafeFn()
-	cld.SetDir(initdir)
+	cld.Pa = posacc.PosAcc{
+		X: x,
+		Y: y,
+	}
+	cld.Pa.SetDir(initdir)
 	return cld
 }
 
 func (cld *Cloud) DrawTo(ctx js.Value) {
-	cld.Move()
-	x := cld.bgXWrap(cld.X)
-	y := cld.bgYWrap(cld.Y)
+	cld.Pa.Move()
+	x := cld.bgXWrap(cld.Pa.X)
+	y := cld.bgYWrap(cld.Pa.Y)
 	srcx, srcy := cld.sp.GetSliceXY(cld.spn)
 	ctx.Call("drawImage", cld.sp.ImgCanvas,
 		srcx, srcy, cld.sp.W, cld.sp.H,
 		x-cld.sp.W/2, y-cld.sp.H/2, cld.sp.W, cld.sp.H,
 	)
-}
-
-func (cld *Cloud) Move() {
-	cld.X += cld.Dx
-	cld.Y += cld.Dy
-}
-
-func (cld *Cloud) SetDxy(dx, dy int) {
-	cld.Dx = dx
-	cld.Dy = dy
-}
-
-func (cld *Cloud) SetDir(dir direction.Direction_Type) {
-	cld.Dx = dir.Vector()[0]
-	cld.Dy = dir.Vector()[1]
-}
-
-func (cld *Cloud) AccelerateDir(dir direction.Direction_Type) {
-	if dir == direction.Dir_stop {
-		cld.Dx = dir.Vector()[0]
-		cld.Dy = dir.Vector()[1]
-	} else {
-		cld.Dx += dir.Vector()[0]
-		cld.Dy += dir.Vector()[1]
-	}
 }

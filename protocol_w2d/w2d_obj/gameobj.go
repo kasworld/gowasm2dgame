@@ -7,6 +7,16 @@ import (
 	"github.com/kasworld/gowasm2dgame/lib/posacc"
 )
 
+type Cloud struct {
+	Pa posacc.PosAcc
+}
+
+type Background struct {
+	Pa posacc.PosAcc
+}
+
+////////////////////
+
 type SuperShield struct {
 	GOBase gobase.GOBase
 	Am     anglemove.AngleMove
