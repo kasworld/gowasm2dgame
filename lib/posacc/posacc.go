@@ -48,7 +48,7 @@ func (pa *PosAcc) BounceNormalize(w, h float64) {
 }
 
 func (pa *PosAcc) IsIn(w, h float64) bool {
-	return 0 <= pa.X && pa.X < w && 0 <= pa.Y && pa.Y < h
+	return 0 <= pa.X && pa.X <= w && 0 <= pa.Y && pa.Y <= h
 }
 
 func (pa *PosAcc) Wrap(w, h float64) (float64, float64) {
