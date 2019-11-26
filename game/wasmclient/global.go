@@ -20,21 +20,21 @@ import (
 var gSprites *Sprites
 
 type Sprites struct {
-	BallSprites       [teamtype.TeamType_Count][gameobjtype.GameObjType_Count]*Sprite
-	ExplodeetcSprite  *Sprite
-	ExplodeballSprite *Sprite
-	SpawnSprite       *Sprite
-	CloudSprite       *Sprite
-	BGSprite          *Sprite
-	BGXWrap           func(i int) int
-	BGYWrap           func(i int) int
+	BallSprites        [teamtype.TeamType_Count][gameobjtype.GameObjType_Count]*Sprite
+	ExplodeSmallSprite *Sprite
+	ExplodeBigSprite   *Sprite
+	SpawnSprite        *Sprite
+	CloudSprite        *Sprite
+	BGSprite           *Sprite
+	BGXWrap            func(i int) int
+	BGYWrap            func(i int) int
 }
 
 func LoadSprites() *Sprites {
 	sps := &Sprites{}
 	sps.SpawnSprite = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
-	sps.ExplodeetcSprite = LoadSpriteXYN("explodeetc", "explodeetcStore", 1, 8)
-	sps.ExplodeballSprite = LoadSpriteXYN("explodeball", "explodeballStore", 8, 1)
+	sps.ExplodeSmallSprite = LoadSpriteXYN("explodesmall", "explodesmallStore", 1, 8)
+	sps.ExplodeBigSprite = LoadSpriteXYN("explodebig", "explodebigStore", 8, 1)
 	sps.CloudSprite = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
 	sps.BGSprite = LoadSpriteXYN("background", "bgStore", 1, 1)
 	sps.BGXWrap = wrapper.New(sps.BGSprite.W).GetWrapSafeFn()

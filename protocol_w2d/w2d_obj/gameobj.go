@@ -1,6 +1,7 @@
 package w2d_obj
 
 import (
+	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/lib/anglemove"
 	"github.com/kasworld/gowasm2dgame/lib/gobase"
@@ -14,6 +15,12 @@ type Cloud struct {
 
 type Background struct {
 	Pa posacc.PosAcc
+}
+
+type Effect struct {
+	EffectType effecttype.EffectType
+	Pa         posacc.PosAcc
+	SpriteNum  int
 }
 
 ////////////////////

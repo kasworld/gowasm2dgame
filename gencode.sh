@@ -78,6 +78,10 @@ goimports -w w2d_idnoti_stats/w2d_idnoti_stats_gen.go
 
 cd ..
 
+genenum -typename=TeamType -packagename=teamtype -basedir=enums -statstype=int
+goimports -w enums/teamtype/teamtype_gen.go
+goimports -w enums/teamtype_stats/teamtype_stats_gen.go
+
 genenum -typename=ActType -packagename=acttype -basedir=enums -statstype=int
 goimports -w enums/acttype/acttype_gen.go
 goimports -w enums/acttype_stats/acttype_stats_gen.go
@@ -86,10 +90,9 @@ genenum -typename=GameObjType -packagename=gameobjtype -basedir=enums -statstype
 goimports -w enums/gameobjtype/gameobjtype_gen.go
 goimports -w enums/gameobjtype_stats/gameobjtype_stats_gen.go
 
-genenum -typename=TeamType -packagename=teamtype -basedir=enums -statstype=int
-goimports -w enums/teamtype/teamtype_gen.go
-goimports -w enums/teamtype_stats/teamtype_stats_gen.go
-
+genenum -typename=EffectType -packagename=effecttype -basedir=enums -statstype=int
+goimports -w enums/effecttype/effecttype_gen.go
+goimports -w enums/effecttype_stats/effecttype_stats_gen.go
 
 GameDataFiles="
 game/gameconst/gameconst.go \

@@ -34,9 +34,10 @@ type ReqState_data struct {
 }
 type RspState_data struct {
 	Time       time.Time // unixnano
-	Teams      []*BallTeam
-	Clouds     []*Cloud
 	Background *Background
+	Teams      []*BallTeam
+	Effects    []*Effect
+	Clouds     []*Cloud
 }
 
 type ReqHeartbeat_data struct {
