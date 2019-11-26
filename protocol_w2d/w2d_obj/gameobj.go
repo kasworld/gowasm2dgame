@@ -8,7 +8,8 @@ import (
 )
 
 type Cloud struct {
-	Pa posacc.PosAcc
+	Pa        posacc.PosAcc
+	SpriteNum int
 }
 
 type Background struct {
