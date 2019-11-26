@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/wrapper"
 )
@@ -40,8 +41,8 @@ type Viewport2d struct {
 func NewViewport2d() *Viewport2d {
 	vp := &Viewport2d{
 		rnd: rand.New(rand.NewSource(time.Now().UnixNano())),
-		W:   1000,
-		H:   1000,
+		W:   gameconst.StageW,
+		H:   gameconst.StageH,
 	}
 	vp.XWrap = wrapper.New(vp.W).GetWrapSafeFn()
 	vp.YWrap = wrapper.New(vp.H).GetWrapSafeFn()
