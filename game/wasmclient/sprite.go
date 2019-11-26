@@ -39,8 +39,8 @@ type Sprite struct {
 	ImgCanvas js.Value
 	ImgCtx    js.Value
 	// one sprite slice size
-	W int
-	H int
+	W float64
+	H float64
 	// image count x, y
 	XCount int
 	YCount int
@@ -51,23 +51,24 @@ func (sp *Sprite) GetSliceCount() int {
 }
 
 // GetSliceXY return nth slice pos
-func (sp *Sprite) GetSliceXY(n int) (int, int) {
+func (sp *Sprite) GetSliceXY(n int) (float64, float64) {
 	srcxn := n % sp.XCount
 	srcyn := (n / sp.XCount) % sp.YCount
-	return sp.W * srcxn, sp.H * srcyn
+	return sp.W * float64(srcxn), sp.H * float64(srcyn)
 }
-func (sp *Sprite) CalcAlignDstTopLeft(dstx, dsty int) (int, int) {
+func (sp *Sprite) CalcAlignDstTopLeft(dstx, dsty float64) (float64, float64) {
 	return dstx, dsty
 }
 
-func (sp *Sprite) CalcAlignDstCenter(dstx, dsty int) (int, int) {
+func (sp *Sprite) CalcAlignDstCenter(dstx, dsty float64) (float64, float64) {
 	return dstx - sp.W/2, dsty - sp.H/2
 }
 
 func (sp *Sprite) Filter(index int, value int) {
-	imgData := sp.ImgCtx.Call("getImageData", 0, 0, sp.W*sp.XCount, sp.H*sp.YCount)
+	imgData := sp.ImgCtx.Call("getImageData",
+		0, 0, sp.W*float64(sp.XCount), sp.H*float64(sp.YCount))
 	pixels := imgData.Get("data") // Uint8ClampedArray
-	l := sp.W * sp.XCount * sp.H * sp.YCount
+	l := int(sp.W) * sp.XCount * int(sp.H) * sp.YCount
 	for i := 0; i < l; i++ {
 		pixels.SetIndex(i*4+index, value)
 	}
@@ -86,8 +87,8 @@ func LoadSpriteXYN(
 	dstctx.Call("clearRect", 0, 0, srcw, srch)
 	dstctx.Call("drawImage", img, 0, 0)
 	return &Sprite{
-		W:         srcw / xn,
-		H:         srch / yn,
+		W:         srcw / float64(xn),
+		H:         srch / float64(yn),
 		XCount:    xn,
 		YCount:    yn,
 		ImgCanvas: dstcnv,
@@ -98,13 +99,13 @@ func LoadSpriteXYN(
 func LoadSpriteXYNResize(
 	srcImageID string, dstCanvasID string,
 	xn, yn int,
-	xSliceW, ySliceH int,
+	xSliceW, ySliceH float64,
 ) *Sprite {
 	img, srcw, srch := getImgWH(srcImageID)
 	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
 
-	dstW := xn * xSliceW
-	dstH := yn * ySliceH
+	dstW := float64(xn) * xSliceW
+	dstH := float64(yn) * ySliceH
 	dstcnv.Set("width", dstW)
 	dstcnv.Set("height", dstH)
 	dstctx.Call("clearRect", 0, 0, dstW, dstH)
@@ -129,19 +130,19 @@ func LoadSpriteRotate(
 	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
 
 	xn := int((end - start) / step)
-	dstcnv.Set("width", srcw*xn)
+	dstcnv.Set("width", srcw*float64(xn))
 	dstcnv.Set("height", srch)
-	dstctx.Call("clearRect", 0, 0, srcw*xn, srch)
+	dstctx.Call("clearRect", 0, 0, srcw*float64(xn), srch)
 	for i := 0; i < xn; i++ {
 		dstctx.Call("save")
-		dstctx.Call("translate", srcw*i+srcw/2, srch/2)
+		dstctx.Call("translate", srcw*float64(i)+srcw/2, srch/2)
 		dstctx.Call("rotate", float64(i)*step*math.Pi/180)
 		dstctx.Call("drawImage", img, -srcw/2, -srch/2)
 		dstctx.Call("restore")
 	}
 	return &Sprite{
-		W:         srcw,
-		H:         srch,
+		W:         float64(srcw),
+		H:         float64(srch),
 		ImgCanvas: dstcnv,
 		ImgCtx:    dstctx,
 		XCount:    xn,
@@ -152,23 +153,23 @@ func LoadSpriteRotate(
 func LoadSpriteRotateResize(
 	srcImageID string, dstCanvasID string,
 	start, end, step float64,
-	xSliceW, ySliceH int,
+	xSliceW, ySliceH float64,
 ) *Sprite {
 	img, srcw, srch := getImgWH(srcImageID)
 	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
 	_ = srcw
 	_ = srch
-	xn := int((end - start) / step)
-	yn := 1
+	xn := (end - start) / step
+	yn := 1.0
 	dstW := xn * xSliceW
 	dstH := yn * ySliceH
 
 	dstcnv.Set("width", dstW)
 	dstcnv.Set("height", dstH)
 	dstctx.Call("clearRect", 0, 0, dstW, dstH)
-	for i := 0; i < xn; i++ {
+	for i := 0; i < int(xn); i++ {
 		dstctx.Call("save")
-		dstctx.Call("translate", xSliceW*i+xSliceW/2, ySliceH/2)
+		dstctx.Call("translate", xSliceW*float64(i)+xSliceW/2, ySliceH/2)
 		dstctx.Call("rotate", float64(i)*step*math.Pi/180)
 		dstctx.Call("drawImage", img,
 			0, 0, srcw, srch,
@@ -176,11 +177,11 @@ func LoadSpriteRotateResize(
 		dstctx.Call("restore")
 	}
 	return &Sprite{
-		W:         xSliceW,
-		H:         ySliceH,
+		W:         float64(xSliceW),
+		H:         float64(ySliceH),
 		ImgCanvas: dstcnv,
 		ImgCtx:    dstctx,
-		XCount:    xn,
+		XCount:    int(xn),
 		YCount:    1,
 	}
 }

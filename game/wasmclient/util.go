@@ -13,25 +13,17 @@ package wasmclient
 
 import (
 	"fmt"
-	"math"
 	"syscall/js"
 )
 
-func calcCircularPos(cx, cy int, angle, r int) (int, int) {
-	rad := float64(angle) * math.Pi / 180
-	dstx := float64(cx) + float64(r)*math.Cos(rad)
-	dsty := float64(cy) + float64(r)*math.Sin(rad)
-	return int(dstx), int(dsty)
-}
-
-func getImgWH(srcImageID string) (js.Value, int, int) {
+func getImgWH(srcImageID string) (js.Value, float64, float64) {
 	img := js.Global().Get("document").Call("getElementById", srcImageID)
 	if !img.Truthy() {
 		fmt.Printf("fail to get %v", srcImageID)
 		return js.Null(), 0, 0
 	}
-	srcw := img.Get("naturalWidth").Int()
-	srch := img.Get("naturalHeight").Int()
+	srcw := img.Get("naturalWidth").Float()
+	srch := img.Get("naturalHeight").Float()
 	return img, srcw, srch
 }
 

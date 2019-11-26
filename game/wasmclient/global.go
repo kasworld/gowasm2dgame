@@ -14,7 +14,6 @@ package wasmclient
 import (
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
-	"github.com/kasworld/wrapper"
 )
 
 var gSprites *Sprites
@@ -26,8 +25,6 @@ type Sprites struct {
 	SpawnSprite        *Sprite
 	CloudSprite        *Sprite
 	BGSprite           *Sprite
-	BGXWrap            func(i int) int
-	BGYWrap            func(i int) int
 }
 
 func LoadSprites() *Sprites {
@@ -37,8 +34,6 @@ func LoadSprites() *Sprites {
 	sps.ExplodeBigSprite = LoadSpriteXYN("explodebig", "explodebigStore", 8, 1)
 	sps.CloudSprite = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
 	sps.BGSprite = LoadSpriteXYN("background", "bgStore", 1, 1)
-	sps.BGXWrap = wrapper.New(sps.BGSprite.W).GetWrapSafeFn()
-	sps.BGYWrap = wrapper.New(sps.BGSprite.H).GetWrapSafeFn()
 
 	// load team sprite
 	teamAttrib := teamtype.SpriteFilter

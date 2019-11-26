@@ -19,7 +19,6 @@ import (
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
-	"github.com/kasworld/wrapper"
 )
 
 type Viewport2d struct {
@@ -27,10 +26,8 @@ type Viewport2d struct {
 	context2d js.Value
 	rnd       *rand.Rand
 
-	W     int
-	H     int
-	XWrap func(i int) int
-	YWrap func(i int) int
+	W float64
+	H float64
 
 	bgObj     *w2d_obj.Background
 	ballTeams []*w2d_obj.BallTeam
@@ -44,8 +41,6 @@ func NewViewport2d() *Viewport2d {
 		W:   gameconst.StageW,
 		H:   gameconst.StageH,
 	}
-	vp.XWrap = wrapper.New(vp.W).GetWrapSafeFn()
-	vp.YWrap = wrapper.New(vp.H).GetWrapSafeFn()
 
 	vp.Canvas, vp.context2d = getCnv2dCtx("viewport2DCanvas")
 	vp.Canvas.Set("width", vp.W)
@@ -95,9 +90,8 @@ func (vp *Viewport2d) draw() {
 }
 
 func (vp *Viewport2d) drawBG() {
-	x := gSprites.BGXWrap(vp.bgObj.Pa.X)
-	y := gSprites.BGYWrap(vp.bgObj.Pa.Y)
 	sp := gSprites.BGSprite
+	x, y := vp.bgObj.Pa.Wrap(sp.W, sp.H)
 	srcx, srcy := sp.GetSliceXY(0)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, sp.W, sp.H,
@@ -118,8 +112,7 @@ func (vp *Viewport2d) drawBG() {
 }
 
 func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
-	x := vp.XWrap(cld.Pa.X)
-	y := vp.YWrap(cld.Pa.Y)
+	x, y := cld.Pa.Wrap(vp.W, vp.H)
 	sp := gSprites.CloudSprite
 	srcx, srcy := sp.GetSliceXY(cld.SpriteNum)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
@@ -143,7 +136,7 @@ func (vp *Viewport2d) drawBallTeam(bl *w2d_obj.BallTeam) {
 	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.Shield]
 	srcx, srcy = sp.GetSliceXY(0)
 	for _, v := range bl.Shields {
-		x, y := calcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, v.Am.Angle, dispR)
+		x, y := v.Am.CalcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, dispR)
 		vp.context2d.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
@@ -155,7 +148,7 @@ func (vp *Viewport2d) drawBallTeam(bl *w2d_obj.BallTeam) {
 	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.SuperShield]
 	for _, v := range bl.SuperShields {
 		srcx, srcy := sp.GetSliceXY(v.Frame)
-		x, y := calcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, v.Am.Angle, dispR)
+		x, y := v.Am.CalcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, dispR)
 		vp.context2d.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,

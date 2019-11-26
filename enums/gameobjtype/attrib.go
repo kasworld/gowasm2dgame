@@ -12,8 +12,8 @@
 package gameobjtype
 
 var Attrib = [GameObjType_Count]struct {
-	Size int
-	R    int // from main ball center
+	Size float64
+	R    float64 // from main ball center
 }{
 	Ball:          {32, 0},
 	Shield:        {16, 28},

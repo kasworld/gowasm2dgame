@@ -20,17 +20,17 @@ import (
 
 func (vp *Viewport2d) makeTestObj() {
 	vp.bgObj = &w2d_obj.Background{}
-	vp.bgObj.Pa.SetDxy(vp.rnd.Intn(5)-2, vp.rnd.Intn(5)-2)
+	vp.bgObj.Pa.SetDxy(vp.rnd.Float64()*5-2, vp.rnd.Float64()*5-2)
 
 	vp.cloudObjs = make([]*w2d_obj.Cloud, 10)
 	for i := range vp.cloudObjs {
 		vp.cloudObjs[i] = &w2d_obj.Cloud{
 			SpriteNum: i,
 			Pa: posacc.PosAcc{
-				X:  vp.rnd.Intn(vp.W),
-				Y:  vp.rnd.Intn(vp.H),
-				Dx: vp.rnd.Intn(5) - 2,
-				Dy: vp.rnd.Intn(5) - 2,
+				X:  vp.rnd.Float64() * vp.W,
+				Y:  vp.rnd.Float64() * vp.H,
+				Dx: vp.rnd.Float64()*5 - 2,
+				Dy: vp.rnd.Float64()*5 - 2,
 			},
 		}
 	}
@@ -45,10 +45,10 @@ func (vp *Viewport2d) newBallTeam(TeamType teamtype.TeamType) *w2d_obj.BallTeam 
 		TeamType: TeamType,
 		Ball: &w2d_obj.Ball{
 			Pa: posacc.PosAcc{
-				X:  vp.rnd.Intn(vp.W),
-				Y:  vp.rnd.Intn(vp.H),
-				Dx: vp.rnd.Intn(5) - 2,
-				Dy: vp.rnd.Intn(5) - 2,
+				X:  vp.rnd.Float64() * vp.W,
+				Y:  vp.rnd.Float64() * vp.H,
+				Dx: vp.rnd.Float64()*5 - 2,
+				Dy: vp.rnd.Float64()*5 - 2,
 			},
 		},
 		Shields:      make([]*w2d_obj.Shield, 12),
@@ -57,16 +57,16 @@ func (vp *Viewport2d) newBallTeam(TeamType teamtype.TeamType) *w2d_obj.BallTeam 
 	for i := range bl.Shields {
 		bl.Shields[i] = &w2d_obj.Shield{
 			Am: anglemove.AngleMove{
-				Angle:  vp.rnd.Intn(360),
-				AngleV: vp.rnd.Intn(3) - 1,
+				Angle:  vp.rnd.Float64() * 360,
+				AngleV: vp.rnd.Float64()*3 - 1,
 			},
 		}
 	}
 	for i := range bl.SuperShields {
 		bl.SuperShields[i] = &w2d_obj.SuperShield{
 			Am: anglemove.AngleMove{
-				Angle:  vp.rnd.Intn(360),
-				AngleV: vp.rnd.Intn(3) - 1,
+				Angle:  vp.rnd.Float64() * 360,
+				AngleV: vp.rnd.Float64()*3 - 1,
 			},
 		}
 	}

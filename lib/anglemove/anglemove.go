@@ -11,11 +11,20 @@
 
 package anglemove
 
+import "math"
+
 type AngleMove struct {
-	Angle  int
-	AngleV int
+	Angle  float64
+	AngleV float64
 }
 
 func (am *AngleMove) Move() {
 	am.Angle += am.AngleV
+}
+
+func (am *AngleMove) CalcCircularPos(cx, cy, r float64) (float64, float64) {
+	rad := am.Angle * math.Pi / 180
+	dstx := cx + r*math.Cos(rad)
+	dsty := cy + r*math.Sin(rad)
+	return dstx, dsty
 }
