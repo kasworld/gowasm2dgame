@@ -18,11 +18,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
+
 	"github.com/kasworld/prettystring"
 
 	"github.com/kasworld/actpersec"
 	"github.com/kasworld/gowasm2dgame/game/connectionmanager"
 	"github.com/kasworld/gowasm2dgame/game/serverconfig"
+	"github.com/kasworld/gowasm2dgame/game/stage"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_json"
@@ -57,6 +60,7 @@ type Server struct {
 		w2d_packet.Header, interface{}, error)
 
 	connManager *connectionmanager.Manager
+	stage       *stage.Stage
 }
 
 func New(config serverconfig.Config) *Server {
@@ -86,6 +90,7 @@ func New(config serverconfig.Config) *Server {
 		w2d_idcmd.Act:       svr.bytesAPIFn_ReqAct,
 		w2d_idcmd.Heartbeat: svr.bytesAPIFn_ReqHeartbeat,
 	} // DemuxReq2BytesAPIFnMap
+	svr.stage = stage.New(svr.log)
 	return svr
 }
 
@@ -125,6 +130,11 @@ func (svr *Server) ServiceMain(ctx context.Context) {
 
 	timerInfoTk := time.NewTicker(1 * time.Second)
 	defer timerInfoTk.Stop()
+
+	turnDur := time.Duration(float64(time.Second) / svr.config.ActTurnPerSec)
+	timerTurnTk := time.NewTicker(turnDur)
+	defer timerTurnTk.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -132,6 +142,15 @@ func (svr *Server) ServiceMain(ctx context.Context) {
 		case <-timerInfoTk.C:
 			svr.SendStat.UpdateLap()
 			svr.RecvStat.UpdateLap()
+		case <-timerTurnTk.C:
+			svr.stage.Turn()
+			si := svr.stage.ToStageInfo()
+			conlist := svr.connManager.GetList()
+			for _, v := range conlist {
+				v.SendNotiPacket(w2d_idnoti.StageInfo,
+					si,
+				)
+			}
 		}
 	}
 }

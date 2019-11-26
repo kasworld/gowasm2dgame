@@ -43,16 +43,21 @@ func NewViewport2d() *Viewport2d {
 	vp.Canvas.Set("width", vp.W)
 	vp.Canvas.Set("height", vp.H)
 
-	vp.stageInfo = vp.makeStageInfo()
+	// vp.stageInfo = vp.makeStageInfo()
 	return vp
 }
 
-func (vp *Viewport2d) move(frame int) {
+func (vp *Viewport2d) move() {
 	si := vp.stageInfo
+	if si == nil {
+		return
+	}
 	si.Background.Pa.Move()
+	si.Background.Pa.Wrap(gameconst.StageW*2, gameconst.StageH*2)
+
 	for _, bt := range si.Teams {
 		bt.Ball.Pa.Move()
-		bt.Ball.Pa.BounceNormalize(vp.W, vp.H)
+		bt.Ball.Pa.BounceNormalize(gameconst.StageW, gameconst.StageH)
 		for _, v := range bt.Shields {
 			v.Am.Move()
 		}
@@ -74,11 +79,15 @@ func (vp *Viewport2d) move(frame int) {
 	}
 	for _, cld := range si.Clouds {
 		cld.Pa.Move()
+		cld.Pa.Wrap(gameconst.StageW, gameconst.StageH)
 	}
 }
 
 func (vp *Viewport2d) draw() {
 	si := vp.stageInfo
+	if si == nil {
+		return
+	}
 	vp.drawBG()
 	for _, v := range si.Teams {
 		vp.drawBallTeam(v)
@@ -91,7 +100,7 @@ func (vp *Viewport2d) draw() {
 func (vp *Viewport2d) drawBG() {
 	si := vp.stageInfo
 	sp := gSprites.BGSprite
-	x, y := si.Background.Pa.Wrap(sp.W, sp.H)
+	x, y := si.Background.Pa.X, si.Background.Pa.Y
 	srcx, srcy := sp.GetSliceXY(0)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, sp.W, sp.H,
@@ -112,7 +121,7 @@ func (vp *Viewport2d) drawBG() {
 }
 
 func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
-	x, y := cld.Pa.Wrap(vp.W, vp.H)
+	x, y := cld.Pa.X, cld.Pa.Y
 	sp := gSprites.CloudSprite
 	srcx, srcy := sp.GetSliceXY(cld.SpriteNum)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
