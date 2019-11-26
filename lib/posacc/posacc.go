@@ -38,15 +38,18 @@ func (pa *PosAcc) BounceNormalize(w, h int) {
 		pa.Dy = abs.Absi(pa.Dy)
 	}
 
-	if pa.X > w {
-		pa.X = w
+	if pa.X >= w {
+		pa.X = w - 1
 		pa.Dx = -abs.Absi(pa.Dx)
 	}
-	if pa.Y > h {
-		pa.Y = h
+	if pa.Y >= h {
+		pa.Y = h - 1
 		pa.Dy = -abs.Absi(pa.Dy)
 	}
+}
 
+func (pa *PosAcc) IsIn(w, h int) bool {
+	return 0 <= pa.X && pa.X < w && 0 <= pa.Y && pa.Y < h
 }
 
 func (pa *PosAcc) SetDxy(dx, dy int) {

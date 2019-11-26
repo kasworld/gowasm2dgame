@@ -20,7 +20,7 @@ type Background struct {
 type Effect struct {
 	EffectType effecttype.EffectType
 	Pa         posacc.PosAcc
-	SpriteNum  int
+	Frame      int
 }
 
 ////////////////////
@@ -28,6 +28,7 @@ type Effect struct {
 type SuperShield struct {
 	GOBase gobase.GOBase
 	Am     anglemove.AngleMove
+	Frame  int
 }
 
 type Shield struct {
@@ -38,6 +39,7 @@ type Shield struct {
 type HommingShield struct {
 	GOBase gobase.GOBase
 	Pa     posacc.PosAcc
+	Frame  int
 }
 
 type Ball struct {
@@ -46,11 +48,14 @@ type Ball struct {
 }
 
 type BallTeam struct {
-	TeamType      teamtype.TeamType
-	Ball          *Ball
-	Shields       []*Shield
-	SuperShields  []*SuperShield
-	HommingShiels []*HommingShield
+	TeamType       teamtype.TeamType
+	Ball           *Ball
+	Shields        []*Shield
+	SuperShields   []*SuperShield
+	HommingShields []*HommingShield
+	Bullets        []*Bullet
+	SuperBullets   []*SuperBullet
+	HommingBullets []*HommingBullet
 }
 
 type Bullet struct {
@@ -59,13 +64,14 @@ type Bullet struct {
 }
 
 type HommingBullet struct {
-	GOBase gobase.GOBase
-	Pa     posacc.PosAcc
-
+	GOBase  gobase.GOBase
+	Pa      posacc.PosAcc
+	Frame   int
 	DstUUID string
 }
 
 type SuperBullet struct {
 	GOBase gobase.GOBase
 	Pa     posacc.PosAcc
+	Frame  int
 }

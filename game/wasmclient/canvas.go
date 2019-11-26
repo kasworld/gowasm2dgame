@@ -12,7 +12,6 @@
 package wasmclient
 
 import (
-	"fmt"
 	"math/rand"
 	"syscall/js"
 	"time"
@@ -41,16 +40,13 @@ type Viewport2d struct {
 func NewViewport2d() *Viewport2d {
 	vp := &Viewport2d{
 		rnd: rand.New(rand.NewSource(time.Now().UnixNano())),
+		W:   1000,
+		H:   1000,
 	}
-	vp.W = 1000
-	vp.H = 1000
 	vp.XWrap = wrapper.New(vp.W).GetWrapSafeFn()
 	vp.YWrap = wrapper.New(vp.H).GetWrapSafeFn()
 
 	vp.Canvas, vp.context2d = getCnv2dCtx("viewport2DCanvas")
-	if !vp.context2d.Truthy() {
-		fmt.Printf("fail to get context2d\n")
-	}
 	vp.Canvas.Set("width", vp.W)
 	vp.Canvas.Set("height", vp.H)
 
@@ -58,16 +54,28 @@ func NewViewport2d() *Viewport2d {
 	return vp
 }
 
-func (vp *Viewport2d) move() {
+func (vp *Viewport2d) move(frame int) {
 	vp.bgObj.Pa.Move()
 	for _, bt := range vp.ballTeams {
 		bt.Ball.Pa.Move()
 		bt.Ball.Pa.BounceNormalize(vp.W, vp.H)
-		for _, sld := range bt.Shields {
-			sld.Am.Move()
+		for _, v := range bt.Shields {
+			v.Am.Move()
 		}
-		for _, ssld := range bt.SuperShields {
-			ssld.Am.Move()
+		for _, v := range bt.SuperShields {
+			v.Am.Move()
+		}
+		for _, v := range bt.HommingShields {
+			v.Pa.Move()
+		}
+		for _, v := range bt.Bullets {
+			v.Pa.Move()
+		}
+		for _, v := range bt.SuperBullets {
+			v.Pa.Move()
+		}
+		for _, v := range bt.HommingBullets {
+			v.Pa.Move()
 		}
 	}
 	for _, cld := range vp.cloudObjs {
@@ -75,20 +83,19 @@ func (vp *Viewport2d) move() {
 	}
 }
 
-func (vp *Viewport2d) draw(frame int) {
-	vp.DrawBG()
+func (vp *Viewport2d) draw() {
+	vp.drawBG()
 	for _, v := range vp.ballTeams {
-		vp.DrawBallTeam(v, frame)
+		vp.drawBallTeam(v)
 	}
 	for _, v := range vp.cloudObjs {
-		vp.DrawCloud(v)
+		vp.drawCloud(v)
 	}
 }
 
-func (vp *Viewport2d) DrawBG() {
+func (vp *Viewport2d) drawBG() {
 	x := gSprites.BGXWrap(vp.bgObj.Pa.X)
 	y := gSprites.BGYWrap(vp.bgObj.Pa.Y)
-
 	sp := gSprites.BGSprite
 	srcx, srcy := sp.GetSliceXY(0)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
@@ -109,7 +116,7 @@ func (vp *Viewport2d) DrawBG() {
 	)
 }
 
-func (vp *Viewport2d) DrawCloud(cld *w2d_obj.Cloud) {
+func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
 	x := vp.XWrap(cld.Pa.X)
 	y := vp.YWrap(cld.Pa.Y)
 	sp := gSprites.CloudSprite
@@ -120,7 +127,7 @@ func (vp *Viewport2d) DrawCloud(cld *w2d_obj.Cloud) {
 	)
 }
 
-func (vp *Viewport2d) DrawBallTeam(bl *w2d_obj.BallTeam, frame int) {
+func (vp *Viewport2d) drawBallTeam(bl *w2d_obj.BallTeam) {
 	dispSize := gameobjtype.Attrib[gameobjtype.Ball].Size
 	sp := gSprites.BallSprites[bl.TeamType][gameobjtype.Ball]
 	srcx, srcy := sp.GetSliceXY(0)
@@ -146,8 +153,52 @@ func (vp *Viewport2d) DrawBallTeam(bl *w2d_obj.BallTeam, frame int) {
 	dispR = gameobjtype.Attrib[gameobjtype.SuperShield].R
 	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.SuperShield]
 	for _, v := range bl.SuperShields {
-		srcx, srcy := sp.GetSliceXY(frame)
+		srcx, srcy := sp.GetSliceXY(v.Frame)
 		x, y := calcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, v.Am.Angle, dispR)
+		vp.context2d.Call("drawImage", sp.ImgCanvas,
+			srcx, srcy, dispSize, dispSize,
+			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
+		)
+	}
+
+	dispSize = gameobjtype.Attrib[gameobjtype.HommingShield].Size
+	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.HommingShield]
+	for _, v := range bl.HommingShields {
+		srcx, srcy := sp.GetSliceXY(v.Frame)
+		x, y := v.Pa.X, v.Pa.Y
+		vp.context2d.Call("drawImage", sp.ImgCanvas,
+			srcx, srcy, dispSize, dispSize,
+			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
+		)
+	}
+
+	dispSize = gameobjtype.Attrib[gameobjtype.Bullet].Size
+	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.Bullet]
+	for _, v := range bl.Bullets {
+		srcx, srcy := sp.GetSliceXY(0)
+		x, y := v.Pa.X, v.Pa.Y
+		vp.context2d.Call("drawImage", sp.ImgCanvas,
+			srcx, srcy, dispSize, dispSize,
+			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
+		)
+	}
+
+	dispSize = gameobjtype.Attrib[gameobjtype.SuperBullet].Size
+	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.SuperBullet]
+	for _, v := range bl.SuperBullets {
+		srcx, srcy := sp.GetSliceXY(v.Frame)
+		x, y := v.Pa.X, v.Pa.Y
+		vp.context2d.Call("drawImage", sp.ImgCanvas,
+			srcx, srcy, dispSize, dispSize,
+			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
+		)
+	}
+
+	dispSize = gameobjtype.Attrib[gameobjtype.HommingBullet].Size
+	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.HommingBullet]
+	for _, v := range bl.HommingBullets {
+		srcx, srcy := sp.GetSliceXY(v.Frame)
+		x, y := v.Pa.X, v.Pa.Y
 		vp.context2d.Call("drawImage", sp.ImgCanvas,
 			srcx, srcy, dispSize, dispSize,
 			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
