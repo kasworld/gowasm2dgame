@@ -17,11 +17,7 @@ import (
 	"syscall/js"
 	"time"
 
-	"github.com/kasworld/direction"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
-	"github.com/kasworld/gowasm2dgame/enums/teamtype"
-	"github.com/kasworld/gowasm2dgame/lib/anglemove"
-	"github.com/kasworld/gowasm2dgame/lib/posacc"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/wrapper"
 )
@@ -37,8 +33,9 @@ type Viewport2d struct {
 	YWrap func(i int) int
 
 	bgObj     *w2d_obj.Background
-	cloudObjs []*w2d_obj.Cloud
 	ballTeams []*w2d_obj.BallTeam
+	effects   []*w2d_obj.Effect
+	cloudObjs []*w2d_obj.Cloud
 }
 
 func NewViewport2d() *Viewport2d {
@@ -57,72 +54,25 @@ func NewViewport2d() *Viewport2d {
 	vp.Canvas.Set("width", vp.W)
 	vp.Canvas.Set("height", vp.H)
 
-	vp.bgObj = &w2d_obj.Background{}
-	vp.bgObj.Pa.SetDxy(1, -1)
-
-	vp.cloudObjs = make([]*w2d_obj.Cloud, 10)
-	for i := range vp.cloudObjs {
-		vp.cloudObjs[i] = &w2d_obj.Cloud{
-			SpriteNum: i,
-			Pa: posacc.PosAcc{
-				X: vp.rnd.Intn(vp.W),
-				Y: vp.rnd.Intn(vp.H),
-			},
-		}
-		vp.cloudObjs[i].Pa.SetDir(
-			direction.Direction_Type(i % direction.Direction_Count))
-	}
-
-	vp.ballTeams = make([]*w2d_obj.BallTeam, teamtype.TeamType_Count)
-	for i := range vp.ballTeams {
-		vp.ballTeams[i] = NewBallTeam(
-			teamtype.TeamType(i),
-			direction.Direction_Type(i%direction.Direction_Count),
-			vp.rnd.Intn(vp.W), vp.rnd.Intn(vp.H),
-		)
-	}
-
+	vp.makeTestObj()
 	return vp
 }
 
-func NewBallTeam(TeamType teamtype.TeamType,
-	initdir direction.Direction_Type, x, y int) *w2d_obj.BallTeam {
-	bl := &w2d_obj.BallTeam{
-		TeamType: TeamType,
-		Ball:     &w2d_obj.Ball{},
-	}
-	bl.Ball.Pa = posacc.PosAcc{
-		X: x,
-		Y: y,
-	}
-	bl.Ball.Pa.SetDir(initdir)
-	bl.Shields = make([]*w2d_obj.Shield, 24)
-	for i := range bl.Shields {
-		av := 1
-		if i%2 == 0 {
-			av = -1
+func (vp *Viewport2d) move() {
+	vp.bgObj.Pa.Move()
+	for _, bt := range vp.ballTeams {
+		bt.Ball.Pa.Move()
+		bt.Ball.Pa.BounceNormalize(vp.W, vp.H)
+		for _, sld := range bt.Shields {
+			sld.Am.Move()
 		}
-		bl.Shields[i] = &w2d_obj.Shield{
-			Am: anglemove.AngleMove{
-				Angle:  i * 15,
-				AngleV: av,
-			},
+		for _, ssld := range bt.SuperShields {
+			ssld.Am.Move()
 		}
 	}
-	bl.SuperShields = make([]*w2d_obj.SuperShield, 24)
-	for i := range bl.SuperShields {
-		av := 1
-		if i%2 == 0 {
-			av = -1
-		}
-		bl.SuperShields[i] = &w2d_obj.SuperShield{
-			Am: anglemove.AngleMove{
-				Angle:  15 + i*15,
-				AngleV: av,
-			},
-		}
+	for _, cld := range vp.cloudObjs {
+		cld.Pa.Move()
 	}
-	return bl
 }
 
 func (vp *Viewport2d) draw(frame int) {
@@ -136,7 +86,6 @@ func (vp *Viewport2d) draw(frame int) {
 }
 
 func (vp *Viewport2d) DrawBG() {
-	vp.bgObj.Pa.Move()
 	x := gSprites.BGXWrap(vp.bgObj.Pa.X)
 	y := gSprites.BGYWrap(vp.bgObj.Pa.Y)
 
@@ -161,7 +110,6 @@ func (vp *Viewport2d) DrawBG() {
 }
 
 func (vp *Viewport2d) DrawCloud(cld *w2d_obj.Cloud) {
-	cld.Pa.Move()
 	x := vp.XWrap(cld.Pa.X)
 	y := vp.YWrap(cld.Pa.Y)
 	sp := gSprites.CloudSprite
@@ -173,15 +121,6 @@ func (vp *Viewport2d) DrawCloud(cld *w2d_obj.Cloud) {
 }
 
 func (vp *Viewport2d) DrawBallTeam(bl *w2d_obj.BallTeam, frame int) {
-	bl.Ball.Pa.Move()
-	bl.Ball.Pa.BounceNormalize(vp.W, vp.H)
-	for _, v := range bl.Shields {
-		v.Am.Move()
-	}
-	for _, v := range bl.SuperShields {
-		v.Am.Move()
-	}
-
 	dispSize := gameobjtype.Attrib[gameobjtype.Ball].Size
 	sp := gSprites.BallSprites[bl.TeamType][gameobjtype.Ball]
 	srcx, srcy := sp.GetSliceXY(0)
