@@ -19,9 +19,8 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_authorize"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_serveconnbyte"
+	"github.com/kasworld/uuidstr"
 )
 
 func (svr *Server) initServiceWeb(ctx context.Context) {
@@ -52,26 +51,26 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 		fmt.Printf("upgrade %v\n", err)
 		return
 	}
-	DemuxReq2BytesAPIFnMap := [...]func(
-		me interface{}, hd w2d_packet.Header, rbody []byte) (
-		w2d_packet.Header, interface{}, error){
-		w2d_idcmd.Invalid:   svr.bytesAPIFn_ReqInvalid,
-		w2d_idcmd.MakeTeam:  svr.bytesAPIFn_ReqMakeTeam,
-		w2d_idcmd.Act:       svr.bytesAPIFn_ReqAct,
-		w2d_idcmd.Heartbeat: svr.bytesAPIFn_ReqHeartbeat,
-	} // DemuxReq2BytesAPIFnMap
 
+	connID := uuidstr.New()
 	c2sc := w2d_serveconnbyte.NewWithStats(
-		nil,
+		connID, // connid
 		gameconst.SendBufferSize,
 		w2d_authorize.NewAllSet(),
 		svr.apiStat,
 		svr.notiStat,
 		svr.errorStat,
-		DemuxReq2BytesAPIFnMap)
+		svr.DemuxReq2BytesAPIFnMap)
+
+	// add to conn manager
+	svr.connManager.Add(connID, c2sc)
+
+	// start client service
 	c2sc.StartServeWS(ctx, wsConn,
 		gameconst.ReadTimeoutSec, gameconst.WriteTimeoutSec, svr.marshalBodyFn)
 	wsConn.Close()
-
 	// connection cleanup here
+
+	// del from conn manager
+	svr.connManager.Del(connID)
 }

@@ -21,6 +21,7 @@ import (
 	"github.com/kasworld/prettystring"
 
 	"github.com/kasworld/actpersec"
+	"github.com/kasworld/gowasm2dgame/game/connectionmanager"
 	"github.com/kasworld/gowasm2dgame/game/serverconfig"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
@@ -54,6 +55,8 @@ type Server struct {
 	DemuxReq2BytesAPIFnMap [w2d_idcmd.CommandID_Count]func(
 		me interface{}, hd w2d_packet.Header, rbody []byte) (
 		w2d_packet.Header, interface{}, error)
+
+	connManager *connectionmanager.Manager
 }
 
 func New(config serverconfig.Config) *Server {
@@ -65,15 +68,24 @@ func New(config serverconfig.Config) *Server {
 		SendStat: actpersec.New(),
 		RecvStat: actpersec.New(),
 
-		apiStat:   w2d_statserveapi.New(),
-		notiStat:  w2d_statnoti.New(),
-		errorStat: w2d_statapierror.New(),
+		apiStat:     w2d_statserveapi.New(),
+		notiStat:    w2d_statnoti.New(),
+		errorStat:   w2d_statapierror.New(),
+		connManager: connectionmanager.New(),
 	}
 	svr.sendRecvStop = func() {
 		fmt.Printf("Too early sendRecvStop call\n")
 	}
 	svr.marshalBodyFn = w2d_json.MarshalBodyFn
 	svr.unmarshalPacketFn = w2d_json.UnmarshalPacket
+	svr.DemuxReq2BytesAPIFnMap = [...]func(
+		me interface{}, hd w2d_packet.Header, rbody []byte) (
+		w2d_packet.Header, interface{}, error){
+		w2d_idcmd.Invalid:   svr.bytesAPIFn_ReqInvalid,
+		w2d_idcmd.MakeTeam:  svr.bytesAPIFn_ReqMakeTeam,
+		w2d_idcmd.Act:       svr.bytesAPIFn_ReqAct,
+		w2d_idcmd.Heartbeat: svr.bytesAPIFn_ReqHeartbeat,
+	} // DemuxReq2BytesAPIFnMap
 	return svr
 }
 
