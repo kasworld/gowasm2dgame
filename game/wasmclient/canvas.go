@@ -80,6 +80,10 @@ func (vp *Viewport2d) draw() {
 	for _, v := range si.Teams {
 		vp.drawBallTeam(v)
 	}
+	for _, v := range si.Effects {
+		vp.drawEffect(v)
+	}
+
 	for _, v := range si.Clouds {
 		vp.drawCloud(v)
 	}
@@ -112,6 +116,16 @@ func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
 	x, y := cld.Pa.X, cld.Pa.Y
 	sp := gSprites.CloudSprite
 	srcx, srcy := sp.GetSliceXY(cld.SpriteNum)
+	vp.context2d.Call("drawImage", sp.ImgCanvas,
+		srcx, srcy, sp.W, sp.H,
+		x-sp.W/2, y-sp.H/2, sp.W, sp.H,
+	)
+}
+
+func (vp *Viewport2d) drawEffect(eff *w2d_obj.Effect) {
+	x, y := eff.Pa.X, eff.Pa.Y
+	sp := gSprites.EffectSprite[eff.EffectType]
+	srcx, srcy := sp.GetSliceXY(eff.Frame)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, sp.W, sp.H,
 		x-sp.W/2, y-sp.H/2, sp.W, sp.H,

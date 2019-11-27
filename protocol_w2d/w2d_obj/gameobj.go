@@ -25,28 +25,6 @@ type Effect struct {
 
 ////////////////////
 
-type SuperShield struct {
-	GOBase gobase.GOBase
-	Am     anglemove.AngleMove
-	Frame  int
-}
-
-type Shield struct {
-	GOBase gobase.GOBase
-	Am     anglemove.AngleMove
-}
-
-type HommingShield struct {
-	GOBase gobase.GOBase
-	Pa     posacc.PosAcc
-	Frame  int
-}
-
-type Ball struct {
-	GOBase gobase.GOBase
-	Pa     posacc.PosAcc
-}
-
 type BallTeam struct {
 	TeamType       teamtype.TeamType
 	Ball           *Ball
@@ -58,9 +36,37 @@ type BallTeam struct {
 	HommingBullets []*HommingBullet
 }
 
+type Ball struct {
+	GOBase gobase.GOBase
+	Pa     posacc.PosAcc
+}
+
+type Shield struct {
+	GOBase gobase.GOBase
+	Am     anglemove.AngleMove
+}
+
+type SuperShield struct {
+	GOBase gobase.GOBase
+	Am     anglemove.AngleMove
+	Frame  int
+}
+
+type HommingShield struct {
+	GOBase gobase.GOBase
+	Pa     posacc.PosAcc
+	Frame  int
+}
+
 type Bullet struct {
 	GOBase gobase.GOBase
 	Pa     posacc.PosAcc
+}
+
+type SuperBullet struct {
+	GOBase gobase.GOBase
+	Pa     posacc.PosAcc
+	Frame  int
 }
 
 type HommingBullet struct {
@@ -68,10 +74,4 @@ type HommingBullet struct {
 	Pa      posacc.PosAcc
 	Frame   int
 	DstUUID string
-}
-
-type SuperBullet struct {
-	GOBase gobase.GOBase
-	Pa     posacc.PosAcc
-	Frame  int
 }

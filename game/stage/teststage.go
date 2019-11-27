@@ -14,6 +14,7 @@ package stage
 import (
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/anglemove"
@@ -29,7 +30,6 @@ func (stg *Stage) makeTestData() {
 			Dy:           stg.rnd.Float64()*500 - 250,
 		},
 	}
-
 	stg.Clouds = make([]*w2d_obj.Cloud, 10)
 	for i := range stg.Clouds {
 		stg.Clouds[i] = &w2d_obj.Cloud{
@@ -40,6 +40,16 @@ func (stg *Stage) makeTestData() {
 				Dx:           stg.rnd.Float64()*500 - 250,
 				Dy:           stg.rnd.Float64()*500 - 250,
 				LastMoveTick: time.Now().UnixNano(),
+			},
+		}
+	}
+	stg.Effects = make([]*w2d_obj.Effect, effecttype.EffectType_Count*5)
+	for i := range stg.Effects {
+		stg.Effects[i] = &w2d_obj.Effect{
+			EffectType: effecttype.EffectType(i % effecttype.EffectType_Count),
+			Pa: posacc.PosAcc{
+				X: stg.rnd.Float64() * gameconst.StageW,
+				Y: stg.rnd.Float64() * gameconst.StageH,
 			},
 		}
 	}

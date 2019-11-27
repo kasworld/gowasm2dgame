@@ -11,10 +11,8 @@
 
 package gobase
 
-import "time"
-
 type GOBase struct {
 	TeamUUID  string
 	UUID      string
-	BirthTime time.Time
+	BirthTick int64
 }

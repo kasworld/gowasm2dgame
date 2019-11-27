@@ -32,6 +32,15 @@ func (pa *PosAcc) Move(now int64) {
 	pa.Y += pa.Dy * diff
 }
 
+func (pa *PosAcc) IsIn(w, h float64) bool {
+	return 0 <= pa.X && pa.X <= w && 0 <= pa.Y && pa.Y <= h
+}
+
+func (pa *PosAcc) SetDxy(dx, dy float64) {
+	pa.Dx = dx
+	pa.Dy = dy
+}
+
 func (pa *PosAcc) BounceNormalize(w, h float64) {
 	if pa.X < 0 {
 		pa.X = 0
@@ -52,10 +61,6 @@ func (pa *PosAcc) BounceNormalize(w, h float64) {
 	}
 }
 
-func (pa *PosAcc) IsIn(w, h float64) bool {
-	return 0 <= pa.X && pa.X <= w && 0 <= pa.Y && pa.Y <= h
-}
-
 func (pa *PosAcc) Wrap(w, h float64) (float64, float64) {
 	if pa.X < 0 {
 		pa.X = w
@@ -72,18 +77,3 @@ func (pa *PosAcc) Wrap(w, h float64) (float64, float64) {
 	}
 	return pa.X, pa.Y
 }
-
-func (pa *PosAcc) SetDxy(dx, dy float64) {
-	pa.Dx = dx
-	pa.Dy = dy
-}
-
-// func (pa *PosAcc) SetDir(dir direction.Direction_Type) {
-// 	pa.Dx = dir.Vector()[0]
-// 	pa.Dy = dir.Vector()[1]
-// }
-
-// func (pa *PosAcc) AccelerateDir(dir direction.Direction_Type) {
-// 	pa.Dx += dir.Vector()[0]
-// 	pa.Dy += dir.Vector()[1]
-// }

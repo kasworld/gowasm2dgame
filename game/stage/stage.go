@@ -55,19 +55,26 @@ func (stg *Stage) move(now int64) {
 		}
 		for _, v := range bt.SuperShields {
 			v.Am.Move(now)
+			v.Frame++
 		}
 		for _, v := range bt.HommingShields {
 			v.Pa.Move(now)
+			v.Frame++
 		}
 		for _, v := range bt.Bullets {
 			v.Pa.Move(now)
 		}
 		for _, v := range bt.SuperBullets {
 			v.Pa.Move(now)
+			v.Frame++
 		}
 		for _, v := range bt.HommingBullets {
 			v.Pa.Move(now)
+			v.Frame++
 		}
+	}
+	for _, eff := range stg.Effects {
+		eff.Frame++
 	}
 	for _, cld := range stg.Clouds {
 		cld.Pa.Move(now)

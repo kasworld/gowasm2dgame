@@ -12,6 +12,7 @@
 package wasmclient
 
 import (
+	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 )
@@ -19,19 +20,17 @@ import (
 var gSprites *Sprites
 
 type Sprites struct {
-	BallSprites        [teamtype.TeamType_Count][gameobjtype.GameObjType_Count]*Sprite
-	ExplodeSmallSprite *Sprite
-	ExplodeBigSprite   *Sprite
-	SpawnSprite        *Sprite
-	CloudSprite        *Sprite
-	BGSprite           *Sprite
+	BallSprites  [teamtype.TeamType_Count][gameobjtype.GameObjType_Count]*Sprite
+	EffectSprite [effecttype.EffectType_Count]*Sprite
+	CloudSprite  *Sprite
+	BGSprite     *Sprite
 }
 
 func LoadSprites() *Sprites {
 	sps := &Sprites{}
-	sps.SpawnSprite = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
-	sps.ExplodeSmallSprite = LoadSpriteXYN("explodesmall", "explodesmallStore", 1, 8)
-	sps.ExplodeBigSprite = LoadSpriteXYN("explodebig", "explodebigStore", 8, 1)
+	sps.EffectSprite[effecttype.Spawn] = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
+	sps.EffectSprite[effecttype.ExplodeSmall] = LoadSpriteXYN("explodesmall", "explodesmallStore", 1, 8)
+	sps.EffectSprite[effecttype.ExplodeBig] = LoadSpriteXYN("explodebig", "explodebigStore", 8, 1)
 	sps.CloudSprite = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
 	sps.BGSprite = LoadSpriteXYN("background", "bgStore", 1, 1)
 
