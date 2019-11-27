@@ -19,8 +19,8 @@ type Background struct {
 
 type Effect struct {
 	EffectType effecttype.EffectType
+	BirthTick  int64
 	Pa         posacc.PosAcc
-	Frame      int
 }
 
 ////////////////////
@@ -49,13 +49,11 @@ type Shield struct {
 type SuperShield struct {
 	GOBase gobase.GOBase
 	Am     anglemove.AngleMove
-	Frame  int
 }
 
 type HommingShield struct {
 	GOBase gobase.GOBase
 	Pa     posacc.PosAcc
-	Frame  int
 }
 
 type Bullet struct {
@@ -66,12 +64,10 @@ type Bullet struct {
 type SuperBullet struct {
 	GOBase gobase.GOBase
 	Pa     posacc.PosAcc
-	Frame  int
 }
 
 type HommingBullet struct {
 	GOBase  gobase.GOBase
 	Pa      posacc.PosAcc
-	Frame   int
 	DstUUID string
 }

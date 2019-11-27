@@ -14,6 +14,8 @@ package stage
 import (
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/lib/gobase"
+
 	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
@@ -23,9 +25,10 @@ import (
 )
 
 func (stg *Stage) makeTestData() {
+	nowtick := time.Now().UnixNano()
 	stg.Background = &w2d_obj.Background{
 		Pa: posacc.PosAcc{
-			LastMoveTick: time.Now().UnixNano(),
+			LastMoveTick: nowtick,
 			Dx:           stg.rnd.Float64()*500 - 250,
 			Dy:           stg.rnd.Float64()*500 - 250,
 		},
@@ -39,7 +42,7 @@ func (stg *Stage) makeTestData() {
 				Y:            stg.rnd.Float64() * gameconst.StageH,
 				Dx:           stg.rnd.Float64()*500 - 250,
 				Dy:           stg.rnd.Float64()*500 - 250,
-				LastMoveTick: time.Now().UnixNano(),
+				LastMoveTick: nowtick,
 			},
 		}
 	}
@@ -47,6 +50,7 @@ func (stg *Stage) makeTestData() {
 	for i := range stg.Effects {
 		stg.Effects[i] = &w2d_obj.Effect{
 			EffectType: effecttype.EffectType(i % effecttype.EffectType_Count),
+			BirthTick:  nowtick,
 			Pa: posacc.PosAcc{
 				X: stg.rnd.Float64() * gameconst.StageW,
 				Y: stg.rnd.Float64() * gameconst.StageH,
@@ -55,20 +59,23 @@ func (stg *Stage) makeTestData() {
 	}
 	stg.Teams = make([]*w2d_obj.BallTeam, teamtype.TeamType_Count)
 	for i := range stg.Teams {
-		stg.Teams[i] = stg.newBallTeam(teamtype.TeamType(i))
+		stg.Teams[i] = stg.newBallTeam(teamtype.TeamType(i), nowtick)
 	}
 }
 
-func (stg *Stage) newBallTeam(TeamType teamtype.TeamType) *w2d_obj.BallTeam {
+func (stg *Stage) newBallTeam(TeamType teamtype.TeamType, nowtick int64) *w2d_obj.BallTeam {
 	bl := &w2d_obj.BallTeam{
 		TeamType: TeamType,
 		Ball: &w2d_obj.Ball{
+			GOBase: gobase.GOBase{
+				BirthTick: nowtick,
+			},
 			Pa: posacc.PosAcc{
 				X:            stg.rnd.Float64() * gameconst.StageW,
 				Y:            stg.rnd.Float64() * gameconst.StageH,
 				Dx:           stg.rnd.Float64()*500 - 250,
 				Dy:           stg.rnd.Float64()*500 - 250,
-				LastMoveTick: time.Now().UnixNano(),
+				LastMoveTick: nowtick,
 			},
 		},
 		Shields:      make([]*w2d_obj.Shield, 12),
@@ -76,19 +83,25 @@ func (stg *Stage) newBallTeam(TeamType teamtype.TeamType) *w2d_obj.BallTeam {
 	}
 	for i := range bl.Shields {
 		bl.Shields[i] = &w2d_obj.Shield{
+			GOBase: gobase.GOBase{
+				BirthTick: nowtick,
+			},
 			Am: anglemove.AngleMove{
 				Angle:        stg.rnd.Float64() * 360,
 				AngleV:       stg.rnd.Float64()*300 - 150,
-				LastMoveTick: time.Now().UnixNano(),
+				LastMoveTick: nowtick,
 			},
 		}
 	}
 	for i := range bl.SuperShields {
 		bl.SuperShields[i] = &w2d_obj.SuperShield{
+			GOBase: gobase.GOBase{
+				BirthTick: nowtick,
+			},
 			Am: anglemove.AngleMove{
 				Angle:        stg.rnd.Float64() * 360,
 				AngleV:       stg.rnd.Float64()*300 - 150,
-				LastMoveTick: time.Now().UnixNano(),
+				LastMoveTick: nowtick,
 			},
 		}
 	}

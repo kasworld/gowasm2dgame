@@ -12,14 +12,16 @@
 package gameobjtype
 
 var Attrib = [GameObjType_Count]struct {
-	Size float64
-	R    float64 // from main ball center
+	Size        float64
+	R           float64 // from main ball center
+	V           float64 // speed pixel/sec or degree/sec
+	FramePerSec float64
 }{
-	Ball:          {32, 0},
-	Shield:        {16, 28},
-	SuperShield:   {16, 48},
-	HommingShield: {16, 0},
-	Bullet:        {16, 0},
-	SuperBullet:   {32, 0},
-	HommingBullet: {16, 0},
+	Ball:          {32, 0, 300, 0},
+	Shield:        {16, 28, 180, 0},
+	SuperShield:   {16, 48, 180, 30},
+	HommingShield: {16, 0, 300, 30},
+	Bullet:        {16, 0, 500, 0},
+	SuperBullet:   {32, 0, 600, 30},
+	HommingBullet: {16, 0, 300, 30},
 }

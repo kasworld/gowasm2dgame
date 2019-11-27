@@ -9,9 +9,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gobase
+package effecttype
 
-type GOBase struct {
-	UUID      string
-	BirthTick int64
+var Attrib = [EffectType_Count]struct {
+	FramePerSec float64
+}{
+	Spawn:        {3.0},
+	ExplodeBig:   {3.0},
+	ExplodeSmall: {3.0},
 }

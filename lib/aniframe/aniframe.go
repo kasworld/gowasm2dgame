@@ -9,9 +9,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gobase
+package aniframe
 
-type GOBase struct {
-	UUID      string
-	BirthTick int64
+import "time"
+
+func CalcCurrentFrame(difftick int64, fps float64) int {
+	diffsec := float64(difftick) / float64(time.Second)
+	frame := fps * diffsec
+	return int(frame)
 }
