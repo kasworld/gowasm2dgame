@@ -47,71 +47,75 @@ func (stg *Stage) Turn() {
 }
 
 func (stg *Stage) move(now int64) {
-	nowtick := time.Now().UnixNano()
 	stg.Background.Pa.Move(now)
 	stg.Background.Pa.Wrap(gameconst.StageW*2, gameconst.StageH*2)
-	for i, bt := range stg.Teams {
-		stg.Teams[i].Bullets = append(stg.Teams[i].Bullets,
-			stg.NewBullet(bt.Ball.Pa.X, bt.Ball.Pa.Y),
-		)
-		bt.Ball.Pa.Move(now)
-		bt.Ball.Pa.BounceNormalize(gameconst.StageW, gameconst.StageH)
-		for _, v := range bt.Shields {
-			v.Am.Move(now)
-		}
-
-		lifetick := gameobjtype.Attrib[gameobjtype.SuperShield].LifeTick
-		newSuperShields := make([]*w2d_obj.SuperShield, 0, len(bt.SuperShields))
-		for _, v := range bt.SuperShields {
-			v.Am.Move(now)
-			if nowtick-v.GOBase.BirthTick < lifetick {
-				newSuperShields = append(newSuperShields, v)
-			}
-		}
-		stg.Teams[i].SuperShields = newSuperShields
-
-		lifetick = gameobjtype.Attrib[gameobjtype.HommingShield].LifeTick
-		newHommingShields := make([]*w2d_obj.HommingShield, 0, len(bt.HommingShields))
-		for _, v := range bt.HommingShields {
-			v.Pa.Move(now)
-			if nowtick-v.GOBase.BirthTick < lifetick {
-				newHommingShields = append(newHommingShields, v)
-			}
-		}
-		stg.Teams[i].HommingShields = newHommingShields
-
-		newBullets := make([]*w2d_obj.Bullet, 0, len(bt.Bullets))
-		for _, v := range bt.Bullets {
-			v.Pa.Move(now)
-			if v.Pa.IsIn(gameconst.StageW, gameconst.StageH) {
-				newBullets = append(newBullets, v)
-			}
-		}
-		stg.Teams[i].Bullets = newBullets
-
-		newSuperBullets := make([]*w2d_obj.SuperBullet, 0, len(bt.SuperBullets))
-		for _, v := range bt.SuperBullets {
-			v.Pa.Move(now)
-			if v.Pa.IsIn(gameconst.StageW, gameconst.StageH) {
-				newSuperBullets = append(newSuperBullets, v)
-			}
-		}
-		stg.Teams[i].SuperBullets = newSuperBullets
-
-		lifetick = gameobjtype.Attrib[gameobjtype.HommingBullet].LifeTick
-		newHommingBullets := make([]*w2d_obj.HommingBullet, 0, len(bt.HommingBullets))
-		for _, v := range bt.HommingBullets {
-			v.Pa.Move(now)
-			if nowtick-v.GOBase.BirthTick < lifetick {
-				newHommingBullets = append(newHommingBullets, v)
-			}
-		}
-		stg.Teams[i].HommingBullets = newHommingBullets
+	for _, bt := range stg.Teams {
+		stg.moveTeam(bt, now)
 	}
 	for _, cld := range stg.Clouds {
 		cld.Pa.Move(now)
 		cld.Pa.Wrap(gameconst.StageW, gameconst.StageH)
 	}
+}
+
+func (stg *Stage) moveTeam(bt *w2d_obj.BallTeam, now int64) {
+	bt.Bullets = append(bt.Bullets,
+		stg.NewBullet(bt.Ball.Pa.X, bt.Ball.Pa.Y),
+	)
+	bt.Ball.Pa.Move(now)
+	bt.Ball.Pa.BounceNormalize(gameconst.StageW, gameconst.StageH)
+	for _, v := range bt.Shields {
+		v.Am.Move(now)
+	}
+
+	lifetick := gameobjtype.Attrib[gameobjtype.SuperShield].LifeTick
+	newSuperShields := make([]*w2d_obj.SuperShield, 0, len(bt.SuperShields))
+	for _, v := range bt.SuperShields {
+		v.Am.Move(now)
+		if now-v.GOBase.BirthTick < lifetick {
+			newSuperShields = append(newSuperShields, v)
+		}
+	}
+	bt.SuperShields = newSuperShields
+
+	lifetick = gameobjtype.Attrib[gameobjtype.HommingShield].LifeTick
+	newHommingShields := make([]*w2d_obj.HommingShield, 0, len(bt.HommingShields))
+	for _, v := range bt.HommingShields {
+		v.Pa.Move(now)
+		if now-v.GOBase.BirthTick < lifetick {
+			newHommingShields = append(newHommingShields, v)
+		}
+	}
+	bt.HommingShields = newHommingShields
+
+	newBullets := make([]*w2d_obj.Bullet, 0, len(bt.Bullets))
+	for _, v := range bt.Bullets {
+		v.Pa.Move(now)
+		if v.Pa.IsIn(gameconst.StageW, gameconst.StageH) {
+			newBullets = append(newBullets, v)
+		}
+	}
+	bt.Bullets = newBullets
+
+	newSuperBullets := make([]*w2d_obj.SuperBullet, 0, len(bt.SuperBullets))
+	for _, v := range bt.SuperBullets {
+		v.Pa.Move(now)
+		if v.Pa.IsIn(gameconst.StageW, gameconst.StageH) {
+			newSuperBullets = append(newSuperBullets, v)
+		}
+	}
+	bt.SuperBullets = newSuperBullets
+
+	lifetick = gameobjtype.Attrib[gameobjtype.HommingBullet].LifeTick
+	newHommingBullets := make([]*w2d_obj.HommingBullet, 0, len(bt.HommingBullets))
+	for _, v := range bt.HommingBullets {
+		v.Pa.Move(now)
+		if now-v.GOBase.BirthTick < lifetick {
+			newHommingBullets = append(newHommingBullets, v)
+		}
+	}
+	bt.HommingBullets = newHommingBullets
+
 }
 
 func (stg *Stage) ToStageInfo() *w2d_obj.NotiStageInfo_data {
