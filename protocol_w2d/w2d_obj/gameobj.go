@@ -41,6 +41,7 @@ type Ball struct {
 	Pa     posacc.PosAcc
 }
 
+// circular move
 type Shield struct {
 	GOBase gobase.GOBase
 	Am     anglemove.AngleMove
@@ -51,17 +52,19 @@ type SuperShield struct {
 	Am     anglemove.AngleMove
 }
 
-type HommingShield struct {
-	GOBase gobase.GOBase
-	Pa     posacc.PosAcc
-}
-
+// straight move
 type Bullet struct {
 	GOBase gobase.GOBase
 	Pa     posacc.PosAcc
 }
 
 type SuperBullet struct {
+	GOBase gobase.GOBase
+	Pa     posacc.PosAcc
+}
+
+// target homming move
+type HommingShield struct {
 	GOBase gobase.GOBase
 	Pa     posacc.PosAcc
 }
