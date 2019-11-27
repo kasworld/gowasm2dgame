@@ -50,30 +50,31 @@ func (vp *Viewport2d) draw() {
 	if si == nil {
 		return
 	}
-	si.Background.Pa.Move()
+	now := time.Now().UnixNano()
+	si.Background.Pa.Move(now)
 	for _, bt := range si.Teams {
-		bt.Ball.Pa.Move()
+		bt.Ball.Pa.Move(now)
 		for _, v := range bt.Shields {
-			v.Am.Move()
+			v.Am.Move(now)
 		}
 		for _, v := range bt.SuperShields {
-			v.Am.Move()
+			v.Am.Move(now)
 		}
 		for _, v := range bt.HommingShields {
-			v.Pa.Move()
+			v.Pa.Move(now)
 		}
 		for _, v := range bt.Bullets {
-			v.Pa.Move()
+			v.Pa.Move(now)
 		}
 		for _, v := range bt.SuperBullets {
-			v.Pa.Move()
+			v.Pa.Move(now)
 		}
 		for _, v := range bt.HommingBullets {
-			v.Pa.Move()
+			v.Pa.Move(now)
 		}
 	}
 	for _, cld := range si.Clouds {
-		cld.Pa.Move()
+		cld.Pa.Move(now)
 	}
 	vp.drawBG()
 	for _, v := range si.Teams {

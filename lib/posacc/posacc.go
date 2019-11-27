@@ -25,8 +25,7 @@ type PosAcc struct {
 	Dy           float64
 }
 
-func (pa *PosAcc) Move() {
-	now := time.Now().UnixNano()
+func (pa *PosAcc) Move(now int64) {
 	diff := float64(now-pa.LastMoveTick) / float64(time.Second)
 	pa.LastMoveTick = now
 	pa.X += pa.Dx * diff

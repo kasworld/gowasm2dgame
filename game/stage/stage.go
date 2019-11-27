@@ -40,36 +40,37 @@ func New(l *w2dlog.LogBase) *Stage {
 }
 
 func (stg *Stage) Turn() {
-	stg.move()
+	now := time.Now().UnixNano()
+	stg.move(now)
 }
 
-func (stg *Stage) move() {
-	stg.Background.Pa.Move()
+func (stg *Stage) move(now int64) {
+	stg.Background.Pa.Move(now)
 	stg.Background.Pa.Wrap(gameconst.StageW*2, gameconst.StageH*2)
 	for _, bt := range stg.Teams {
-		bt.Ball.Pa.Move()
+		bt.Ball.Pa.Move(now)
 		bt.Ball.Pa.BounceNormalize(gameconst.StageW, gameconst.StageH)
 		for _, v := range bt.Shields {
-			v.Am.Move()
+			v.Am.Move(now)
 		}
 		for _, v := range bt.SuperShields {
-			v.Am.Move()
+			v.Am.Move(now)
 		}
 		for _, v := range bt.HommingShields {
-			v.Pa.Move()
+			v.Pa.Move(now)
 		}
 		for _, v := range bt.Bullets {
-			v.Pa.Move()
+			v.Pa.Move(now)
 		}
 		for _, v := range bt.SuperBullets {
-			v.Pa.Move()
+			v.Pa.Move(now)
 		}
 		for _, v := range bt.HommingBullets {
-			v.Pa.Move()
+			v.Pa.Move(now)
 		}
 	}
 	for _, cld := range stg.Clouds {
-		cld.Pa.Move()
+		cld.Pa.Move(now)
 		cld.Pa.Wrap(gameconst.StageW, gameconst.StageH)
 	}
 }

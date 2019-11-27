@@ -22,8 +22,7 @@ type AngleMove struct {
 	AngleV       float64
 }
 
-func (am *AngleMove) Move() {
-	now := time.Now().UnixNano()
+func (am *AngleMove) Move(now int64) {
 	diff := float64(now-am.LastMoveTick) / float64(time.Second)
 	am.LastMoveTick = now
 	am.Angle += am.AngleV * diff
