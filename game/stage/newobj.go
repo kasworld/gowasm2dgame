@@ -148,3 +148,25 @@ func (stg *Stage) NewSuperShield() *w2d_obj.SuperShield {
 		},
 	}
 }
+
+func (stg *Stage) NewBullet(x, y float64) *w2d_obj.Bullet {
+	nowtick := time.Now().UnixNano()
+	maxv := gameobjtype.Attrib[gameobjtype.Bullet].V
+	dx, dy := CalcDxyFromAngelV(
+		stg.rnd.Float64()*360,
+		maxv,
+	)
+	return &w2d_obj.Bullet{
+		GOBase: gobase.GOBase{
+			UUID:      uuidstr.New(),
+			BirthTick: nowtick,
+		},
+		Pa: posacc.PosAcc{
+			X:            x,
+			Y:            y,
+			Dx:           dx,
+			Dy:           dy,
+			LastMoveTick: nowtick,
+		},
+	}
+}
