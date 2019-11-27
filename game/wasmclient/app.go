@@ -87,7 +87,6 @@ func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 	act := app.DispInterDur.BeginAct()
 	defer act.End()
 
-	// app.vp.move()
 	app.vp.draw()
 
 	return nil

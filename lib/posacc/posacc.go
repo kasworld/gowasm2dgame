@@ -12,19 +12,25 @@
 package posacc
 
 import (
+	"time"
+
 	"github.com/kasworld/go-abs"
 )
 
 type PosAcc struct {
-	X  float64
-	Y  float64
-	Dx float64
-	Dy float64
+	LastMoveTick int64 // time.unixnano
+	X            float64
+	Y            float64
+	Dx           float64
+	Dy           float64
 }
 
 func (pa *PosAcc) Move() {
-	pa.X += pa.Dx
-	pa.Y += pa.Dy
+	now := time.Now().UnixNano()
+	diff := float64(now-pa.LastMoveTick) / float64(time.Second)
+	pa.LastMoveTick = now
+	pa.X += pa.Dx * diff
+	pa.Y += pa.Dy * diff
 }
 
 func (pa *PosAcc) BounceNormalize(w, h float64) {

@@ -42,22 +42,17 @@ func NewViewport2d() *Viewport2d {
 	vp.Canvas, vp.context2d = getCnv2dCtx("viewport2DCanvas")
 	vp.Canvas.Set("width", vp.W)
 	vp.Canvas.Set("height", vp.H)
-
-	// vp.stageInfo = vp.makeStageInfo()
 	return vp
 }
 
-func (vp *Viewport2d) move() {
+func (vp *Viewport2d) draw() {
 	si := vp.stageInfo
 	if si == nil {
 		return
 	}
 	si.Background.Pa.Move()
-	si.Background.Pa.Wrap(gameconst.StageW*2, gameconst.StageH*2)
-
 	for _, bt := range si.Teams {
 		bt.Ball.Pa.Move()
-		bt.Ball.Pa.BounceNormalize(gameconst.StageW, gameconst.StageH)
 		for _, v := range bt.Shields {
 			v.Am.Move()
 		}
@@ -79,14 +74,6 @@ func (vp *Viewport2d) move() {
 	}
 	for _, cld := range si.Clouds {
 		cld.Pa.Move()
-		cld.Pa.Wrap(gameconst.StageW, gameconst.StageH)
-	}
-}
-
-func (vp *Viewport2d) draw() {
-	si := vp.stageInfo
-	if si == nil {
-		return
 	}
 	vp.drawBG()
 	for _, v := range si.Teams {

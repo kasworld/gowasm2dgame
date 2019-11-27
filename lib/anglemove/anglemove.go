@@ -11,15 +11,22 @@
 
 package anglemove
 
-import "math"
+import (
+	"math"
+	"time"
+)
 
 type AngleMove struct {
-	Angle  float64
-	AngleV float64
+	LastMoveTick int64 // time.unixnano
+	Angle        float64
+	AngleV       float64
 }
 
 func (am *AngleMove) Move() {
-	am.Angle += am.AngleV
+	now := time.Now().UnixNano()
+	diff := float64(now-am.LastMoveTick) / float64(time.Second)
+	am.LastMoveTick = now
+	am.Angle += am.AngleV * diff
 }
 
 func (am *AngleMove) CalcCircularPos(cx, cy, r float64) (float64, float64) {

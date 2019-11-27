@@ -12,6 +12,8 @@
 package stage
 
 import (
+	"time"
+
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/anglemove"
@@ -20,18 +22,24 @@ import (
 )
 
 func (stg *Stage) makeTestData() {
-	stg.Background = &w2d_obj.Background{}
-	stg.Background.Pa.SetDxy(stg.rnd.Float64()*5-2, stg.rnd.Float64()*5-2)
+	stg.Background = &w2d_obj.Background{
+		Pa: posacc.PosAcc{
+			LastMoveTick: time.Now().UnixNano(),
+			Dx:           stg.rnd.Float64()*500 - 250,
+			Dy:           stg.rnd.Float64()*500 - 250,
+		},
+	}
 
 	stg.Clouds = make([]*w2d_obj.Cloud, 10)
 	for i := range stg.Clouds {
 		stg.Clouds[i] = &w2d_obj.Cloud{
 			SpriteNum: i,
 			Pa: posacc.PosAcc{
-				X:  stg.rnd.Float64() * gameconst.StageW,
-				Y:  stg.rnd.Float64() * gameconst.StageH,
-				Dx: stg.rnd.Float64()*5 - 2,
-				Dy: stg.rnd.Float64()*5 - 2,
+				X:            stg.rnd.Float64() * gameconst.StageW,
+				Y:            stg.rnd.Float64() * gameconst.StageH,
+				Dx:           stg.rnd.Float64()*500 - 250,
+				Dy:           stg.rnd.Float64()*500 - 250,
+				LastMoveTick: time.Now().UnixNano(),
 			},
 		}
 	}
@@ -46,10 +54,11 @@ func (stg *Stage) newBallTeam(TeamType teamtype.TeamType) *w2d_obj.BallTeam {
 		TeamType: TeamType,
 		Ball: &w2d_obj.Ball{
 			Pa: posacc.PosAcc{
-				X:  stg.rnd.Float64() * gameconst.StageW,
-				Y:  stg.rnd.Float64() * gameconst.StageH,
-				Dx: stg.rnd.Float64()*5 - 2,
-				Dy: stg.rnd.Float64()*5 - 2,
+				X:            stg.rnd.Float64() * gameconst.StageW,
+				Y:            stg.rnd.Float64() * gameconst.StageH,
+				Dx:           stg.rnd.Float64()*500 - 250,
+				Dy:           stg.rnd.Float64()*500 - 250,
+				LastMoveTick: time.Now().UnixNano(),
 			},
 		},
 		Shields:      make([]*w2d_obj.Shield, 12),
@@ -58,16 +67,18 @@ func (stg *Stage) newBallTeam(TeamType teamtype.TeamType) *w2d_obj.BallTeam {
 	for i := range bl.Shields {
 		bl.Shields[i] = &w2d_obj.Shield{
 			Am: anglemove.AngleMove{
-				Angle:  stg.rnd.Float64() * 360,
-				AngleV: stg.rnd.Float64()*3 - 1,
+				Angle:        stg.rnd.Float64() * 360,
+				AngleV:       stg.rnd.Float64()*300 - 150,
+				LastMoveTick: time.Now().UnixNano(),
 			},
 		}
 	}
 	for i := range bl.SuperShields {
 		bl.SuperShields[i] = &w2d_obj.SuperShield{
 			Am: anglemove.AngleMove{
-				Angle:  stg.rnd.Float64() * 360,
-				AngleV: stg.rnd.Float64()*3 - 1,
+				Angle:        stg.rnd.Float64() * 360,
+				AngleV:       stg.rnd.Float64()*300 - 150,
+				LastMoveTick: time.Now().UnixNano(),
 			},
 		}
 	}
