@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 
 	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
@@ -31,6 +32,20 @@ func CalcDxyFromAngelV(angle float64, speed float64) (float64, float64) {
 	dx := speed * math.Cos(rad)
 	dy := speed * math.Sin(rad)
 	return dx, dy
+}
+
+func (stg *Stage) NewBackground() *w2d_obj.Background {
+	dx, dy := CalcDxyFromAngelV(
+		stg.rnd.Float64()*360,
+		stg.rnd.Float64()*300,
+	)
+	return &w2d_obj.Background{
+		Pa: posacc.PosAcc{
+			LastMoveTick: time.Now().UnixNano(),
+			Dx:           dx,
+			Dy:           dy,
+		},
+	}
 }
 
 func (stg *Stage) NewCloud(i int) *w2d_obj.Cloud {
@@ -60,6 +75,24 @@ func (stg *Stage) NewEffect(
 			Y: y,
 		},
 	}
+}
+
+func (stg *Stage) NewBallTeam(
+	TeamType teamtype.TeamType,
+	x, y float64) *w2d_obj.BallTeam {
+	bl := &w2d_obj.BallTeam{
+		TeamType:     TeamType,
+		Ball:         stg.NewBall(x, y),
+		Shields:      make([]*w2d_obj.Shield, 12),
+		SuperShields: make([]*w2d_obj.SuperShield, 12),
+	}
+	for i := range bl.Shields {
+		bl.Shields[i] = stg.NewShield()
+	}
+	for i := range bl.SuperShields {
+		bl.SuperShields[i] = stg.NewSuperShield()
+	}
+	return bl
 }
 
 func (stg *Stage) NewBall(x, y float64) *w2d_obj.Ball {
