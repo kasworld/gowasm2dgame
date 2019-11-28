@@ -17,8 +17,19 @@ import (
 
 	"github.com/kasworld/go-abs"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/lib/rectf"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
+
+func (o *GameObj) GetUUID() string {
+	return o.UUID
+}
+func (o *GameObj) GetRect() rectf.Rect {
+	r := gameobjtype.Attrib[o.GOType].Size
+	return rectf.Rect{
+		o.X - r/2, o.Y - r/2, r, r,
+	}
+}
 
 type GameObj struct {
 	GOType       gameobjtype.GameObjType
