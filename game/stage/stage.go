@@ -53,10 +53,7 @@ func (stg *Stage) move(now int64) {
 	stg.Background.Pa.Wrap(gameconst.StageW*2, gameconst.StageH*2)
 	for _, bt := range stg.Teams {
 		bt.Move(now)
-		maxv := gameobjtype.Attrib[gameobjtype.Bullet].V
-		bt.AddBullet(stg.rnd.Float64()*360, maxv)
-		maxv = gameobjtype.Attrib[gameobjtype.SuperBullet].V
-		bt.AddSuperBullet(stg.rnd.Float64()*360, maxv)
+		bt.AI()
 	}
 	for _, cld := range stg.Clouds {
 		cld.Pa.Move(now)
@@ -105,13 +102,5 @@ func (stg *Stage) makeTestData() {
 		)
 		o.Ball.SetDxy(dx, dy)
 		stg.Teams[i] = o
-		for j := 0; j < 12; j++ {
-			maxv := gameobjtype.Attrib[gameobjtype.Shield].V
-			o.AddShield(stg.rnd.Float64()*360,
-				stg.rnd.Float64()*maxv)
-			maxv = gameobjtype.Attrib[gameobjtype.SuperShield].V
-			o.AddSuperShield(stg.rnd.Float64()*360,
-				stg.rnd.Float64()*maxv)
-		}
 	}
 }

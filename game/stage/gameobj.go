@@ -13,18 +13,20 @@ package stage
 
 import (
 	"math"
+	"math/rand"
 	"time"
-
-	"github.com/kasworld/uuidstr"
 
 	"github.com/kasworld/go-abs"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
+	"github.com/kasworld/uuidstr"
 )
 
 type BallTeam struct {
+	rnd *rand.Rand `prettystring:"hide"`
+
 	TeamType teamtype.TeamType
 	Ball     *GameObj // ball is special
 	Objs     []*GameObj
@@ -32,8 +34,8 @@ type BallTeam struct {
 
 func NewBallTeam(TeamType teamtype.TeamType, x, y float64) *BallTeam {
 	nowtick := time.Now().UnixNano()
-
 	bt := &BallTeam{
+		rnd:      rand.New(rand.NewSource(time.Now().UnixNano())),
 		TeamType: TeamType,
 		Ball: &GameObj{
 			GOType:       gameobjtype.Ball,
@@ -80,10 +82,51 @@ func (bt *BallTeam) Move(now int64) {
 		case gameobjtype.Shield, gameobjtype.SuperShield:
 			v.MoveCircular(now, bt.Ball.X, bt.Ball.Y)
 		case gameobjtype.HommingShield:
+			v.MoveHomming(now, bt.Ball.X, bt.Ball.Y)
 		case gameobjtype.HommingBullet:
+
 		}
 		if !v.CheckLife(now) {
 			v.toDelete = true
+		}
+	}
+}
+
+func (bt *BallTeam) Count(ot gameobjtype.GameObjType) int {
+	rtn := 0
+	for _, v := range bt.Objs {
+		if v.toDelete {
+			continue
+		}
+		if v.GOType == ot {
+			rtn++
+		}
+	}
+	return rtn
+}
+
+func (bt *BallTeam) AI() {
+	switch bt.rnd.Intn(5) {
+	case 0:
+		maxv := gameobjtype.Attrib[gameobjtype.Bullet].V
+		bt.AddBullet(bt.rnd.Float64()*360, maxv)
+	case 1:
+		maxv := gameobjtype.Attrib[gameobjtype.SuperBullet].V
+		bt.AddSuperBullet(bt.rnd.Float64()*360, maxv)
+	case 2:
+		if bt.Count(gameobjtype.SuperShield) < 12 {
+			maxv := gameobjtype.Attrib[gameobjtype.SuperShield].V
+			bt.AddSuperShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
+		}
+	case 3:
+		if bt.Count(gameobjtype.HommingShield) < 12 {
+			maxv := gameobjtype.Attrib[gameobjtype.HommingShield].V
+			bt.AddHommingShield(bt.rnd.Float64()*360, maxv)
+		}
+	case 4:
+		if bt.Count(gameobjtype.Shield) < 12 {
+			maxv := gameobjtype.Attrib[gameobjtype.Shield].V
+			bt.AddShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
 		}
 	}
 }
@@ -160,6 +203,45 @@ func (bt *BallTeam) AddSuperBullet(angle, anglev float64) *GameObj {
 	return o
 }
 
+func (bt *BallTeam) AddHommingShield(angle, anglev float64) *GameObj {
+	nowtick := time.Now().UnixNano()
+	dx, dy := CalcDxyFromAngelV(angle, anglev)
+	o := &GameObj{
+		GOType:       gameobjtype.HommingShield,
+		UUID:         uuidstr.New(),
+		BirthTick:    nowtick,
+		LastMoveTick: nowtick,
+		Angle:        angle,
+		AngleV:       anglev,
+		X:            bt.Ball.X + dx,
+		Y:            bt.Ball.Y + dy,
+		Dx:           dx,
+		Dy:           dy,
+	}
+	bt.addGObj(o)
+	return o
+}
+
+func (bt *BallTeam) AddHommingBullet(angle, anglev float64, dstid string) *GameObj {
+	nowtick := time.Now().UnixNano()
+	dx, dy := CalcDxyFromAngelV(angle, anglev)
+	o := &GameObj{
+		GOType:       gameobjtype.HommingBullet,
+		UUID:         uuidstr.New(),
+		BirthTick:    nowtick,
+		LastMoveTick: nowtick,
+		Angle:        angle,
+		AngleV:       anglev,
+		X:            bt.Ball.X,
+		Y:            bt.Ball.Y,
+		Dx:           dx,
+		Dy:           dy,
+		DstUUID:      dstid,
+	}
+	bt.addGObj(o)
+	return o
+}
+
 type GameObj struct {
 	GOType       gameobjtype.GameObjType
 	UUID         string
@@ -211,6 +293,17 @@ func (o *GameObj) MoveCircular(now int64, cx, cy float64) {
 }
 
 func (o *GameObj) MoveHomming(now int64, dstx, dsty float64) {
+	diff := float64(now-o.LastMoveTick) / float64(time.Second)
+	o.LastMoveTick = now
+	o.X += o.Dx * diff
+	o.Y += o.Dy * diff
+
+	maxv := gameobjtype.Attrib[o.GOType].V
+	dx := dstx - o.X
+	dy := dsty - o.Y
+	l := math.Sqrt(dx*dx + dy*dy)
+	o.Dx += dx / l * maxv
+	o.Dy += dy / l * maxv
 }
 
 func (o *GameObj) CheckLife(now int64) bool {

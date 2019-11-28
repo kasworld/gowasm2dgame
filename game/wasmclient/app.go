@@ -43,9 +43,9 @@ func InitApp() {
 		pid2recv:     w2d_pid2rspfn.New(),
 		ServerJitter: actjitter.New("Server"),
 		ClientJitter: actjitter.New("Client"),
-		DispInterDur: intervalduration.New("Display"),
 	}
 	gSprites = LoadSprites()
+	app.DispInterDur = intervalduration.New("Display")
 	app.vp = NewViewport2d()
 	go app.run()
 }

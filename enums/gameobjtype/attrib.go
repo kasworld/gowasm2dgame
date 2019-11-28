@@ -25,7 +25,7 @@ var Attrib = [GameObjType_Count]struct {
 	Ball:          {32, 0, 300, 0, LongLife},
 	Shield:        {16, 28, 180, 0, LongLife},
 	SuperShield:   {16, 48, 180, 30, int64(time.Second) * 60},
-	HommingShield: {16, 0, 300, 30, int64(time.Second) * 60},
+	HommingShield: {16, 0, 50, 30, int64(time.Second) * 60},
 	Bullet:        {16, 0, 500, 0, LongLife},
 	SuperBullet:   {32, 0, 600, 30, LongLife},
 	HommingBullet: {16, 0, 300, 30, int64(time.Second) * 60},
