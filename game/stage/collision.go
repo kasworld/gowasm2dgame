@@ -60,7 +60,6 @@ func (stg *Stage) checkCollision() []*GameObj {
 				}
 				if !v.toDelete && !targetObj.toDelete {
 					if gameobjtype.CollisionTo(v.GOType, targetObj.GOType) {
-						v.toDelete = true
 						toDeleteList = append(toDeleteList, v)
 						return true
 					}
@@ -69,6 +68,9 @@ func (stg *Stage) checkCollision() []*GameObj {
 			},
 			v.GetRect(),
 		)
+	}
+	for _, v := range toDeleteList {
+		v.toDelete = true
 	}
 	return toDeleteList
 }
