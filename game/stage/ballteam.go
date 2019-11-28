@@ -63,7 +63,8 @@ func (bt *BallTeam) ToPacket() *w2d_obj.BallTeam {
 	return rtn
 }
 
-func (bt *BallTeam) Move(now int64) {
+func (bt *BallTeam) Move(now int64) []*GameObj {
+	toDeleteList := make([]*GameObj, 0)
 	bt.Ball.MoveStraight(now)
 	bt.Ball.BounceNormalize(gameconst.StageW, gameconst.StageH)
 	for _, v := range bt.Objs {
@@ -76,6 +77,7 @@ func (bt *BallTeam) Move(now int64) {
 			v.MoveStraight(now)
 			if !v.IsIn(gameconst.StageW, gameconst.StageH) {
 				v.toDelete = true
+				toDeleteList = append(toDeleteList, v)
 			}
 		case gameobjtype.Shield, gameobjtype.SuperShield:
 			v.MoveCircular(now, bt.Ball.X, bt.Ball.Y)
@@ -84,10 +86,12 @@ func (bt *BallTeam) Move(now int64) {
 		case gameobjtype.HommingBullet:
 
 		}
-		if !v.CheckLife(now) {
+		if !v.toDelete && !v.CheckLife(now) {
 			v.toDelete = true
+			toDeleteList = append(toDeleteList, v)
 		}
 	}
+	return toDeleteList
 }
 
 func (bt *BallTeam) Count(ot gameobjtype.GameObjType) int {

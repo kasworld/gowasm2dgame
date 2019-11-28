@@ -15,6 +15,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/enums/effecttype"
+
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
@@ -71,8 +73,18 @@ func (stg *Stage) move(now int64) {
 	stg.Background.Move(now)
 	stg.Background.Wrap(gameconst.StageW*2, gameconst.StageH*2)
 	for _, bt := range stg.Teams {
-		bt.Move(now)
+		toDelList := bt.Move(now)
 		bt.AI()
+		for _, v := range toDelList {
+			switch v.GOType {
+			case gameobjtype.Bullet, gameobjtype.HommingBullet, gameobjtype.Shield, gameobjtype.SuperShield, gameobjtype.HommingShield:
+				// small effect
+				stg.AddEffect(effecttype.ExplodeSmall, v.X, v.Y)
+			case gameobjtype.SuperBullet:
+				// big effect
+				stg.AddEffect(effecttype.ExplodeBig, v.X, v.Y)
+			}
+		}
 	}
 	for _, cld := range stg.Clouds {
 		cld.Move(now)
