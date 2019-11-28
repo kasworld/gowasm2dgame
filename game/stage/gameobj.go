@@ -55,6 +55,9 @@ func (bt *BallTeam) ToPacket() *w2d_obj.BallTeam {
 		Objs:     make([]*w2d_obj.GameObj, 0),
 	}
 	for _, v := range bt.Objs {
+		if v.toDelete {
+			continue
+		}
 		rtn.Objs = append(rtn.Objs, v.ToPacket())
 	}
 	return rtn
@@ -82,6 +85,16 @@ func (bt *BallTeam) Move(now int64) {
 	}
 }
 
+func (bt *BallTeam) addGObj(o *GameObj) {
+	for i, v := range bt.Objs {
+		if v.toDelete {
+			bt.Objs[i] = o
+			return
+		}
+	}
+	bt.Objs = append(bt.Objs, o)
+}
+
 func (bt *BallTeam) AddShield(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	o := &GameObj{
@@ -92,7 +105,7 @@ func (bt *BallTeam) AddShield(angle, anglev float64) *GameObj {
 		Angle:        angle,
 		AngleV:       anglev,
 	}
-	bt.Objs = append(bt.Objs, o)
+	bt.addGObj(o)
 	return o
 }
 
@@ -106,12 +119,13 @@ func (bt *BallTeam) AddSuperShield(angle, anglev float64) *GameObj {
 		Angle:        angle,
 		AngleV:       anglev,
 	}
-	bt.Objs = append(bt.Objs, o)
+	bt.addGObj(o)
 	return o
 }
 
 func (bt *BallTeam) AddBullet(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
+	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
 		GOType:       gameobjtype.Bullet,
 		UUID:         uuidstr.New(),
@@ -119,13 +133,16 @@ func (bt *BallTeam) AddBullet(angle, anglev float64) *GameObj {
 		LastMoveTick: nowtick,
 		X:            bt.Ball.X,
 		Y:            bt.Ball.Y,
+		Dx:           dx,
+		Dy:           dy,
 	}
-	bt.Objs = append(bt.Objs, o)
+	bt.addGObj(o)
 	return o
 }
 
 func (bt *BallTeam) AddSuperBullet(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
+	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
 		GOType:       gameobjtype.SuperBullet,
 		UUID:         uuidstr.New(),
@@ -133,8 +150,10 @@ func (bt *BallTeam) AddSuperBullet(angle, anglev float64) *GameObj {
 		LastMoveTick: nowtick,
 		X:            bt.Ball.X,
 		Y:            bt.Ball.Y,
+		Dx:           dx,
+		Dy:           dy,
 	}
-	bt.Objs = append(bt.Objs, o)
+	bt.addGObj(o)
 	return o
 }
 
