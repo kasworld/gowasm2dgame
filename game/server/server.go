@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
 
 	"github.com/kasworld/prettystring"
@@ -28,7 +29,6 @@ import (
 	"github.com/kasworld/gowasm2dgame/game/stage"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_json"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statapierror"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statnoti"
@@ -80,8 +80,8 @@ func New(config serverconfig.Config) *Server {
 	svr.sendRecvStop = func() {
 		fmt.Printf("Too early sendRecvStop call\n")
 	}
-	svr.marshalBodyFn = w2d_json.MarshalBodyFn
-	svr.unmarshalPacketFn = w2d_json.UnmarshalPacket
+	svr.marshalBodyFn = w2d_gob.MarshalBodyFn
+	svr.unmarshalPacketFn = w2d_gob.UnmarshalPacket
 	svr.DemuxReq2BytesAPIFnMap = [...]func(
 		me interface{}, hd w2d_packet.Header, rbody []byte) (
 		w2d_packet.Header, interface{}, error){

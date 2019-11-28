@@ -20,9 +20,9 @@ import (
 	"time"
 
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connwasm"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_json"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_pid2rspfn"
@@ -43,7 +43,7 @@ func getConnURL() string {
 func (app *WasmClient) NetInit(ctx context.Context) error {
 	app.wsConn = w2d_connwasm.New(
 		getConnURL(),
-		w2d_json.MarshalBodyFn,
+		w2d_gob.MarshalBodyFn,
 		app.handleRecvPacket,
 		app.handleSentPacket)
 
@@ -72,7 +72,7 @@ func (app *WasmClient) handleSentPacket(header w2d_packet.Header) error {
 }
 
 func (app *WasmClient) handleRecvPacket(header w2d_packet.Header, body []byte) error {
-	robj, err := w2d_json.UnmarshalPacket(header, body)
+	robj, err := w2d_gob.UnmarshalPacket(header, body)
 	if err != nil {
 		return err
 	}

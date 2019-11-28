@@ -15,7 +15,7 @@ import (
 	"fmt"
 
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_error"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_json"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 )
@@ -85,7 +85,7 @@ func (svr *Server) bytesAPIFn_ReqAct(
 func (svr *Server) bytesAPIFn_ReqHeartbeat(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {
-	robj, err := w2d_json.UnmarshalPacket(hd, rbody)
+	robj, err := w2d_gob.UnmarshalPacket(hd, rbody)
 	if err != nil {
 		return hd, nil, fmt.Errorf("Packet type miss match %v", rbody)
 	}

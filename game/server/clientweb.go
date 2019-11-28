@@ -28,7 +28,6 @@ func (svr *Server) initServiceWeb(ctx context.Context) {
 	webMux.Handle("/",
 		http.FileServer(http.Dir(svr.config.ClientDataFolder)),
 	)
-	// webMux.HandleFunc("/ServiceInfo", svr.json_ServiceInfo)
 	webMux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		svr.serveWebSocketClient(ctx, w, r)
 	})
