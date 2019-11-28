@@ -120,9 +120,10 @@ func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
 func (vp *Viewport2d) drawEffect(eff *w2d_obj.Effect, now int64) {
 	x, y := eff.X, eff.Y
 	sp := gSprites.EffectSprite[eff.EffectType]
-	frame := CalcCurrentFrame(now-eff.BirthTick,
-		effecttype.Attrib[eff.EffectType].FramePerSec,
-	)
+	lifeTick := int(effecttype.Attrib[eff.EffectType].LifeTick)
+
+	frame := int(now-eff.BirthTick) * sp.GetSliceCount() / lifeTick
+
 	srcx, srcy := sp.GetSliceXY(frame)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, sp.W, sp.H,

@@ -15,7 +15,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
@@ -28,10 +27,10 @@ type Stage struct {
 	log *w2dlog.LogBase `prettystring:"hide"`
 
 	Background *w2d_obj.Background
-	Effects    []*w2d_obj.Effect
 	Clouds     []*w2d_obj.Cloud
 
-	Teams []*BallTeam
+	Effects []*w2d_obj.Effect
+	Teams   []*BallTeam
 }
 
 func New(l *w2dlog.LogBase) *Stage {
@@ -39,7 +38,27 @@ func New(l *w2dlog.LogBase) *Stage {
 		log: l,
 		rnd: rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
-	stg.makeTestData()
+
+	stg.Background = stg.NewBackground()
+	stg.Clouds = make([]*w2d_obj.Cloud, 10)
+	for i := range stg.Clouds {
+		stg.Clouds[i] = stg.NewCloud(i)
+	}
+	stg.Teams = make([]*BallTeam, teamtype.TeamType_Count)
+	for i := range stg.Teams {
+		o := NewBallTeam(
+			teamtype.TeamType(i),
+			stg.rnd.Float64()*gameconst.StageW,
+			stg.rnd.Float64()*gameconst.StageH,
+		)
+		maxv := gameobjtype.Attrib[gameobjtype.Ball].V
+		dx, dy := CalcDxyFromAngelV(
+			stg.rnd.Float64()*360,
+			stg.rnd.Float64()*maxv,
+		)
+		o.Ball.SetDxy(dx, dy)
+		stg.Teams[i] = o
+	}
 	return stg
 }
 
@@ -62,45 +81,19 @@ func (stg *Stage) move(now int64) {
 }
 
 func (stg *Stage) ToStageInfo() *w2d_obj.NotiStageInfo_data {
+	now := time.Now().UnixNano()
 	rtn := &w2d_obj.NotiStageInfo_data{
 		Tick:       time.Now().UnixNano(),
 		Background: stg.Background,
-		Effects:    stg.Effects,
 		Clouds:     stg.Clouds,
+	}
+	for _, v := range stg.Effects {
+		if v.CheckLife(now) {
+			rtn.Effects = append(rtn.Effects, v)
+		}
 	}
 	for _, v := range stg.Teams {
 		rtn.Teams = append(rtn.Teams, v.ToPacket())
 	}
 	return rtn
-}
-
-func (stg *Stage) makeTestData() {
-	stg.Background = stg.NewBackground()
-	stg.Clouds = make([]*w2d_obj.Cloud, 10)
-	for i := range stg.Clouds {
-		stg.Clouds[i] = stg.NewCloud(i)
-	}
-	stg.Effects = make([]*w2d_obj.Effect, effecttype.EffectType_Count*5)
-	for i := range stg.Effects {
-		et := effecttype.EffectType(i % effecttype.EffectType_Count)
-		stg.Effects[i] = stg.NewEffect(et,
-			stg.rnd.Float64()*gameconst.StageW,
-			stg.rnd.Float64()*gameconst.StageH,
-		)
-	}
-	stg.Teams = make([]*BallTeam, teamtype.TeamType_Count)
-	for i := range stg.Teams {
-		o := NewBallTeam(
-			teamtype.TeamType(i),
-			stg.rnd.Float64()*gameconst.StageW,
-			stg.rnd.Float64()*gameconst.StageH,
-		)
-		maxv := gameobjtype.Attrib[gameobjtype.Ball].V
-		dx, dy := CalcDxyFromAngelV(
-			stg.rnd.Float64()*360,
-			stg.rnd.Float64()*maxv,
-		)
-		o.Ball.SetDxy(dx, dy)
-		stg.Teams[i] = o
-	}
 }

@@ -74,13 +74,17 @@ func (o *Background) Wrap(w, h float64) (float64, float64) {
 }
 
 type Effect struct {
-	EffectType   effecttype.EffectType
-	BirthTick    int64
-	LastMoveTick int64 // time.unixnano
-	X            float64
-	Y            float64
-	Dx           float64
-	Dy           float64
+	EffectType effecttype.EffectType
+	BirthTick  int64
+	X          float64
+	Y          float64
+	Dx         float64
+	Dy         float64
+}
+
+func (o *Effect) CheckLife(now int64) bool {
+	lifetick := effecttype.Attrib[o.EffectType].LifeTick
+	return now-o.BirthTick < lifetick
 }
 
 ////////////////////

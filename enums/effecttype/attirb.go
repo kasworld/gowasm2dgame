@@ -11,10 +11,12 @@
 
 package effecttype
 
+import "time"
+
 var Attrib = [EffectType_Count]struct {
-	FramePerSec float64
+	LifeTick int64
 }{
-	Spawn:        {3.0},
-	ExplodeBig:   {3.0},
-	ExplodeSmall: {3.0},
+	Spawn:        {int64(time.Second)},
+	ExplodeBig:   {int64(time.Second)},
+	ExplodeSmall: {int64(time.Second)},
 }
