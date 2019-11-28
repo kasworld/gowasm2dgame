@@ -86,6 +86,18 @@ func (stg *Stage) move(now int64) {
 			}
 		}
 	}
+	toDelList := stg.checkCollision()
+	for _, v := range toDelList {
+		switch v.GOType {
+		case gameobjtype.Bullet, gameobjtype.HommingBullet, gameobjtype.Shield, gameobjtype.SuperShield, gameobjtype.HommingShield:
+			// small effect
+			stg.AddEffect(effecttype.ExplodeSmall, v.X, v.Y)
+		case gameobjtype.SuperBullet:
+			// big effect
+			stg.AddEffect(effecttype.ExplodeBig, v.X, v.Y)
+		}
+	}
+
 	for _, cld := range stg.Clouds {
 		cld.Move(now)
 		cld.Wrap(gameconst.StageW, gameconst.StageH)

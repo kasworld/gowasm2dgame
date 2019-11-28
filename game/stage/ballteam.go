@@ -36,6 +36,7 @@ func NewBallTeam(TeamType teamtype.TeamType, x, y float64) *BallTeam {
 		rnd:      rand.New(rand.NewSource(time.Now().UnixNano())),
 		TeamType: TeamType,
 		Ball: &GameObj{
+			teamType:     TeamType,
 			GOType:       gameobjtype.Ball,
 			UUID:         uuidstr.New(),
 			BirthTick:    nowtick,
@@ -146,6 +147,7 @@ func (bt *BallTeam) addGObj(o *GameObj) {
 func (bt *BallTeam) AddShield(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	o := &GameObj{
+		teamType:     bt.TeamType,
 		GOType:       gameobjtype.Shield,
 		UUID:         uuidstr.New(),
 		BirthTick:    nowtick,
@@ -160,6 +162,7 @@ func (bt *BallTeam) AddShield(angle, anglev float64) *GameObj {
 func (bt *BallTeam) AddSuperShield(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	o := &GameObj{
+		teamType:     bt.TeamType,
 		GOType:       gameobjtype.SuperShield,
 		UUID:         uuidstr.New(),
 		BirthTick:    nowtick,
@@ -175,6 +178,7 @@ func (bt *BallTeam) AddBullet(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
+		teamType:     bt.TeamType,
 		GOType:       gameobjtype.Bullet,
 		UUID:         uuidstr.New(),
 		BirthTick:    nowtick,
@@ -192,6 +196,7 @@ func (bt *BallTeam) AddSuperBullet(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
+		teamType:     bt.TeamType,
 		GOType:       gameobjtype.SuperBullet,
 		UUID:         uuidstr.New(),
 		BirthTick:    nowtick,
@@ -209,6 +214,7 @@ func (bt *BallTeam) AddHommingShield(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
+		teamType:     bt.TeamType,
 		GOType:       gameobjtype.HommingShield,
 		UUID:         uuidstr.New(),
 		BirthTick:    nowtick,
@@ -228,6 +234,7 @@ func (bt *BallTeam) AddHommingBullet(angle, anglev float64, dstid string) *GameO
 	nowtick := time.Now().UnixNano()
 	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
+		teamType:     bt.TeamType,
 		GOType:       gameobjtype.HommingBullet,
 		UUID:         uuidstr.New(),
 		BirthTick:    nowtick,

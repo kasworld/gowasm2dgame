@@ -15,6 +15,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+
 	"github.com/kasworld/go-abs"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/lib/rectf"
@@ -32,6 +34,7 @@ func (o *GameObj) GetRect() rectf.Rect {
 }
 
 type GameObj struct {
+	teamType     teamtype.TeamType
 	GOType       gameobjtype.GameObjType
 	UUID         string
 	BirthTick    int64

@@ -44,12 +44,28 @@ func (stg *Stage) checkCollision() []*GameObj {
 		}
 	}
 	for _, v := range obj2check {
+		if v.toDelete {
+			continue
+		}
 		qtree.QueryByRect(
 			func(qo quadtreef.QuadTreeObjI) bool {
 				targetObj := qo.(*GameObj)
+				if targetObj.toDelete {
+					return false
+				}
 				_ = targetObj
-				// check by collision rule
-				// same team etc.
+				if targetObj.teamType == v.teamType {
+					return false
+				}
+				if !targetObj.toDelete {
+					targetObj.toDelete = true
+					toDeleteList = append(toDeleteList, targetObj)
+				}
+				if !v.toDelete {
+					v.toDelete = true
+					toDeleteList = append(toDeleteList, v)
+					return true
+				}
 				return false
 			},
 			v.GetRect(),
