@@ -63,7 +63,7 @@ func (stg *Stage) move(now int64) {
 
 func (stg *Stage) ToStageInfo() *w2d_obj.NotiStageInfo_data {
 	rtn := &w2d_obj.NotiStageInfo_data{
-		Time:       time.Now(),
+		Tick:       time.Now().UnixNano(),
 		Background: stg.Background,
 		Effects:    stg.Effects,
 		Clouds:     stg.Clouds,

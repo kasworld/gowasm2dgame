@@ -99,7 +99,7 @@ func (svr *Server) bytesAPIFn_ReqHeartbeat(
 		ErrorCode: w2d_error.None,
 	}
 	sendBody := &w2d_obj.RspHeartbeat_data{
-		Time: recvBody.Time,
+		Tick: recvBody.Tick,
 	}
 	return sendHeader, sendBody, nil
 }

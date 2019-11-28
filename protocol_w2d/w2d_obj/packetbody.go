@@ -1,8 +1,6 @@
 package w2d_obj
 
 import (
-	"time"
-
 	"github.com/kasworld/gowasm2dgame/enums/acttype"
 )
 
@@ -30,10 +28,10 @@ type RspAct_data struct {
 }
 
 type ReqHeartbeat_data struct {
-	Time time.Time
+	Tick int64
 }
 type RspHeartbeat_data struct {
-	Time time.Time
+	Tick int64
 }
 
 type NotiInvalid_data struct {
@@ -41,7 +39,7 @@ type NotiInvalid_data struct {
 }
 
 type NotiStageInfo_data struct {
-	Time       time.Time
+	Tick       int64
 	Background *Background
 	Teams      []*BallTeam
 	Effects    []*Effect

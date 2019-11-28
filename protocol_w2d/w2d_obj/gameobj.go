@@ -70,4 +70,15 @@ func (o *GameObj) CalcCircularPos(cx, cy, r float64) (float64, float64) {
 }
 
 func (o *GameObj) MoveHomming(now int64, dstx, dsty float64) {
+	diff := float64(now-o.LastMoveTick) / float64(time.Second)
+	o.LastMoveTick = now
+	o.X += o.Dx * diff
+	o.Y += o.Dy * diff
+
+	maxv := gameobjtype.Attrib[o.GOType].V
+	dx := dstx - o.X
+	dy := dsty - o.Y
+	l := math.Sqrt(dx*dx + dy*dy)
+	o.Dx += dx / l * maxv
+	o.Dy += dy / l * maxv
 }

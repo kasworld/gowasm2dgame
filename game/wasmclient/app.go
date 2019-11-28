@@ -24,14 +24,13 @@ import (
 )
 
 type WasmClient struct {
-	DoClose              func()
-	pid2recv             *w2d_pid2rspfn.PID2RspFn
-	wsConn               *w2d_connwasm.Connection
-	ServerJitter         *actjitter.ActJitter
-	ClientJitter         *actjitter.ActJitter
-	PingDur              time.Duration
-	ServerClientTimeDiff time.Duration
-	DispInterDur         *intervalduration.IntervalDuration
+	DoClose      func()
+	pid2recv     *w2d_pid2rspfn.PID2RspFn
+	wsConn       *w2d_connwasm.Connection
+	ServerJitter *actjitter.ActJitter
+	ClientJitter *actjitter.ActJitter
+	PingDur      int64
+	DispInterDur *intervalduration.IntervalDuration
 
 	vp *Viewport2d
 }
@@ -73,7 +72,11 @@ loop:
 		case <-timerPingTk.C:
 			go app.reqHeartbeat()
 			div := js.Global().Get("document").Call("getElementById", "sysmsg")
-			div.Set("innerHTML", fmt.Sprintf("%v", app.DispInterDur))
+			div.Set("innerHTML",
+				fmt.Sprintf("%v<br/>Ping %v",
+					app.DispInterDur, app.PingDur,
+				),
+			)
 		}
 	}
 }
@@ -87,7 +90,8 @@ func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 	act := app.DispInterDur.BeginAct()
 	defer act.End()
 
-	app.vp.draw()
+	now := time.Now().UnixNano()
+	app.vp.draw(now)
 
 	return nil
 }

@@ -49,12 +49,11 @@ func NewViewport2d() *Viewport2d {
 	return vp
 }
 
-func (vp *Viewport2d) draw() {
+func (vp *Viewport2d) draw(now int64) {
 	si := vp.stageInfo
 	if si == nil {
 		return
 	}
-	now := time.Now().UnixNano()
 	si.Background.Pa.Move(now)
 	for _, bt := range si.Teams {
 		bt.Ball.MoveStraight(now)
@@ -66,6 +65,7 @@ func (vp *Viewport2d) draw() {
 			case gameobjtype.Shield, gameobjtype.SuperShield:
 				v.MoveCircular(now, bt.Ball.X, bt.Ball.Y)
 			case gameobjtype.HommingShield:
+				v.MoveHomming(now, bt.Ball.X, bt.Ball.Y)
 			case gameobjtype.HommingBullet:
 			}
 		}

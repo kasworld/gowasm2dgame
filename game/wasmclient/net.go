@@ -115,13 +115,12 @@ func (app *WasmClient) reqHeartbeat() error {
 	return app.ReqWithRspFn(
 		w2d_idcmd.Heartbeat,
 		&w2d_obj.ReqHeartbeat_data{
-			Time: time.Now(),
+			Tick: time.Now().UnixNano(),
 		},
 		func(hd w2d_packet.Header, rsp interface{}) error {
 			rpk := rsp.(*w2d_obj.RspHeartbeat_data)
-			pingDur := time.Now().Sub(rpk.Time)
+			pingDur := time.Now().UnixNano() - rpk.Tick
 			app.PingDur = (app.PingDur + pingDur) / 2
-			// fmt.Println("ping", app.PingDur)
 			return nil
 		},
 	)
