@@ -67,6 +67,9 @@ func (bt *BallTeam) Move(now int64) {
 	bt.Ball.MoveStraight(now)
 	bt.Ball.BounceNormalize(gameconst.StageW, gameconst.StageH)
 	for _, v := range bt.Objs {
+		if v.toDelete {
+			continue
+		}
 		switch v.GOType {
 		default:
 		case gameobjtype.Bullet, gameobjtype.SuperBullet:
