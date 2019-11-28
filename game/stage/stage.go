@@ -15,8 +15,9 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
-
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
@@ -27,9 +28,10 @@ type Stage struct {
 	log *w2dlog.LogBase `prettystring:"hide"`
 
 	Background *w2d_obj.Background
-	Teams      []*w2d_obj.BallTeam
 	Effects    []*w2d_obj.Effect
 	Clouds     []*w2d_obj.Cloud
+
+	Teams []*BallTeam
 }
 
 func New(l *w2dlog.LogBase) *Stage {
@@ -50,7 +52,7 @@ func (stg *Stage) move(now int64) {
 	stg.Background.Pa.Move(now)
 	stg.Background.Pa.Wrap(gameconst.StageW*2, gameconst.StageH*2)
 	for _, bt := range stg.Teams {
-		stg.moveTeam(bt, now)
+		bt.Move(now)
 	}
 	for _, cld := range stg.Clouds {
 		cld.Pa.Move(now)
@@ -58,73 +60,54 @@ func (stg *Stage) move(now int64) {
 	}
 }
 
-func (stg *Stage) moveTeam(bt *w2d_obj.BallTeam, now int64) {
-	bt.Bullets = append(bt.Bullets,
-		stg.NewBullet(bt.Ball.Pa.X, bt.Ball.Pa.Y),
-	)
-	bt.Ball.Pa.Move(now)
-	bt.Ball.Pa.BounceNormalize(gameconst.StageW, gameconst.StageH)
-	for _, v := range bt.Shields {
-		v.Am.Move(now)
-	}
-
-	lifetick := gameobjtype.Attrib[gameobjtype.SuperShield].LifeTick
-	newSuperShields := make([]*w2d_obj.SuperShield, 0, len(bt.SuperShields))
-	for _, v := range bt.SuperShields {
-		v.Am.Move(now)
-		if now-v.GOBase.BirthTick < lifetick {
-			newSuperShields = append(newSuperShields, v)
-		}
-	}
-	bt.SuperShields = newSuperShields
-
-	lifetick = gameobjtype.Attrib[gameobjtype.HommingShield].LifeTick
-	newHommingShields := make([]*w2d_obj.HommingShield, 0, len(bt.HommingShields))
-	for _, v := range bt.HommingShields {
-		v.Pa.Move(now)
-		if now-v.GOBase.BirthTick < lifetick {
-			newHommingShields = append(newHommingShields, v)
-		}
-	}
-	bt.HommingShields = newHommingShields
-
-	newBullets := make([]*w2d_obj.Bullet, 0, len(bt.Bullets))
-	for _, v := range bt.Bullets {
-		v.Pa.Move(now)
-		if v.Pa.IsIn(gameconst.StageW, gameconst.StageH) {
-			newBullets = append(newBullets, v)
-		}
-	}
-	bt.Bullets = newBullets
-
-	newSuperBullets := make([]*w2d_obj.SuperBullet, 0, len(bt.SuperBullets))
-	for _, v := range bt.SuperBullets {
-		v.Pa.Move(now)
-		if v.Pa.IsIn(gameconst.StageW, gameconst.StageH) {
-			newSuperBullets = append(newSuperBullets, v)
-		}
-	}
-	bt.SuperBullets = newSuperBullets
-
-	lifetick = gameobjtype.Attrib[gameobjtype.HommingBullet].LifeTick
-	newHommingBullets := make([]*w2d_obj.HommingBullet, 0, len(bt.HommingBullets))
-	for _, v := range bt.HommingBullets {
-		v.Pa.Move(now)
-		if now-v.GOBase.BirthTick < lifetick {
-			newHommingBullets = append(newHommingBullets, v)
-		}
-	}
-	bt.HommingBullets = newHommingBullets
-
-}
-
 func (stg *Stage) ToStageInfo() *w2d_obj.NotiStageInfo_data {
 	rtn := &w2d_obj.NotiStageInfo_data{
 		Time:       time.Now(),
 		Background: stg.Background,
-		Teams:      stg.Teams,
 		Effects:    stg.Effects,
 		Clouds:     stg.Clouds,
 	}
+	for _, v := range stg.Teams {
+		rtn.Teams = append(rtn.Teams, v.ToPacket())
+	}
 	return rtn
+}
+
+func (stg *Stage) makeTestData() {
+	stg.Background = stg.NewBackground()
+	stg.Clouds = make([]*w2d_obj.Cloud, 10)
+	for i := range stg.Clouds {
+		stg.Clouds[i] = stg.NewCloud(i)
+	}
+	stg.Effects = make([]*w2d_obj.Effect, effecttype.EffectType_Count*5)
+	for i := range stg.Effects {
+		et := effecttype.EffectType(i % effecttype.EffectType_Count)
+		stg.Effects[i] = stg.NewEffect(et,
+			stg.rnd.Float64()*gameconst.StageW,
+			stg.rnd.Float64()*gameconst.StageH,
+		)
+	}
+	stg.Teams = make([]*BallTeam, teamtype.TeamType_Count)
+	for i := range stg.Teams {
+		o := NewBallTeam(
+			teamtype.TeamType(i),
+			stg.rnd.Float64()*gameconst.StageW,
+			stg.rnd.Float64()*gameconst.StageH,
+		)
+		maxv := gameobjtype.Attrib[gameobjtype.Ball].V
+		dx, dy := CalcDxyFromAngelV(
+			stg.rnd.Float64()*360,
+			stg.rnd.Float64()*maxv,
+		)
+		o.Ball.SetDxy(dx, dy)
+		stg.Teams[i] = o
+		for j := 0; j < 12; j++ {
+			maxv := gameobjtype.Attrib[gameobjtype.Shield].V
+			o.AddShield(stg.rnd.Float64()*360,
+				stg.rnd.Float64()*maxv)
+			maxv = gameobjtype.Attrib[gameobjtype.SuperShield].V
+			o.AddSuperShield(stg.rnd.Float64()*360,
+				stg.rnd.Float64()*maxv)
+		}
+	}
 }

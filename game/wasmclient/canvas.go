@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/kasworld/gowasm2dgame/enums/effecttype"
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
@@ -56,24 +57,17 @@ func (vp *Viewport2d) draw() {
 	now := time.Now().UnixNano()
 	si.Background.Pa.Move(now)
 	for _, bt := range si.Teams {
-		bt.Ball.Pa.Move(now)
-		for _, v := range bt.Shields {
-			v.Am.Move(now)
-		}
-		for _, v := range bt.SuperShields {
-			v.Am.Move(now)
-		}
-		for _, v := range bt.HommingShields {
-			v.Pa.Move(now)
-		}
-		for _, v := range bt.Bullets {
-			v.Pa.Move(now)
-		}
-		for _, v := range bt.SuperBullets {
-			v.Pa.Move(now)
-		}
-		for _, v := range bt.HommingBullets {
-			v.Pa.Move(now)
+		bt.Ball.MoveStraight(now)
+		for _, v := range bt.Objs {
+			switch v.GOType {
+			default:
+			case gameobjtype.Bullet, gameobjtype.SuperBullet:
+				v.MoveStraight(now)
+			case gameobjtype.Shield, gameobjtype.SuperShield:
+				v.MoveCircular(now, bt.Ball.X, bt.Ball.Y)
+			case gameobjtype.HommingShield:
+			case gameobjtype.HommingBullet:
+			}
 		}
 	}
 	for _, cld := range si.Clouds {
@@ -138,100 +132,22 @@ func (vp *Viewport2d) drawEffect(eff *w2d_obj.Effect, now int64) {
 }
 
 func (vp *Viewport2d) drawBallTeam(bl *w2d_obj.BallTeam, now int64) {
+	vp.drawGameObj(bl.TeamType, bl.Ball, now)
+	for _, v := range bl.Objs {
+		vp.drawGameObj(bl.TeamType, v, now)
+	}
+}
 
-	gotype := gameobjtype.Ball
-	dispSize := gameobjtype.Attrib[gotype].Size
-	sp := gSprites.BallSprites[bl.TeamType][gotype]
-	srcx, srcy := sp.GetSliceXY(0)
-	dstx, dsty := bl.Ball.Pa.X-dispSize/2, bl.Ball.Pa.Y-dispSize/2
+func (vp *Viewport2d) drawGameObj(
+	teamtype teamtype.TeamType, v *w2d_obj.GameObj, now int64) {
+	dispSize := gameobjtype.Attrib[v.GOType].Size
+	sp := gSprites.BallSprites[teamtype][v.GOType]
+	frame := aniframe.CalcCurrentFrame(now-v.BirthTick,
+		gameobjtype.Attrib[v.GOType].FramePerSec,
+	)
+	srcx, srcy := sp.GetSliceXY(frame)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, dispSize, dispSize,
-		dstx, dsty, dispSize, dispSize,
+		v.X-dispSize/2, v.Y-dispSize/2, dispSize, dispSize,
 	)
-
-	gotype = gameobjtype.Shield
-	dispSize = gameobjtype.Attrib[gotype].Size
-	dispR := gameobjtype.Attrib[gotype].R
-	sp = gSprites.BallSprites[bl.TeamType][gotype]
-	srcx, srcy = sp.GetSliceXY(0)
-	for _, v := range bl.Shields {
-		x, y := v.Am.CalcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, dispR)
-		vp.context2d.Call("drawImage", sp.ImgCanvas,
-			srcx, srcy, dispSize, dispSize,
-			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
-		)
-	}
-
-	gotype = gameobjtype.SuperShield
-	dispSize = gameobjtype.Attrib[gotype].Size
-	dispR = gameobjtype.Attrib[gotype].R
-	sp = gSprites.BallSprites[bl.TeamType][gotype]
-	for _, v := range bl.SuperShields {
-		frame := aniframe.CalcCurrentFrame(now-v.GOBase.BirthTick,
-			gameobjtype.Attrib[gotype].FramePerSec,
-		)
-		srcx, srcy := sp.GetSliceXY(frame)
-		x, y := v.Am.CalcCircularPos(bl.Ball.Pa.X, bl.Ball.Pa.Y, dispR)
-		vp.context2d.Call("drawImage", sp.ImgCanvas,
-			srcx, srcy, dispSize, dispSize,
-			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
-		)
-	}
-
-	gotype = gameobjtype.HommingShield
-	dispSize = gameobjtype.Attrib[gotype].Size
-	sp = gSprites.BallSprites[bl.TeamType][gotype]
-	for _, v := range bl.HommingShields {
-		frame := aniframe.CalcCurrentFrame(now-v.GOBase.BirthTick,
-			gameobjtype.Attrib[gotype].FramePerSec,
-		)
-		srcx, srcy := sp.GetSliceXY(frame)
-		x, y := v.Pa.X, v.Pa.Y
-		vp.context2d.Call("drawImage", sp.ImgCanvas,
-			srcx, srcy, dispSize, dispSize,
-			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
-		)
-	}
-
-	gotype = gameobjtype.Bullet
-	dispSize = gameobjtype.Attrib[gotype].Size
-	sp = gSprites.BallSprites[bl.TeamType][gotype]
-	for _, v := range bl.Bullets {
-		srcx, srcy := sp.GetSliceXY(0)
-		x, y := v.Pa.X, v.Pa.Y
-		vp.context2d.Call("drawImage", sp.ImgCanvas,
-			srcx, srcy, dispSize, dispSize,
-			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
-		)
-	}
-
-	gotype = gameobjtype.SuperBullet
-	dispSize = gameobjtype.Attrib[gotype].Size
-	sp = gSprites.BallSprites[bl.TeamType][gotype]
-	for _, v := range bl.SuperBullets {
-		frame := aniframe.CalcCurrentFrame(now-v.GOBase.BirthTick,
-			gameobjtype.Attrib[gotype].FramePerSec,
-		)
-		srcx, srcy := sp.GetSliceXY(frame)
-		x, y := v.Pa.X, v.Pa.Y
-		vp.context2d.Call("drawImage", sp.ImgCanvas,
-			srcx, srcy, dispSize, dispSize,
-			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
-		)
-	}
-
-	gotype = gameobjtype.HommingBullet
-	dispSize = gameobjtype.Attrib[gotype].Size
-	sp = gSprites.BallSprites[bl.TeamType][gameobjtype.HommingBullet]
-	for _, v := range bl.HommingBullets {
-		frame := aniframe.CalcCurrentFrame(now-v.GOBase.BirthTick,
-			gameobjtype.Attrib[gotype].FramePerSec,
-		)
-		srcx, srcy := sp.GetSliceXY(frame)
-		x, y := v.Pa.X, v.Pa.Y
-		vp.context2d.Call("drawImage", sp.ImgCanvas,
-			srcx, srcy, dispSize, dispSize,
-			x-dispSize/2, y-dispSize/2, dispSize, dispSize,
-		)
-	}
 }
