@@ -7,22 +7,80 @@ import (
 	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
-	"github.com/kasworld/gowasm2dgame/lib/posacc"
 )
 
 type Cloud struct {
-	SpriteNum int
-	Pa        posacc.PosAcc
+	SpriteNum    int
+	LastMoveTick int64 // time.unixnano
+	X            float64
+	Y            float64
+	Dx           float64
+	Dy           float64
+}
+
+func (o *Cloud) Move(now int64) {
+	diff := float64(now-o.LastMoveTick) / float64(time.Second)
+	o.LastMoveTick = now
+	o.X += o.Dx * diff
+	o.Y += o.Dy * diff
+}
+
+func (o *Cloud) Wrap(w, h float64) (float64, float64) {
+	if o.X < 0 {
+		o.X = w
+	}
+	if o.Y < 0 {
+		o.Y = h
+	}
+
+	if o.X > w {
+		o.X = 0
+	}
+	if o.Y > h {
+		o.Y = 0
+	}
+	return o.X, o.Y
 }
 
 type Background struct {
-	Pa posacc.PosAcc
+	LastMoveTick int64 // time.unixnano
+	X            float64
+	Y            float64
+	Dx           float64
+	Dy           float64
+}
+
+func (o *Background) Move(now int64) {
+	diff := float64(now-o.LastMoveTick) / float64(time.Second)
+	o.LastMoveTick = now
+	o.X += o.Dx * diff
+	o.Y += o.Dy * diff
+}
+func (o *Background) Wrap(w, h float64) (float64, float64) {
+	if o.X < 0 {
+		o.X = w
+	}
+	if o.Y < 0 {
+		o.Y = h
+	}
+
+	if o.X > w {
+		o.X = 0
+	}
+	if o.Y > h {
+		o.Y = 0
+	}
+	return o.X, o.Y
 }
 
 type Effect struct {
-	EffectType effecttype.EffectType
-	BirthTick  int64
-	Pa         posacc.PosAcc
+	EffectType   effecttype.EffectType
+	BirthTick    int64
+	LastMoveTick int64 // time.unixnano
+	X            float64
+	Y            float64
+	Dx           float64
+	Dy           float64
 }
 
 ////////////////////

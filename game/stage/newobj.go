@@ -17,7 +17,6 @@ import (
 
 	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
-	"github.com/kasworld/gowasm2dgame/lib/posacc"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
@@ -34,11 +33,9 @@ func (stg *Stage) NewBackground() *w2d_obj.Background {
 		stg.rnd.Float64()*300,
 	)
 	return &w2d_obj.Background{
-		Pa: posacc.PosAcc{
-			LastMoveTick: time.Now().UnixNano(),
-			Dx:           dx,
-			Dy:           dy,
-		},
+		LastMoveTick: time.Now().UnixNano(),
+		Dx:           dx,
+		Dy:           dy,
 	}
 }
 
@@ -48,14 +45,12 @@ func (stg *Stage) NewCloud(i int) *w2d_obj.Cloud {
 		stg.rnd.Float64()*300,
 	)
 	return &w2d_obj.Cloud{
-		SpriteNum: i,
-		Pa: posacc.PosAcc{
-			X:            stg.rnd.Float64() * gameconst.StageW,
-			Y:            stg.rnd.Float64() * gameconst.StageH,
-			Dx:           dx,
-			Dy:           dy,
-			LastMoveTick: time.Now().UnixNano(),
-		},
+		SpriteNum:    i,
+		X:            stg.rnd.Float64() * gameconst.StageW,
+		Y:            stg.rnd.Float64() * gameconst.StageH,
+		Dx:           dx,
+		Dy:           dy,
+		LastMoveTick: time.Now().UnixNano(),
 	}
 }
 
@@ -64,9 +59,7 @@ func (stg *Stage) NewEffect(
 	return &w2d_obj.Effect{
 		EffectType: et,
 		BirthTick:  time.Now().UnixNano(),
-		Pa: posacc.PosAcc{
-			X: x,
-			Y: y,
-		},
+		X:          x,
+		Y:          y,
 	}
 }

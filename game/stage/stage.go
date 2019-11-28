@@ -49,15 +49,15 @@ func (stg *Stage) Turn() {
 }
 
 func (stg *Stage) move(now int64) {
-	stg.Background.Pa.Move(now)
-	stg.Background.Pa.Wrap(gameconst.StageW*2, gameconst.StageH*2)
+	stg.Background.Move(now)
+	stg.Background.Wrap(gameconst.StageW*2, gameconst.StageH*2)
 	for _, bt := range stg.Teams {
 		bt.Move(now)
 		bt.AI()
 	}
 	for _, cld := range stg.Clouds {
-		cld.Pa.Move(now)
-		cld.Pa.Wrap(gameconst.StageW, gameconst.StageH)
+		cld.Move(now)
+		cld.Wrap(gameconst.StageW, gameconst.StageH)
 	}
 }
 

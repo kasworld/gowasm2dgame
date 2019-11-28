@@ -53,7 +53,7 @@ func (vp *Viewport2d) draw(now int64) {
 	if si == nil {
 		return
 	}
-	si.Background.Pa.Move(now)
+	si.Background.Move(now)
 	for _, bt := range si.Teams {
 		bt.Ball.MoveStraight(now)
 		for _, v := range bt.Objs {
@@ -70,7 +70,7 @@ func (vp *Viewport2d) draw(now int64) {
 		}
 	}
 	for _, cld := range si.Clouds {
-		cld.Pa.Move(now)
+		cld.Move(now)
 	}
 	vp.drawBG()
 	for _, v := range si.Teams {
@@ -87,7 +87,7 @@ func (vp *Viewport2d) draw(now int64) {
 func (vp *Viewport2d) drawBG() {
 	si := vp.stageInfo
 	sp := gSprites.BGSprite
-	x, y := si.Background.Pa.X, si.Background.Pa.Y
+	x, y := si.Background.X, si.Background.Y
 	srcx, srcy := sp.GetSliceXY(0)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, sp.W, sp.H,
@@ -108,7 +108,7 @@ func (vp *Viewport2d) drawBG() {
 }
 
 func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
-	x, y := cld.Pa.X, cld.Pa.Y
+	x, y := cld.X, cld.Y
 	sp := gSprites.CloudSprite
 	srcx, srcy := sp.GetSliceXY(cld.SpriteNum)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
@@ -118,7 +118,7 @@ func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
 }
 
 func (vp *Viewport2d) drawEffect(eff *w2d_obj.Effect, now int64) {
-	x, y := eff.Pa.X, eff.Pa.Y
+	x, y := eff.X, eff.Y
 	sp := gSprites.EffectSprite[eff.EffectType]
 	frame := CalcCurrentFrame(now-eff.BirthTick,
 		effecttype.Attrib[eff.EffectType].FramePerSec,
