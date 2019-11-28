@@ -14,7 +14,14 @@ package wasmclient
 import (
 	"fmt"
 	"syscall/js"
+	"time"
 )
+
+func CalcCurrentFrame(difftick int64, fps float64) int {
+	diffsec := float64(difftick) / float64(time.Second)
+	frame := fps * diffsec
+	return int(frame)
+}
 
 func getImgWH(srcImageID string) (js.Value, float64, float64) {
 	img := js.Global().Get("document").Call("getElementById", srcImageID)

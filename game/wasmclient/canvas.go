@@ -21,7 +21,6 @@ import (
 
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
-	"github.com/kasworld/gowasm2dgame/lib/aniframe"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
@@ -121,7 +120,7 @@ func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
 func (vp *Viewport2d) drawEffect(eff *w2d_obj.Effect, now int64) {
 	x, y := eff.Pa.X, eff.Pa.Y
 	sp := gSprites.EffectSprite[eff.EffectType]
-	frame := aniframe.CalcCurrentFrame(now-eff.BirthTick,
+	frame := CalcCurrentFrame(now-eff.BirthTick,
 		effecttype.Attrib[eff.EffectType].FramePerSec,
 	)
 	srcx, srcy := sp.GetSliceXY(frame)
@@ -142,7 +141,7 @@ func (vp *Viewport2d) drawGameObj(
 	teamtype teamtype.TeamType, v *w2d_obj.GameObj, now int64) {
 	dispSize := gameobjtype.Attrib[v.GOType].Size
 	sp := gSprites.BallSprites[teamtype][v.GOType]
-	frame := aniframe.CalcCurrentFrame(now-v.BirthTick,
+	frame := CalcCurrentFrame(now-v.BirthTick,
 		gameobjtype.Attrib[v.GOType].FramePerSec,
 	)
 	srcx, srcy := sp.GetSliceXY(frame)
