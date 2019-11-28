@@ -30,3 +30,22 @@ var Attrib = [GameObjType_Count]struct {
 	SuperBullet:   {32, 0, 600, 30, LongLife},
 	HommingBullet: {16, 0, 300, 30, int64(time.Second) * 60},
 }
+
+var collisionRule = [GameObjType_Count][]GameObjType{
+	Ball:          {Ball, Shield, SuperShield, Bullet, HommingShield, SuperBullet, HommingBullet},
+	Shield:        {Ball, Shield, SuperShield, Bullet, HommingShield, SuperBullet, HommingBullet},
+	SuperShield:   {SuperShield, SuperBullet, HommingBullet},
+	Bullet:        {Ball, Shield, SuperShield, Bullet, HommingShield, SuperBullet, HommingBullet},
+	HommingShield: {Ball, Shield, SuperShield, Bullet, HommingShield, SuperBullet, HommingBullet},
+	SuperBullet:   {SuperShield, SuperBullet, HommingBullet},
+	HommingBullet: {SuperShield, SuperBullet, HommingBullet},
+}
+
+func CollisionTo(srcType, dstType GameObjType) bool {
+	for _, v := range collisionRule[srcType] {
+		if v == dstType {
+			return true
+		}
+	}
+	return false
+}

@@ -12,6 +12,7 @@
 package stage
 
 import (
+	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
 	"github.com/kasworld/gowasm2dgame/lib/rectf"
@@ -57,14 +58,12 @@ func (stg *Stage) checkCollision() []*GameObj {
 				if targetObj.teamType == v.teamType {
 					return false
 				}
-				if !targetObj.toDelete {
-					targetObj.toDelete = true
-					toDeleteList = append(toDeleteList, targetObj)
-				}
-				if !v.toDelete {
-					v.toDelete = true
-					toDeleteList = append(toDeleteList, v)
-					return true
+				if !v.toDelete && !targetObj.toDelete {
+					if gameobjtype.CollisionTo(v.GOType, targetObj.GOType) {
+						v.toDelete = true
+						toDeleteList = append(toDeleteList, v)
+						return true
+					}
 				}
 				return false
 			},
