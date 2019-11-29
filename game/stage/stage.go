@@ -20,6 +20,7 @@ import (
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
+	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
@@ -66,15 +67,17 @@ func New(l *w2dlog.LogBase) *Stage {
 
 func (stg *Stage) Turn() {
 	now := time.Now().UnixNano()
-	stg.move(now)
+	aienv := stg.move(now)
+	for _, bt := range stg.Teams {
+		bt.AI(aienv)
+	}
 }
 
-func (stg *Stage) move(now int64) {
+func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 	stg.Background.Move(now)
 	stg.Background.Wrap(gameconst.StageW*2, gameconst.StageH*2)
 	for _, bt := range stg.Teams {
 		toDelList := bt.Move(now)
-		bt.AI()
 		for _, v := range toDelList {
 			switch v.GOType {
 			case gameobjtype.Bullet, gameobjtype.HommingBullet, gameobjtype.Shield, gameobjtype.SuperShield, gameobjtype.HommingShield:
@@ -86,7 +89,7 @@ func (stg *Stage) move(now int64) {
 			}
 		}
 	}
-	toDelList := stg.checkCollision()
+	toDelList, aienv := stg.checkCollision()
 	for _, v := range toDelList {
 		switch v.GOType {
 		case gameobjtype.Bullet, gameobjtype.HommingBullet, gameobjtype.Shield, gameobjtype.SuperShield, gameobjtype.HommingShield:
@@ -102,6 +105,7 @@ func (stg *Stage) move(now int64) {
 		cld.Move(now)
 		cld.Wrap(gameconst.StageW, gameconst.StageH)
 	}
+	return aienv
 }
 
 func (stg *Stage) ToStageInfo() *w2d_obj.NotiStageInfo_data {

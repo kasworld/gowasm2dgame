@@ -27,7 +27,7 @@ func (stg *Stage) newQtree() *quadtreef.QuadTree {
 	return qtree
 }
 
-func (stg *Stage) checkCollision() []*GameObj {
+func (stg *Stage) checkCollision() ([]*GameObj, *quadtreef.QuadTree) {
 	toDeleteList := make([]*GameObj, 0)
 	qtree := stg.newQtree()
 	obj2check := make([]*GameObj, 0)
@@ -72,5 +72,5 @@ func (stg *Stage) checkCollision() []*GameObj {
 	for _, v := range toDeleteList {
 		v.toDelete = true
 	}
-	return toDeleteList
+	return toDeleteList, qtree
 }

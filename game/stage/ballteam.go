@@ -108,32 +108,6 @@ func (bt *BallTeam) Count(ot gameobjtype.GameObjType) int {
 	return rtn
 }
 
-func (bt *BallTeam) AI() {
-	switch bt.rnd.Intn(5) {
-	case 0:
-		maxv := gameobjtype.Attrib[gameobjtype.Bullet].V
-		bt.AddBullet(bt.rnd.Float64()*360, maxv)
-	case 1:
-		maxv := gameobjtype.Attrib[gameobjtype.SuperBullet].V
-		bt.AddSuperBullet(bt.rnd.Float64()*360, maxv)
-	case 2:
-		if bt.Count(gameobjtype.SuperShield) < 12 {
-			maxv := gameobjtype.Attrib[gameobjtype.SuperShield].V
-			bt.AddSuperShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
-		}
-	case 3:
-		if bt.Count(gameobjtype.HommingShield) < 12 {
-			maxv := gameobjtype.Attrib[gameobjtype.HommingShield].V
-			bt.AddHommingShield(bt.rnd.Float64()*360, maxv)
-		}
-	case 4:
-		if bt.Count(gameobjtype.Shield) < 12 {
-			maxv := gameobjtype.Attrib[gameobjtype.Shield].V
-			bt.AddShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
-		}
-	}
-}
-
 func (bt *BallTeam) addGObj(o *GameObj) {
 	for i, v := range bt.Objs {
 		if v.toDelete {
