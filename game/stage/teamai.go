@@ -29,7 +29,7 @@ func (stg *Stage) AI(bt *BallTeam, aienv *quadtreef.QuadTree) {
 	case 2:
 		maxv := gameobjtype.Attrib[gameobjtype.SuperBullet].V
 		dstteam := stg.Teams[bt.rnd.Intn(len(stg.Teams))]
-		if dstteam != bt {
+		if dstteam != bt && dstteam.IsAlive {
 			bt.AddHommingBullet(bt.rnd.Float64()*360, maxv, dstteam.Ball.UUID)
 		}
 	case 3:

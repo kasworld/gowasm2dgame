@@ -110,7 +110,7 @@ func (stg *Stage) handleBallKilled(now int64, gobj *GameObj) {
 		if bt.Ball.UUID == gobj.UUID {
 			bt.IsAlive = false
 			// regist respawn
-			bt.RespawnTick = now + int64(time.Second)*5
+			bt.RespawnTick = now + int64(time.Second)*gameconst.BallRespawnDurSec
 
 			// add effect
 			stg.AddEffectByGameObj(bt.Ball)
