@@ -29,3 +29,13 @@ marshaler는 json, network은 websocket을 사용합니다.
 json 이 너무 느리고 패킷이 커져서 gob로 바꿨습니다. 
 77kbyte 하던 것이 31kbyte로 주는 군요. 
 (genprotocol을 사용하기에 수정해야할 코드는 단 네 줄입니다. -서버 2줄 클라이언트 2줄-  ^^)
+
+## 서버 실행후 브라우저 서비스 포트 (config에서 수정 가능)
+
+open admin web
+
+    http://localhost:24201/
+
+open client web
+    
+    http://localhost:24101/
