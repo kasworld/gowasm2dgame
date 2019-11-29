@@ -161,9 +161,11 @@ func (stg *Stage) MoveBallTeam(bt *BallTeam, now int64) []*GameObj {
 				}
 			}
 			if !findDst {
-				// no dest , del homming
-				v.toDelete = true
-				toDeleteList = append(toDeleteList, v)
+				v.MoveStraight(now)
+				if !v.IsIn(gameconst.StageW, gameconst.StageH) {
+					v.toDelete = true
+					toDeleteList = append(toDeleteList, v)
+				}
 			}
 		}
 		if !v.toDelete && !v.CheckLife(now) {
