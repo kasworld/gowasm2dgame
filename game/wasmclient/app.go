@@ -24,13 +24,14 @@ import (
 )
 
 type WasmClient struct {
-	DoClose      func()
-	pid2recv     *w2d_pid2rspfn.PID2RspFn
-	wsConn       *w2d_connwasm.Connection
-	ServerJitter *actjitter.ActJitter
-	ClientJitter *actjitter.ActJitter
-	PingDur      int64
-	DispInterDur *intervalduration.IntervalDuration
+	DoClose              func()
+	pid2recv             *w2d_pid2rspfn.PID2RspFn
+	wsConn               *w2d_connwasm.Connection
+	ServerJitter         *actjitter.ActJitter
+	ClientJitter         *actjitter.ActJitter
+	PingDur              int64
+	ServerClientTictDiff int64
+	DispInterDur         *intervalduration.IntervalDuration
 
 	vp *Viewport2d
 }
@@ -73,8 +74,8 @@ loop:
 			go app.reqHeartbeat()
 			div := js.Global().Get("document").Call("getElementById", "sysmsg")
 			div.Set("innerHTML",
-				fmt.Sprintf("%v<br/>Ping %v",
-					app.DispInterDur, app.PingDur,
+				fmt.Sprintf("%v<br/>Ping %v<br/>ServerClientTickDiff %v",
+					app.DispInterDur, app.PingDur, app.ServerClientTictDiff,
 				),
 			)
 		}
@@ -90,8 +91,12 @@ func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 	act := app.DispInterDur.BeginAct()
 	defer act.End()
 
-	now := time.Now().UnixNano()
+	now := app.GetEstServerTick()
 	app.vp.draw(now)
 
 	return nil
+}
+
+func (app *WasmClient) GetEstServerTick() int64 {
+	return time.Now().UnixNano() + app.ServerClientTictDiff
 }
