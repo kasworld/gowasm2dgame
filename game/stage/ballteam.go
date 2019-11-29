@@ -15,16 +15,21 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/enums/acttype"
+	"github.com/kasworld/gowasm2dgame/enums/acttype_stats"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
+	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/uuidstr"
 )
 
 type BallTeam struct {
-	rnd *rand.Rand `prettystring:"hide"`
+	rnd *rand.Rand      `prettystring:"hide"`
+	log *w2dlog.LogBase `prettystring:"hide"`
 
+	ActStats    acttype_stats.ActTypeStat
 	TeamType    teamtype.TeamType
 	IsAlive     bool
 	RespawnTick int64
@@ -33,11 +38,12 @@ type BallTeam struct {
 	Objs []*GameObj
 }
 
-func NewBallTeam(TeamType teamtype.TeamType) *BallTeam {
+func NewBallTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *BallTeam {
 	nowtick := time.Now().UnixNano()
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 	bt := &BallTeam{
 		rnd:      rnd,
+		log:      l,
 		IsAlive:  true,
 		TeamType: TeamType,
 		Ball: &GameObj{
@@ -105,6 +111,30 @@ func (bt *BallTeam) addGObj(o *GameObj) {
 		}
 	}
 	bt.Objs = append(bt.Objs, o)
+}
+
+func (bt *BallTeam) ApplyAct(act *w2d_obj.Act) {
+	bt.ActStats.Inc(act.Act)
+	switch act.Act {
+	default:
+		bt.log.Fatal("unknown act %v %v", act, bt)
+	case acttype.Nothing:
+	case acttype.Shield:
+		bt.AddShield(act.Angle, act.AngleV)
+	case acttype.SuperShield:
+		bt.AddSuperShield(act.Angle, act.AngleV)
+	case acttype.HommingShield:
+		bt.AddHommingShield(act.Angle, act.AngleV)
+	case acttype.Bullet:
+		bt.AddBullet(act.Angle, act.AngleV)
+	case acttype.SuperBullet:
+		bt.AddSuperBullet(act.Angle, act.AngleV)
+	case acttype.HommingBullet:
+		bt.AddHommingBullet(act.Angle, act.AngleV, act.DstObjID)
+	case acttype.Accel:
+		dx, dy := CalcDxyFromAngelV(act.Angle, act.AngleV)
+		bt.Ball.AddDxy(dx, dy)
+	}
 }
 
 func (bt *BallTeam) AddShield(angle, anglev float64) *GameObj {

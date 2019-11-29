@@ -12,47 +12,77 @@
 package stage
 
 import (
+	"github.com/kasworld/gowasm2dgame/enums/acttype"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
-func (stg *Stage) AI(bt *BallTeam, aienv *quadtreef.QuadTree) {
+func (stg *Stage) AI(bt *BallTeam, aienv *quadtreef.QuadTree) *w2d_obj.Act {
 	switch bt.rnd.Intn(10) {
 	default:
 		//pass
 	case 0:
 		maxv := gameobjtype.Attrib[gameobjtype.Bullet].V
-		bt.AddBullet(bt.rnd.Float64()*360, maxv)
+		return &w2d_obj.Act{
+			Act:    acttype.Bullet,
+			Angle:  bt.rnd.Float64() * 360,
+			AngleV: maxv,
+		}
 	case 1:
 		maxv := gameobjtype.Attrib[gameobjtype.SuperBullet].V
-		bt.AddSuperBullet(bt.rnd.Float64()*360, maxv)
+		return &w2d_obj.Act{
+			Act:    acttype.SuperBullet,
+			Angle:  bt.rnd.Float64() * 360,
+			AngleV: maxv,
+		}
 	case 2:
-		maxv := gameobjtype.Attrib[gameobjtype.SuperBullet].V
+		maxv := gameobjtype.Attrib[gameobjtype.HommingBullet].V
 		dstteam := stg.Teams[bt.rnd.Intn(len(stg.Teams))]
 		if dstteam != bt && dstteam.IsAlive {
-			bt.AddHommingBullet(bt.rnd.Float64()*360, maxv, dstteam.Ball.UUID)
+			return &w2d_obj.Act{
+				Act:      acttype.HommingBullet,
+				Angle:    bt.rnd.Float64() * 360,
+				AngleV:   maxv,
+				DstObjID: dstteam.Ball.UUID,
+			}
 		}
 	case 3:
 		if bt.Count(gameobjtype.Shield) < 12 {
 			maxv := gameobjtype.Attrib[gameobjtype.Shield].V
-			bt.AddShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
+			return &w2d_obj.Act{
+				Act:    acttype.Shield,
+				Angle:  bt.rnd.Float64() * 360,
+				AngleV: bt.rnd.Float64() * maxv,
+			}
 		}
 	case 4:
 		if bt.Count(gameobjtype.SuperShield) < 12 && bt.rnd.Intn(10) == 0 {
 			maxv := gameobjtype.Attrib[gameobjtype.SuperShield].V
-			bt.AddSuperShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
+			return &w2d_obj.Act{
+				Act:    acttype.SuperShield,
+				Angle:  bt.rnd.Float64() * 360,
+				AngleV: bt.rnd.Float64() * maxv,
+			}
 		}
 	case 5:
 		if bt.Count(gameobjtype.HommingShield) < 6 && bt.rnd.Intn(10) == 0 {
 			maxv := gameobjtype.Attrib[gameobjtype.HommingShield].V
-			bt.AddHommingShield(bt.rnd.Float64()*360, maxv)
+			return &w2d_obj.Act{
+				Act:    acttype.HommingShield,
+				Angle:  bt.rnd.Float64() * 360,
+				AngleV: maxv,
+			}
 		}
 	case 6:
 		maxv := gameobjtype.Attrib[gameobjtype.Ball].V
-		dx, dy := CalcDxyFromAngelV(
-			bt.rnd.Float64()*360,
-			bt.rnd.Float64()*maxv,
-		)
-		bt.Ball.AddDxy(dx, dy)
+		return &w2d_obj.Act{
+			Act:    acttype.Accel,
+			Angle:  bt.rnd.Float64() * 360,
+			AngleV: bt.rnd.Float64() * maxv,
+		}
+	}
+	return &w2d_obj.Act{
+		Act: acttype.Nothing,
 	}
 }

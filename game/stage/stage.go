@@ -49,7 +49,7 @@ func New(l *w2dlog.LogBase) *Stage {
 	}
 	stg.Teams = make([]*BallTeam, teamtype.TeamType_Count)
 	for i := range stg.Teams {
-		stg.Teams[i] = NewBallTeam(teamtype.TeamType(i))
+		stg.Teams[i] = NewBallTeam(l, teamtype.TeamType(i))
 	}
 	return stg
 }
@@ -70,7 +70,8 @@ func (stg *Stage) Turn() {
 		if !bt.IsAlive {
 			continue
 		}
-		stg.AI(bt, aienv)
+		act := stg.AI(bt, aienv)
+		bt.ApplyAct(act)
 	}
 }
 

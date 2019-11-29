@@ -49,8 +49,12 @@ type NotiStageInfo_data struct {
 ////////////////
 
 type Act struct {
-	Act      acttype.ActType
-	DstPos   [2]int
+	Act acttype.ActType
+
+	// accel, fire bullet
+	Angle  float64 // degree
+	AngleV float64 // pixel /sec
+
+	// homming
 	DstObjID string
-	// some more?
 }
