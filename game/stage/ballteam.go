@@ -17,6 +17,7 @@ import (
 
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/uuidstr"
 )
@@ -24,15 +25,20 @@ import (
 type BallTeam struct {
 	rnd *rand.Rand `prettystring:"hide"`
 
-	TeamType teamtype.TeamType
-	Ball     *GameObj // ball is special
-	Objs     []*GameObj
+	TeamType    teamtype.TeamType
+	IsAlive     bool
+	RespawnTick int64
+
+	Ball *GameObj // ball is special
+	Objs []*GameObj
 }
 
-func NewBallTeam(TeamType teamtype.TeamType, x, y float64) *BallTeam {
+func NewBallTeam(TeamType teamtype.TeamType) *BallTeam {
 	nowtick := time.Now().UnixNano()
+	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 	bt := &BallTeam{
-		rnd:      rand.New(rand.NewSource(time.Now().UnixNano())),
+		rnd:      rnd,
+		IsAlive:  true,
 		TeamType: TeamType,
 		Ball: &GameObj{
 			teamType:     TeamType,
@@ -40,8 +46,8 @@ func NewBallTeam(TeamType teamtype.TeamType, x, y float64) *BallTeam {
 			UUID:         uuidstr.New(),
 			BirthTick:    nowtick,
 			LastMoveTick: nowtick,
-			X:            x,
-			Y:            y,
+			X:            rnd.Float64() * gameconst.StageW,
+			Y:            rnd.Float64() * gameconst.StageH,
 		},
 		Objs: make([]*GameObj, 0),
 	}
@@ -52,6 +58,13 @@ func NewBallTeam(TeamType teamtype.TeamType, x, y float64) *BallTeam {
 	)
 	bt.Ball.SetDxy(dx, dy)
 	return bt
+}
+
+func (bt *BallTeam) RespawnBall() {
+	bt.IsAlive = true
+	bt.Ball.toDelete = false
+	bt.Ball.X = bt.rnd.Float64() * gameconst.StageW
+	bt.Ball.Y = bt.rnd.Float64() * gameconst.StageH
 }
 
 func (bt *BallTeam) ToPacket() *w2d_obj.BallTeam {

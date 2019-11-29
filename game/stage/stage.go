@@ -49,19 +49,26 @@ func New(l *w2dlog.LogBase) *Stage {
 	}
 	stg.Teams = make([]*BallTeam, teamtype.TeamType_Count)
 	for i := range stg.Teams {
-		stg.Teams[i] = NewBallTeam(
-			teamtype.TeamType(i),
-			stg.rnd.Float64()*gameconst.StageW,
-			stg.rnd.Float64()*gameconst.StageH,
-		)
+		stg.Teams[i] = NewBallTeam(teamtype.TeamType(i))
 	}
 	return stg
 }
 
 func (stg *Stage) Turn() {
 	now := time.Now().UnixNano()
+
+	// respawn dead team
+	for _, bt := range stg.Teams {
+		if !bt.IsAlive && bt.RespawnTick < now {
+			bt.RespawnBall()
+		}
+	}
+
 	aienv := stg.move(now)
 	for _, bt := range stg.Teams {
+		if !bt.IsAlive {
+			continue
+		}
 		stg.AI(bt, aienv)
 	}
 }
@@ -69,7 +76,11 @@ func (stg *Stage) Turn() {
 func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 	stg.Background.Move(now)
 	stg.Background.Wrap(gameconst.StageW*2, gameconst.StageH*2)
+
 	for _, bt := range stg.Teams {
+		if !bt.IsAlive {
+			continue
+		}
 		toDelList := stg.MoveBallTeam(bt, now)
 		for _, v := range toDelList {
 			stg.AddEffectByGameObj(v)
@@ -78,21 +89,11 @@ func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 	toDelList, aienv := stg.checkCollision()
 	for _, v := range toDelList {
 		stg.AddEffectByGameObj(v)
-	}
-
-	for _, bt := range stg.Teams {
-		if bt.Ball.toDelete {
-			bt.Ball.toDelete = false
-			stg.AddEffectByGameObj(bt.Ball)
-			for _, v := range bt.Objs {
-				if v.toDelete {
-					continue
-				}
-				v.toDelete = true
-				stg.AddEffectByGameObj(v)
-			}
+		if v.GOType == gameobjtype.Ball {
+			stg.handleBallKilled(now, v)
 		}
 	}
+
 	for _, eff := range stg.Effects {
 		eff.Move(now)
 	}
@@ -101,6 +102,29 @@ func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 		cld.Wrap(gameconst.StageW, gameconst.StageH)
 	}
 	return aienv
+}
+
+func (stg *Stage) handleBallKilled(now int64, gobj *GameObj) {
+	for _, bt := range stg.Teams {
+		// find ballteam
+		if bt.Ball.UUID == gobj.UUID {
+			bt.IsAlive = false
+			// regist respawn
+			bt.RespawnTick = now + int64(time.Second)*5
+
+			// add effect
+			stg.AddEffectByGameObj(bt.Ball)
+			for _, v := range bt.Objs {
+				if v.toDelete {
+					continue
+				}
+				v.toDelete = true
+				stg.AddEffectByGameObj(v)
+			}
+			return
+		}
+	}
+	stg.log.Fatal("ball not in ballteam? %v", gobj)
 }
 
 func (stg *Stage) MoveBallTeam(bt *BallTeam, now int64) []*GameObj {
@@ -124,10 +148,21 @@ func (stg *Stage) MoveBallTeam(bt *BallTeam, now int64) []*GameObj {
 		case gameobjtype.HommingShield:
 			v.MoveHommingShield(now, bt.Ball.X, bt.Ball.Y)
 		case gameobjtype.HommingBullet:
+			findDst := false
 			for _, dstbt := range stg.Teams {
-				if dstbt.Ball.UUID == v.DstUUID {
-					v.MoveHommingBullet(now, dstbt.Ball.X, dstbt.Ball.Y)
+				if !dstbt.IsAlive {
+					continue
 				}
+				if dstbt.Ball.UUID == v.DstUUID {
+					findDst = true
+					v.MoveHommingBullet(now, dstbt.Ball.X, dstbt.Ball.Y)
+					break
+				}
+			}
+			if !findDst {
+				// no dest , del homming
+				v.toDelete = true
+				toDeleteList = append(toDeleteList, v)
 			}
 		}
 		if !v.toDelete && !v.CheckLife(now) {
@@ -161,8 +196,11 @@ func (stg *Stage) ToStageInfo() *w2d_obj.NotiStageInfo_data {
 			rtn.Effects = append(rtn.Effects, v)
 		}
 	}
-	for _, v := range stg.Teams {
-		rtn.Teams = append(rtn.Teams, v.ToPacket())
+	for _, bt := range stg.Teams {
+		if !bt.IsAlive {
+			continue
+		}
+		rtn.Teams = append(rtn.Teams, bt.ToPacket())
 	}
 	return rtn
 }
