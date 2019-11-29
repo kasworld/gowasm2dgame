@@ -18,68 +18,82 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
-func (stg *Stage) AI(bt *BallTeam, aienv *quadtreef.QuadTree) *w2d_obj.Act {
+func (stg *Stage) AI(bt *BallTeam, now int64, aienv *quadtreef.QuadTree) *w2d_obj.Act {
 	switch bt.rnd.Intn(10) {
 	default:
 		//pass
 	case 0:
-		maxv := gameobjtype.Attrib[gameobjtype.Bullet].V
-		return &w2d_obj.Act{
-			Act:    acttype.Bullet,
-			Angle:  bt.rnd.Float64() * 360,
-			AngleV: maxv,
-		}
-	case 1:
-		maxv := gameobjtype.Attrib[gameobjtype.SuperBullet].V
-		return &w2d_obj.Act{
-			Act:    acttype.SuperBullet,
-			Angle:  bt.rnd.Float64() * 360,
-			AngleV: maxv,
-		}
-	case 2:
-		maxv := gameobjtype.Attrib[gameobjtype.HommingBullet].V
-		dstteam := stg.Teams[bt.rnd.Intn(len(stg.Teams))]
-		if dstteam != bt && dstteam.IsAlive {
+		if bt.GetRemainAct(now, acttype.Bullet) > 0 {
+			maxv := gameobjtype.Attrib[gameobjtype.Bullet].V
 			return &w2d_obj.Act{
-				Act:      acttype.HommingBullet,
-				Angle:    bt.rnd.Float64() * 360,
-				AngleV:   maxv,
-				DstObjID: dstteam.Ball.UUID,
-			}
-		}
-	case 3:
-		if bt.Count(gameobjtype.Shield) < 12 {
-			maxv := gameobjtype.Attrib[gameobjtype.Shield].V
-			return &w2d_obj.Act{
-				Act:    acttype.Shield,
-				Angle:  bt.rnd.Float64() * 360,
-				AngleV: bt.rnd.Float64() * maxv,
-			}
-		}
-	case 4:
-		if bt.Count(gameobjtype.SuperShield) < 12 && bt.rnd.Intn(10) == 0 {
-			maxv := gameobjtype.Attrib[gameobjtype.SuperShield].V
-			return &w2d_obj.Act{
-				Act:    acttype.SuperShield,
-				Angle:  bt.rnd.Float64() * 360,
-				AngleV: bt.rnd.Float64() * maxv,
-			}
-		}
-	case 5:
-		if bt.Count(gameobjtype.HommingShield) < 6 && bt.rnd.Intn(10) == 0 {
-			maxv := gameobjtype.Attrib[gameobjtype.HommingShield].V
-			return &w2d_obj.Act{
-				Act:    acttype.HommingShield,
+				Act:    acttype.Bullet,
 				Angle:  bt.rnd.Float64() * 360,
 				AngleV: maxv,
 			}
 		}
+	case 1:
+		if bt.GetRemainAct(now, acttype.SuperBullet) > 0 {
+			maxv := gameobjtype.Attrib[gameobjtype.SuperBullet].V
+			return &w2d_obj.Act{
+				Act:    acttype.SuperBullet,
+				Angle:  bt.rnd.Float64() * 360,
+				AngleV: maxv,
+			}
+		}
+	case 2:
+		if bt.GetRemainAct(now, acttype.HommingBullet) > 0 {
+			maxv := gameobjtype.Attrib[gameobjtype.HommingBullet].V
+			dstteam := stg.Teams[bt.rnd.Intn(len(stg.Teams))]
+			if dstteam != bt && dstteam.IsAlive {
+				return &w2d_obj.Act{
+					Act:      acttype.HommingBullet,
+					Angle:    bt.rnd.Float64() * 360,
+					AngleV:   maxv,
+					DstObjID: dstteam.Ball.UUID,
+				}
+			}
+		}
+	case 3:
+		if bt.GetRemainAct(now, acttype.Shield) > 0 {
+			if bt.Count(gameobjtype.Shield) < 12 {
+				maxv := gameobjtype.Attrib[gameobjtype.Shield].V
+				return &w2d_obj.Act{
+					Act:    acttype.Shield,
+					Angle:  bt.rnd.Float64() * 360,
+					AngleV: bt.rnd.Float64() * maxv,
+				}
+			}
+		}
+	case 4:
+		if bt.GetRemainAct(now, acttype.SuperShield) > 0 {
+			if bt.Count(gameobjtype.SuperShield) < 12 && bt.rnd.Intn(10) == 0 {
+				maxv := gameobjtype.Attrib[gameobjtype.SuperShield].V
+				return &w2d_obj.Act{
+					Act:    acttype.SuperShield,
+					Angle:  bt.rnd.Float64() * 360,
+					AngleV: bt.rnd.Float64() * maxv,
+				}
+			}
+		}
+	case 5:
+		if bt.GetRemainAct(now, acttype.HommingShield) > 0 {
+			if bt.Count(gameobjtype.HommingShield) < 6 && bt.rnd.Intn(10) == 0 {
+				maxv := gameobjtype.Attrib[gameobjtype.HommingShield].V
+				return &w2d_obj.Act{
+					Act:    acttype.HommingShield,
+					Angle:  bt.rnd.Float64() * 360,
+					AngleV: maxv,
+				}
+			}
+		}
 	case 6:
-		maxv := gameobjtype.Attrib[gameobjtype.Ball].V
-		return &w2d_obj.Act{
-			Act:    acttype.Accel,
-			Angle:  bt.rnd.Float64() * 360,
-			AngleV: bt.rnd.Float64() * maxv,
+		if bt.GetRemainAct(now, acttype.Accel) > 0 {
+			maxv := gameobjtype.Attrib[gameobjtype.Ball].V
+			return &w2d_obj.Act{
+				Act:    acttype.Accel,
+				Angle:  bt.rnd.Float64() * 360,
+				AngleV: bt.rnd.Float64() * maxv,
+			}
 		}
 	}
 	return &w2d_obj.Act{

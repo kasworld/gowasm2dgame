@@ -66,13 +66,15 @@ func NewBallTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *BallTeam {
 	return bt
 }
 
-func (bt *BallTeam) RespawnBall() {
+func (bt *BallTeam) RespawnBall(now int64) {
 	bt.IsAlive = true
 	bt.Ball.toDelete = false
 	bt.Ball.X = bt.rnd.Float64() * gameconst.StageW
 	bt.Ball.Y = bt.rnd.Float64() * gameconst.StageH
 	bt.Ball.Dx = 0
 	bt.Ball.Dy = 0
+	bt.Ball.LastMoveTick = now
+	// bt.Ball.BirthTick = now
 }
 
 func (bt *BallTeam) ToPacket() *w2d_obj.BallTeam {
@@ -113,26 +115,34 @@ func (bt *BallTeam) addGObj(o *GameObj) {
 	bt.Objs = append(bt.Objs, o)
 }
 
-func (bt *BallTeam) ApplyAct(act *w2d_obj.Act) {
-	bt.ActStats.Inc(act.Act)
-	switch act.Act {
+func (bt *BallTeam) GetRemainAct(now int64, act acttype.ActType) float64 {
+	durSec := float64(now-bt.Ball.BirthTick) / float64(time.Second)
+	actedCount := float64(bt.ActStats[act])
+	totalCanAct := durSec * acttype.Attrib[act].PerSec
+	remainAct := totalCanAct - actedCount
+	return remainAct
+}
+
+func (bt *BallTeam) ApplyAct(actObj *w2d_obj.Act) {
+	bt.ActStats.Inc(actObj.Act)
+	switch actObj.Act {
 	default:
-		bt.log.Fatal("unknown act %v %v", act, bt)
+		bt.log.Fatal("unknown act %+v %v", actObj, bt)
 	case acttype.Nothing:
 	case acttype.Shield:
-		bt.AddShield(act.Angle, act.AngleV)
+		bt.AddShield(actObj.Angle, actObj.AngleV)
 	case acttype.SuperShield:
-		bt.AddSuperShield(act.Angle, act.AngleV)
+		bt.AddSuperShield(actObj.Angle, actObj.AngleV)
 	case acttype.HommingShield:
-		bt.AddHommingShield(act.Angle, act.AngleV)
+		bt.AddHommingShield(actObj.Angle, actObj.AngleV)
 	case acttype.Bullet:
-		bt.AddBullet(act.Angle, act.AngleV)
+		bt.AddBullet(actObj.Angle, actObj.AngleV)
 	case acttype.SuperBullet:
-		bt.AddSuperBullet(act.Angle, act.AngleV)
+		bt.AddSuperBullet(actObj.Angle, actObj.AngleV)
 	case acttype.HommingBullet:
-		bt.AddHommingBullet(act.Angle, act.AngleV, act.DstObjID)
+		bt.AddHommingBullet(actObj.Angle, actObj.AngleV, actObj.DstObjID)
 	case acttype.Accel:
-		dx, dy := CalcDxyFromAngelV(act.Angle, act.AngleV)
+		dx, dy := CalcDxyFromAngelV(actObj.Angle, actObj.AngleV)
 		bt.Ball.AddDxy(dx, dy)
 	}
 }

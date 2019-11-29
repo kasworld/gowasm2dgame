@@ -60,7 +60,7 @@ func (stg *Stage) Turn() {
 	// respawn dead team
 	for _, bt := range stg.Teams {
 		if !bt.IsAlive && bt.RespawnTick < now {
-			bt.RespawnBall()
+			bt.RespawnBall(now)
 			stg.AddEffect(effecttype.Spawn, bt.Ball.X, bt.Ball.Y, 0, 0)
 		}
 	}
@@ -70,8 +70,12 @@ func (stg *Stage) Turn() {
 		if !bt.IsAlive {
 			continue
 		}
-		act := stg.AI(bt, aienv)
-		bt.ApplyAct(act)
+		actObj := stg.AI(bt, now, aienv)
+		if bt.GetRemainAct(now, actObj.Act) > 0 {
+			bt.ApplyAct(actObj)
+		} else {
+			stg.log.Fatal("OverAct %v %v", bt, actObj)
+		}
 	}
 }
 
