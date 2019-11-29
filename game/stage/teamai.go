@@ -17,7 +17,7 @@ import (
 )
 
 func (bt *BallTeam) AI(aienv *quadtreef.QuadTree) {
-	switch bt.rnd.Intn(5) {
+	switch bt.rnd.Intn(6) {
 	case 0:
 		maxv := gameobjtype.Attrib[gameobjtype.Bullet].V
 		bt.AddBullet(bt.rnd.Float64()*360, maxv)
@@ -39,5 +39,12 @@ func (bt *BallTeam) AI(aienv *quadtreef.QuadTree) {
 			maxv := gameobjtype.Attrib[gameobjtype.Shield].V
 			bt.AddShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
 		}
+	case 5:
+		maxv := gameobjtype.Attrib[gameobjtype.Ball].V
+		dx, dy := CalcDxyFromAngelV(
+			bt.rnd.Float64()*360,
+			bt.rnd.Float64()*maxv,
+		)
+		bt.Ball.AddDxy(dx, dy)
 	}
 }

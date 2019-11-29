@@ -110,6 +110,22 @@ func (o *GameObj) IsIn(w, h float64) bool {
 func (o *GameObj) SetDxy(dx, dy float64) {
 	o.Dx = dx
 	o.Dy = dy
+	o.LimitDxy()
+}
+
+func (o *GameObj) AddDxy(dx, dy float64) {
+	o.Dx += dx
+	o.Dy += dy
+	o.LimitDxy()
+}
+
+func (o *GameObj) LimitDxy() {
+	maxv := gameobjtype.Attrib[o.GOType].V
+	l := math.Sqrt(o.Dx*o.Dx + o.Dy*o.Dy)
+	if l > maxv {
+		o.Dx = o.Dx / l * maxv
+		o.Dy = o.Dy / l * maxv
+	}
 }
 
 func (o *GameObj) BounceNormalize(w, h float64) {
