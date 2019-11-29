@@ -93,7 +93,9 @@ func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 			}
 		}
 	}
-
+	for _, eff := range stg.Effects {
+		eff.Move(now)
+	}
 	for _, cld := range stg.Clouds {
 		cld.Move(now)
 		cld.Wrap(gameconst.StageW, gameconst.StageH)
@@ -140,10 +142,10 @@ func (stg *Stage) AddEffectByGameObj(gobj *GameObj) {
 	switch gobj.GOType {
 	case gameobjtype.Bullet, gameobjtype.HommingBullet, gameobjtype.Shield, gameobjtype.SuperShield, gameobjtype.HommingShield:
 		// small effect
-		stg.AddEffect(effecttype.ExplodeSmall, gobj.X, gobj.Y)
+		stg.AddEffect(effecttype.ExplodeSmall, gobj.X, gobj.Y, gobj.Dx, gobj.Dy)
 	case gameobjtype.Ball, gameobjtype.SuperBullet:
 		// big effect
-		stg.AddEffect(effecttype.ExplodeBig, gobj.X, gobj.Y)
+		stg.AddEffect(effecttype.ExplodeBig, gobj.X, gobj.Y, gobj.Dx, gobj.Dy)
 	}
 }
 

@@ -69,6 +69,9 @@ func (vp *Viewport2d) draw(now int64) {
 			}
 		}
 	}
+	for _, eff := range si.Effects {
+		eff.Move(now)
+	}
 	for _, cld := range si.Clouds {
 		cld.Move(now)
 	}

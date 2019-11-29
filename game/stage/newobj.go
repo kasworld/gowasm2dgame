@@ -55,13 +55,16 @@ func (stg *Stage) NewCloud(i int) *w2d_obj.Cloud {
 }
 
 func (stg *Stage) AddEffect(
-	et effecttype.EffectType, x, y float64) {
+	et effecttype.EffectType, x, y, dx, dy float64) {
 	now := time.Now().UnixNano()
 	o := &w2d_obj.Effect{
-		EffectType: et,
-		BirthTick:  time.Now().UnixNano(),
-		X:          x,
-		Y:          y,
+		EffectType:   et,
+		BirthTick:    now,
+		LastMoveTick: now,
+		X:            x,
+		Y:            y,
+		Dx:           x,
+		Dy:           y,
 	}
 	for i, v := range stg.Effects {
 		if !v.CheckLife(now) {

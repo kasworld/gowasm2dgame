@@ -17,7 +17,9 @@ import (
 )
 
 func (stg *Stage) AI(bt *BallTeam, aienv *quadtreef.QuadTree) {
-	switch bt.rnd.Intn(7) {
+	switch bt.rnd.Intn(10) {
+	default:
+		//pass
 	case 0:
 		maxv := gameobjtype.Attrib[gameobjtype.Bullet].V
 		bt.AddBullet(bt.rnd.Float64()*360, maxv)
