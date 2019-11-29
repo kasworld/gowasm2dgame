@@ -25,3 +25,7 @@ python2가 지원이 종료된다니 겸사 겸사 이기도 합니다. (python3
 정도가 중요하게 사용될 예정이며 그외에도 그동안 만들어둔 자잘한 package들을 적극 사용할 생각입니다. 
 
 marshaler는 json, network은 websocket을 사용합니다. 
+
+json 이 너무 느리고 패킷이 커져서 gob로 바꿨습니다. 
+77kbyte 하던 것이 31kbyte로 주는 군요. 
+(genprotocol을 사용하기에 수정해야할 코드는 단 네 줄입니다. -서버 2줄 클라이언트 2줄-  ^^)

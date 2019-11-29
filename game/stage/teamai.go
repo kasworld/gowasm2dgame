@@ -38,12 +38,12 @@ func (stg *Stage) AI(bt *BallTeam, aienv *quadtreef.QuadTree) {
 			bt.AddShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
 		}
 	case 4:
-		if bt.Count(gameobjtype.SuperShield) < 12 {
+		if bt.Count(gameobjtype.SuperShield) < 12 && bt.rnd.Intn(10) == 0 {
 			maxv := gameobjtype.Attrib[gameobjtype.SuperShield].V
 			bt.AddSuperShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
 		}
 	case 5:
-		if bt.Count(gameobjtype.HommingShield) < 12 {
+		if bt.Count(gameobjtype.HommingShield) < 6 && bt.rnd.Intn(10) == 0 {
 			maxv := gameobjtype.Attrib[gameobjtype.HommingShield].V
 			bt.AddHommingShield(bt.rnd.Float64()*360, maxv)
 		}
