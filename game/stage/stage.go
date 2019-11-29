@@ -61,6 +61,7 @@ func (stg *Stage) Turn() {
 	for _, bt := range stg.Teams {
 		if !bt.IsAlive && bt.RespawnTick < now {
 			bt.RespawnBall()
+			stg.AddEffect(effecttype.Spawn, bt.Ball.X, bt.Ball.Y, 0, 0)
 		}
 	}
 

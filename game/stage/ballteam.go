@@ -65,6 +65,8 @@ func (bt *BallTeam) RespawnBall() {
 	bt.Ball.toDelete = false
 	bt.Ball.X = bt.rnd.Float64() * gameconst.StageW
 	bt.Ball.Y = bt.rnd.Float64() * gameconst.StageH
+	bt.Ball.Dx = 0
+	bt.Ball.Dy = 0
 }
 
 func (bt *BallTeam) ToPacket() *w2d_obj.BallTeam {
