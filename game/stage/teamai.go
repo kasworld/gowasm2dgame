@@ -16,8 +16,8 @@ import (
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
 )
 
-func (bt *BallTeam) AI(aienv *quadtreef.QuadTree) {
-	switch bt.rnd.Intn(6) {
+func (stg *Stage) AI(bt *BallTeam, aienv *quadtreef.QuadTree) {
+	switch bt.rnd.Intn(7) {
 	case 0:
 		maxv := gameobjtype.Attrib[gameobjtype.Bullet].V
 		bt.AddBullet(bt.rnd.Float64()*360, maxv)
@@ -25,21 +25,27 @@ func (bt *BallTeam) AI(aienv *quadtreef.QuadTree) {
 		maxv := gameobjtype.Attrib[gameobjtype.SuperBullet].V
 		bt.AddSuperBullet(bt.rnd.Float64()*360, maxv)
 	case 2:
-		if bt.Count(gameobjtype.SuperShield) < 12 {
-			maxv := gameobjtype.Attrib[gameobjtype.SuperShield].V
-			bt.AddSuperShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
+		maxv := gameobjtype.Attrib[gameobjtype.SuperBullet].V
+		dstteam := stg.Teams[bt.rnd.Intn(len(stg.Teams))]
+		if dstteam != bt {
+			bt.AddHommingBullet(bt.rnd.Float64()*360, maxv, dstteam.Ball.UUID)
 		}
 	case 3:
-		if bt.Count(gameobjtype.HommingShield) < 12 {
-			maxv := gameobjtype.Attrib[gameobjtype.HommingShield].V
-			bt.AddHommingShield(bt.rnd.Float64()*360, maxv)
-		}
-	case 4:
 		if bt.Count(gameobjtype.Shield) < 12 {
 			maxv := gameobjtype.Attrib[gameobjtype.Shield].V
 			bt.AddShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
 		}
+	case 4:
+		if bt.Count(gameobjtype.SuperShield) < 12 {
+			maxv := gameobjtype.Attrib[gameobjtype.SuperShield].V
+			bt.AddSuperShield(bt.rnd.Float64()*360, bt.rnd.Float64()*maxv)
+		}
 	case 5:
+		if bt.Count(gameobjtype.HommingShield) < 12 {
+			maxv := gameobjtype.Attrib[gameobjtype.HommingShield].V
+			bt.AddHommingShield(bt.rnd.Float64()*360, maxv)
+		}
+	case 6:
 		maxv := gameobjtype.Attrib[gameobjtype.Ball].V
 		dx, dy := CalcDxyFromAngelV(
 			bt.rnd.Float64()*360,

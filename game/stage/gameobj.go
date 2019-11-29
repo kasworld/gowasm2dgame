@@ -84,7 +84,7 @@ func (o *GameObj) MoveCircular(now int64, cx, cy float64) {
 	o.X, o.Y = o.CalcCircularPos(cx, cy, r)
 }
 
-func (o *GameObj) MoveHomming(now int64, dstx, dsty float64) {
+func (o *GameObj) MoveHommingShield(now int64, dstx, dsty float64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
 	o.X += o.Dx * diff
@@ -96,6 +96,21 @@ func (o *GameObj) MoveHomming(now int64, dstx, dsty float64) {
 	l := math.Sqrt(dx*dx + dy*dy)
 	o.Dx += dx / l * maxv
 	o.Dy += dy / l * maxv
+}
+
+func (o *GameObj) MoveHommingBullet(now int64, dstx, dsty float64) {
+	diff := float64(now-o.LastMoveTick) / float64(time.Second)
+	o.LastMoveTick = now
+	o.X += o.Dx * diff
+	o.Y += o.Dy * diff
+
+	maxv := gameobjtype.Attrib[o.GOType].V
+	dx := dstx - o.X
+	dy := dsty - o.Y
+	l := math.Sqrt(dx*dx + dy*dy)
+	o.Dx += dx / l * maxv
+	o.Dy += dy / l * maxv
+	o.LimitDxy()
 }
 
 func (o *GameObj) CheckLife(now int64) bool {

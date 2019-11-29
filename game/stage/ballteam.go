@@ -17,7 +17,6 @@ import (
 
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
-	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/uuidstr"
 )
@@ -68,37 +67,6 @@ func (bt *BallTeam) ToPacket() *w2d_obj.BallTeam {
 		rtn.Objs = append(rtn.Objs, v.ToPacket())
 	}
 	return rtn
-}
-
-func (bt *BallTeam) Move(now int64) []*GameObj {
-	toDeleteList := make([]*GameObj, 0)
-	bt.Ball.MoveStraight(now)
-	bt.Ball.BounceNormalize(gameconst.StageW, gameconst.StageH)
-	for _, v := range bt.Objs {
-		if v.toDelete {
-			continue
-		}
-		switch v.GOType {
-		default:
-		case gameobjtype.Bullet, gameobjtype.SuperBullet:
-			v.MoveStraight(now)
-			if !v.IsIn(gameconst.StageW, gameconst.StageH) {
-				v.toDelete = true
-				toDeleteList = append(toDeleteList, v)
-			}
-		case gameobjtype.Shield, gameobjtype.SuperShield:
-			v.MoveCircular(now, bt.Ball.X, bt.Ball.Y)
-		case gameobjtype.HommingShield:
-			v.MoveHomming(now, bt.Ball.X, bt.Ball.Y)
-		case gameobjtype.HommingBullet:
-
-		}
-		if !v.toDelete && !v.CheckLife(now) {
-			v.toDelete = true
-			toDeleteList = append(toDeleteList, v)
-		}
-	}
-	return toDeleteList
 }
 
 func (bt *BallTeam) Count(ot gameobjtype.GameObjType) int {

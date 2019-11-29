@@ -62,7 +62,7 @@ func (stg *Stage) Turn() {
 	now := time.Now().UnixNano()
 	aienv := stg.move(now)
 	for _, bt := range stg.Teams {
-		bt.AI(aienv)
+		stg.AI(bt, aienv)
 	}
 }
 
@@ -70,7 +70,7 @@ func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 	stg.Background.Move(now)
 	stg.Background.Wrap(gameconst.StageW*2, gameconst.StageH*2)
 	for _, bt := range stg.Teams {
-		toDelList := bt.Move(now)
+		toDelList := stg.MoveBallTeam(bt, now)
 		for _, v := range toDelList {
 			stg.AddEffectByGameObj(v)
 		}
@@ -99,6 +99,41 @@ func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 		cld.Wrap(gameconst.StageW, gameconst.StageH)
 	}
 	return aienv
+}
+
+func (stg *Stage) MoveBallTeam(bt *BallTeam, now int64) []*GameObj {
+	toDeleteList := make([]*GameObj, 0)
+	bt.Ball.MoveStraight(now)
+	bt.Ball.BounceNormalize(gameconst.StageW, gameconst.StageH)
+	for _, v := range bt.Objs {
+		if v.toDelete {
+			continue
+		}
+		switch v.GOType {
+		default:
+		case gameobjtype.Bullet, gameobjtype.SuperBullet:
+			v.MoveStraight(now)
+			if !v.IsIn(gameconst.StageW, gameconst.StageH) {
+				v.toDelete = true
+				toDeleteList = append(toDeleteList, v)
+			}
+		case gameobjtype.Shield, gameobjtype.SuperShield:
+			v.MoveCircular(now, bt.Ball.X, bt.Ball.Y)
+		case gameobjtype.HommingShield:
+			v.MoveHommingShield(now, bt.Ball.X, bt.Ball.Y)
+		case gameobjtype.HommingBullet:
+			for _, dstbt := range stg.Teams {
+				if dstbt.Ball.UUID == v.DstUUID {
+					v.MoveHommingBullet(now, dstbt.Ball.X, dstbt.Ball.Y)
+				}
+			}
+		}
+		if !v.toDelete && !v.CheckLife(now) {
+			v.toDelete = true
+			toDeleteList = append(toDeleteList, v)
+		}
+	}
+	return toDeleteList
 }
 
 func (stg *Stage) AddEffectByGameObj(gobj *GameObj) {
