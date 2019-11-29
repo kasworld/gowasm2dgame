@@ -49,18 +49,11 @@ func New(l *w2dlog.LogBase) *Stage {
 	}
 	stg.Teams = make([]*BallTeam, teamtype.TeamType_Count)
 	for i := range stg.Teams {
-		o := NewBallTeam(
+		stg.Teams[i] = NewBallTeam(
 			teamtype.TeamType(i),
 			stg.rnd.Float64()*gameconst.StageW,
 			stg.rnd.Float64()*gameconst.StageH,
 		)
-		maxv := gameobjtype.Attrib[gameobjtype.Ball].V
-		dx, dy := CalcDxyFromAngelV(
-			stg.rnd.Float64()*360,
-			stg.rnd.Float64()*maxv,
-		)
-		o.Ball.SetDxy(dx, dy)
-		stg.Teams[i] = o
 	}
 	return stg
 }
@@ -79,25 +72,25 @@ func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 	for _, bt := range stg.Teams {
 		toDelList := bt.Move(now)
 		for _, v := range toDelList {
-			switch v.GOType {
-			case gameobjtype.Bullet, gameobjtype.HommingBullet, gameobjtype.Shield, gameobjtype.SuperShield, gameobjtype.HommingShield:
-				// small effect
-				stg.AddEffect(effecttype.ExplodeSmall, v.X, v.Y)
-			case gameobjtype.SuperBullet:
-				// big effect
-				stg.AddEffect(effecttype.ExplodeBig, v.X, v.Y)
-			}
+			stg.AddEffectByGameObj(v)
 		}
 	}
 	toDelList, aienv := stg.checkCollision()
 	for _, v := range toDelList {
-		switch v.GOType {
-		case gameobjtype.Bullet, gameobjtype.HommingBullet, gameobjtype.Shield, gameobjtype.SuperShield, gameobjtype.HommingShield:
-			// small effect
-			stg.AddEffect(effecttype.ExplodeSmall, v.X, v.Y)
-		case gameobjtype.SuperBullet:
-			// big effect
-			stg.AddEffect(effecttype.ExplodeBig, v.X, v.Y)
+		stg.AddEffectByGameObj(v)
+	}
+
+	for _, bt := range stg.Teams {
+		if bt.Ball.toDelete {
+			bt.Ball.toDelete = false
+			stg.AddEffectByGameObj(bt.Ball)
+			for _, v := range bt.Objs {
+				if v.toDelete {
+					continue
+				}
+				v.toDelete = true
+				stg.AddEffectByGameObj(v)
+			}
 		}
 	}
 
@@ -106,6 +99,17 @@ func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 		cld.Wrap(gameconst.StageW, gameconst.StageH)
 	}
 	return aienv
+}
+
+func (stg *Stage) AddEffectByGameObj(gobj *GameObj) {
+	switch gobj.GOType {
+	case gameobjtype.Bullet, gameobjtype.HommingBullet, gameobjtype.Shield, gameobjtype.SuperShield, gameobjtype.HommingShield:
+		// small effect
+		stg.AddEffect(effecttype.ExplodeSmall, gobj.X, gobj.Y)
+	case gameobjtype.Ball, gameobjtype.SuperBullet:
+		// big effect
+		stg.AddEffect(effecttype.ExplodeBig, gobj.X, gobj.Y)
+	}
 }
 
 func (stg *Stage) ToStageInfo() *w2d_obj.NotiStageInfo_data {

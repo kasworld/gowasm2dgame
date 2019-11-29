@@ -46,6 +46,12 @@ func NewBallTeam(TeamType teamtype.TeamType, x, y float64) *BallTeam {
 		},
 		Objs: make([]*GameObj, 0),
 	}
+	maxv := gameobjtype.Attrib[gameobjtype.Ball].V
+	dx, dy := CalcDxyFromAngelV(
+		bt.rnd.Float64()*360,
+		bt.rnd.Float64()*maxv,
+	)
+	bt.Ball.SetDxy(dx, dy)
 	return bt
 }
 
