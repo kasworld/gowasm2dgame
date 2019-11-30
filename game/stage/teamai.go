@@ -12,10 +12,13 @@
 package stage
 
 import (
+	"math"
+
 	"github.com/kasworld/gowasm2dgame/enums/acttype"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
+	"github.com/kasworld/gowasm2dgame/lib/rectf"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
@@ -29,21 +32,75 @@ func (stg *Stage) SelectRandomTeam(me *BallTeam) *BallTeam {
 	return nil
 }
 
-func (stg *Stage) AI(bt *BallTeam, now int64, aienv *quadtreef.QuadTree) *w2d_obj.Act {
-	switch bt.rnd.Intn(10) {
+func (stg *Stage) FindDangerObj(
+	me *BallTeam, aienv *quadtreef.QuadTree) *GameObj {
+
+	searchW, searchH := 500.0, 500.0
+	searchRect := rectf.Rect{
+		X: me.Ball.X - searchW/2,
+		Y: me.Ball.Y - searchH/2,
+		W: searchW,
+		H: searchH,
+	}
+	var findObj *GameObj
+	aienv.QueryByRect(
+		func(qo quadtreef.QuadTreeObjI) bool {
+			targetObj := qo.(*GameObj)
+			if targetObj.toDelete {
+				return false
+			}
+			if targetObj.teamType == me.TeamType {
+				return false
+			}
+			if _, lenchange := me.Ball.CalcLenChange(targetObj); lenchange < 0 {
+				findObj = targetObj
+				return true
+			}
+			return false
+		},
+		searchRect,
+	)
+	return findObj
+}
+
+func (stg *Stage) TryEvade(me *BallTeam, now int64, dsto *GameObj) *w2d_obj.Act {
+	actt := acttype.Accel
+	objt := gameobjtype.Ball
+	if me.GetRemainAct(now, actt) <= 0 {
+		return nil
+	}
+	maxv := gameobjtype.Attrib[objt].V
+	angle := dsto.DxyVector2f().AddAngle(me.rnd.Float64()*math.Pi - math.Pi/2).Phase()
+	return &w2d_obj.Act{
+		Act:    actt,
+		Angle:  angle,
+		AngleV: maxv,
+	}
+
+}
+
+func (stg *Stage) AI(me *BallTeam, now int64, aienv *quadtreef.QuadTree) *w2d_obj.Act {
+	dangerObj := stg.FindDangerObj(me, aienv)
+	if dangerObj != nil {
+		acto := stg.TryEvade(me, now, dangerObj)
+		if acto != nil {
+			return acto
+		}
+	}
+	switch me.rnd.Intn(10) {
 	default:
 		//pass
 	case 0:
 		actt := acttype.Bullet
 		objt := gameobjtype.Bullet
-		if bt.GetRemainAct(now, actt) <= 0 {
+		if me.GetRemainAct(now, actt) <= 0 {
 			break
 		}
-		dstteam := stg.SelectRandomTeam(bt)
+		dstteam := stg.SelectRandomTeam(me)
 		if dstteam == nil {
 			break
 		}
-		angle, v := bt.CalcAimAngleAndV(objt, dstteam.Ball)
+		angle, v := me.CalcAimAngleAndV(objt, dstteam.Ball)
 		return &w2d_obj.Act{
 			Act:    actt,
 			Angle:  angle,
@@ -52,14 +109,14 @@ func (stg *Stage) AI(bt *BallTeam, now int64, aienv *quadtreef.QuadTree) *w2d_ob
 	case 1:
 		actt := acttype.SuperBullet
 		objt := gameobjtype.SuperBullet
-		if bt.GetRemainAct(now, actt) <= 0 {
+		if me.GetRemainAct(now, actt) <= 0 {
 			break
 		}
-		dstteam := stg.SelectRandomTeam(bt)
+		dstteam := stg.SelectRandomTeam(me)
 		if dstteam == nil {
 			break
 		}
-		angle, v := bt.CalcAimAngleAndV(objt, dstteam.Ball)
+		angle, v := me.CalcAimAngleAndV(objt, dstteam.Ball)
 		return &w2d_obj.Act{
 			Act:    actt,
 			Angle:  angle,
@@ -68,18 +125,18 @@ func (stg *Stage) AI(bt *BallTeam, now int64, aienv *quadtreef.QuadTree) *w2d_ob
 	case 2:
 		actt := acttype.HommingBullet
 		objt := gameobjtype.HommingBullet
-		if bt.GetRemainAct(now, actt) <= 0 {
+		if me.GetRemainAct(now, actt) <= 0 {
 			break
 		}
-		dstteam := stg.SelectRandomTeam(bt)
+		dstteam := stg.SelectRandomTeam(me)
 		if dstteam == nil {
 			break
 		}
 		maxv := gameobjtype.Attrib[objt].V
-		if dstteam != bt && dstteam.IsAlive {
+		if dstteam != me && dstteam.IsAlive {
 			return &w2d_obj.Act{
 				Act:      actt,
-				Angle:    bt.rnd.Float64() * 360,
+				Angle:    me.rnd.Float64() * 2 * math.Pi,
 				AngleV:   maxv,
 				DstObjID: dstteam.Ball.UUID,
 			}
@@ -87,58 +144,56 @@ func (stg *Stage) AI(bt *BallTeam, now int64, aienv *quadtreef.QuadTree) *w2d_ob
 	case 3:
 		actt := acttype.Shield
 		objt := gameobjtype.Shield
-		if bt.GetRemainAct(now, actt) <= 0 {
+		if me.GetRemainAct(now, actt) <= 0 {
 			break
 		}
-		if bt.Count(objt) < 12 {
+		if me.Count(objt) < 12 {
 			maxv := gameobjtype.Attrib[objt].V
 			return &w2d_obj.Act{
 				Act:    actt,
-				Angle:  bt.rnd.Float64() * 360,
-				AngleV: bt.rnd.Float64() * maxv,
+				Angle:  me.rnd.Float64() * 2 * math.Pi,
+				AngleV: me.rnd.Float64() * maxv,
 			}
 		}
 	case 4:
 		actt := acttype.SuperShield
 		objt := gameobjtype.SuperShield
-		if bt.GetRemainAct(now, actt) <= 0 {
+		if me.GetRemainAct(now, actt) <= 0 {
 			break
 		}
-		if bt.Count(objt) < 12 && bt.rnd.Intn(10) == 0 {
+		if me.Count(objt) < 12 && me.rnd.Intn(10) == 0 {
 			maxv := gameobjtype.Attrib[objt].V
 			return &w2d_obj.Act{
 				Act:    actt,
-				Angle:  bt.rnd.Float64() * 360,
-				AngleV: bt.rnd.Float64() * maxv,
+				Angle:  me.rnd.Float64() * 2 * math.Pi,
+				AngleV: me.rnd.Float64() * maxv,
 			}
 		}
 	case 5:
 		actt := acttype.HommingShield
 		objt := gameobjtype.HommingShield
-		if bt.GetRemainAct(now, actt) <= 0 {
+		if me.GetRemainAct(now, actt) <= 0 {
 			break
 		}
-		if bt.Count(objt) < 6 && bt.rnd.Intn(10) == 0 {
+		if me.Count(objt) < 6 && me.rnd.Intn(10) == 0 {
 			maxv := gameobjtype.Attrib[objt].V
 			return &w2d_obj.Act{
 				Act:    actt,
-				Angle:  bt.rnd.Float64() * 360,
+				Angle:  me.rnd.Float64() * 2 * math.Pi,
 				AngleV: maxv,
 			}
 		}
 	case 6:
 		actt := acttype.Accel
-		objt := gameobjtype.HommingShield
-		if bt.GetRemainAct(now, actt) <= 0 {
+		objt := gameobjtype.Ball
+		if me.GetRemainAct(now, actt) <= 0 {
 			break
 		}
-		if bt.GetRemainAct(now, actt) > 0 {
-			maxv := gameobjtype.Attrib[objt].V
-			return &w2d_obj.Act{
-				Act:    actt,
-				Angle:  bt.rnd.Float64() * 360,
-				AngleV: bt.rnd.Float64() * maxv,
-			}
+		maxv := gameobjtype.Attrib[objt].V
+		return &w2d_obj.Act{
+			Act:    actt,
+			Angle:  me.rnd.Float64() * 2 * math.Pi,
+			AngleV: me.rnd.Float64() * maxv,
 		}
 	}
 	return &w2d_obj.Act{

@@ -210,3 +210,17 @@ func (o *GameObj) SetDxyByVector2f(v vector2f.Vector2f) {
 	o.Dx = v.X
 	o.Dy = v.Y
 }
+
+// CalcLenChange calc two gameobj change of len with time
+// return current len , len change with time
+// currentlen adjust with obj size
+func (o *GameObj) CalcLenChange(dsto *GameObj) (float64, float64) {
+	r1 := gameobjtype.Attrib[o.GOType].Size / 2
+	r2 := gameobjtype.Attrib[dsto.GOType].Size / 2
+	curLen := dsto.PosVector2f().Sub(o.PosVector2f()).Abs()
+	nextLen := dsto.PosVector2f().Add(dsto.DxyVector2f()).Sub(
+		o.PosVector2f().Add(o.DxyVector2f()),
+	).Abs()
+	lenChange := nextLen - curLen
+	return curLen - r1 - r2, lenChange
+}
