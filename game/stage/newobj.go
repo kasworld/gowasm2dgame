@@ -63,8 +63,8 @@ func (stg *Stage) AddEffect(
 		LastMoveTick: now,
 		X:            x,
 		Y:            y,
-		Dx:           x,
-		Dy:           y,
+		Dx:           dx,
+		Dy:           dy,
 	}
 	for i, v := range stg.Effects {
 		if !v.CheckLife(now) {

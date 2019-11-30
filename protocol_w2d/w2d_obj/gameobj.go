@@ -93,8 +93,8 @@ func (o *Effect) Move(now int64) {
 	o.LastMoveTick = now
 	o.X += o.Dx * diff
 	o.Y += o.Dy * diff
-	o.Dx /= 2
-	o.Dy /= 2
+	o.Dx *= 0.9
+	o.Dy *= 0.9
 }
 
 ////////////////////
