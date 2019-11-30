@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/kasworld/gowasm2dgame/enums/acttype"
+	"github.com/kasworld/gowasm2dgame/game/gameconst"
 
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 
@@ -26,6 +27,7 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connwasm"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_pid2rspfn"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_version"
 	"github.com/kasworld/intervalduration"
 )
 
@@ -67,6 +69,7 @@ func (app *WasmClient) run() {
 	}
 	defer app.Cleanup()
 
+	app.updataClientInfoHTML()
 	js.Global().Call("requestAnimationFrame", js.FuncOf(app.drawCanvas))
 
 	timerPingTk := time.NewTicker(time.Second)
@@ -85,7 +88,6 @@ loop:
 }
 
 func (app *WasmClient) updateSysmsg() {
-	div := js.Global().Get("document").Call("getElementById", "sysmsg")
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf,
 		"%v<br/>Ping %v<br/>ServerClientTickDiff %v<br/>",
@@ -108,6 +110,7 @@ func (app *WasmClient) updateSysmsg() {
 	}
 	buf.WriteString(`</table>`)
 
+	div := js.Global().Get("document").Call("getElementById", "sysmsg")
 	div.Set("innerHTML", buf.String())
 }
 
@@ -128,4 +131,17 @@ func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 
 func (app *WasmClient) GetEstServerTick() int64 {
 	return time.Now().UnixNano() + app.ServerClientTictDiff
+}
+
+func (app *WasmClient) updataClientInfoHTML() {
+	msgCopyright := `</hr>Copyright 2019 SeukWon Kang 
+		<a href="https://github.com/kasworld/gowasm2dgame" target="_blank">gowasm2dgame</a>`
+
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "gowasm2dgame webclient<br/>")
+	fmt.Fprintf(&buf, "Protocol %v<br/>", w2d_version.ProtocolVersion)
+	fmt.Fprintf(&buf, "Data %v<br/>", gameconst.DataVersion)
+	fmt.Fprintf(&buf, "%v<br/>", msgCopyright)
+	div := js.Global().Get("document").Call("getElementById", "serviceinfo")
+	div.Set("innerHTML", buf.String())
 }
