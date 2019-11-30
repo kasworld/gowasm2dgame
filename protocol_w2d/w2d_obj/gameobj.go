@@ -135,7 +135,7 @@ func (o *GameObj) MoveCircular(now int64, cx, cy float64) {
 }
 
 func (o *GameObj) CalcCircularPos(cx, cy, r float64) (float64, float64) {
-	rad := o.Angle * math.Pi / 180
+	rad := o.Angle //* math.Pi / 180
 	dstx := cx + r*math.Cos(rad)
 	dsty := cy + r*math.Sin(rad)
 	return dstx, dsty

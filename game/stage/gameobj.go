@@ -20,6 +20,7 @@ import (
 	"github.com/kasworld/go-abs"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/lib/rectf"
+	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
@@ -181,8 +182,32 @@ func (o *GameObj) Wrap(w, h float64) (float64, float64) {
 }
 
 func (o *GameObj) CalcCircularPos(cx, cy, r float64) (float64, float64) {
-	rad := o.Angle * math.Pi / 180
+	rad := o.Angle //* math.Pi / 180
 	dstx := cx + r*math.Cos(rad)
 	dsty := cy + r*math.Sin(rad)
 	return dstx, dsty
+}
+
+func (o *GameObj) PosVector2f() vector2f.Vector2f {
+	return vector2f.Vector2f{
+		X: o.X,
+		Y: o.Y,
+	}
+}
+
+func (o *GameObj) SetPosByVector2f(v vector2f.Vector2f) {
+	o.X = v.X
+	o.Y = v.Y
+}
+
+func (o *GameObj) DxyVector2f() vector2f.Vector2f {
+	return vector2f.Vector2f{
+		X: o.Dx,
+		Y: o.Dy,
+	}
+}
+
+func (o *GameObj) SetDxyByVector2f(v vector2f.Vector2f) {
+	o.Dx = v.X
+	o.Dy = v.Y
 }

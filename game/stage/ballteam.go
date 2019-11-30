@@ -12,6 +12,7 @@
 package stage
 
 import (
+	"math"
 	"math/rand"
 	"time"
 
@@ -252,4 +253,32 @@ func (bt *BallTeam) AddHommingBullet(angle, anglev float64, dstid string) *GameO
 	}
 	bt.addGObj(o)
 	return o
+}
+
+func (bt *BallTeam) CalcAimAngleAndV(
+	bullet gameobjtype.GameObjType, dsto *GameObj) (float64, float64) {
+	s1 := gameobjtype.Attrib[bullet].V
+	// s1 := bt.Ball.DxyVector2f().Abs()
+	vt := dsto.PosVector2f().Sub(bt.Ball.PosVector2f())
+	s2 := dsto.DxyVector2f().Abs()
+	if s2 == 0 {
+		return vt.Phase(), s1
+	}
+	a2 := dsto.DxyVector2f().Phase() - vt.Phase()
+	a1 := math.Asin(s2 / s1 * math.Sin(a2))
+
+	return vt.AddAngle(a1).Phase(), s1
+	// dxy := vector2f.FromLenAngle(
+	// 	s1,
+	// 	vt.AddAngle(a1).Phase(),
+	// )
+
+	// dirvect := vt.AddAngle(a1).Normalize()
+
+	// dstpos := bt.Ball.PosVector2f().Add(dirvect)
+	// dxy := vector2f.FromLenAngle(
+	// 	s1,
+	// 	dstpos.Sub(bt.Ball.PosVector2f()).Phase(),
+	// )
+	// return dxy.X, dxy.Y
 }
