@@ -212,3 +212,11 @@ func (stg *Stage) ToStageInfo() *w2d_obj.NotiStageInfo_data {
 	}
 	return rtn
 }
+
+func (stg *Stage) ToStatsInfo() *w2d_obj.NotiStatsInfo_data {
+	rtn := &w2d_obj.NotiStatsInfo_data{}
+	for i, bt := range stg.Teams {
+		rtn.ActStats[i] = bt.ActStats
+	}
+	return rtn
+}

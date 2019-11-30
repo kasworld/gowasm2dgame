@@ -129,6 +129,7 @@ func (app *WasmClient) reqHeartbeat() error {
 var DemuxNoti2ObjFnMap = [...]func(me interface{}, hd w2d_packet.Header, body interface{}) error{
 	w2d_idnoti.Invalid:   objRecvNotiFn_Invalid,
 	w2d_idnoti.StageInfo: objRecvNotiFn_StageInfo,
+	w2d_idnoti.StatsInfo: objRecvNotiFn_StatsInfo,
 }
 
 func objRecvNotiFn_Invalid(me interface{}, hd w2d_packet.Header, body interface{}) error {
@@ -151,5 +152,18 @@ func objRecvNotiFn_StageInfo(me interface{}, hd w2d_packet.Header, body interfac
 	app.vp.stageInfo = robj
 
 	app.ServerClientTictDiff = robj.Tick - time.Now().UnixNano()
+	return nil
+}
+
+func objRecvNotiFn_StatsInfo(me interface{}, hd w2d_packet.Header, body interface{}) error {
+	robj, ok := body.(*w2d_obj.NotiStatsInfo_data)
+	if !ok {
+		return fmt.Errorf("packet mismatch %v", body)
+	}
+	app, ok := me.(*WasmClient)
+	if !ok {
+		return fmt.Errorf("packet mismatch %v", body)
+	}
+	app.statsInfo = robj
 	return nil
 }

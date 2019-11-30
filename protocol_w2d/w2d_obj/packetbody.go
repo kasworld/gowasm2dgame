@@ -2,6 +2,8 @@ package w2d_obj
 
 import (
 	"github.com/kasworld/gowasm2dgame/enums/acttype"
+	"github.com/kasworld/gowasm2dgame/enums/acttype_stats"
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 )
 
 type ReqInvalid_data struct {
@@ -34,6 +36,8 @@ type RspHeartbeat_data struct {
 	Tick int64
 }
 
+////////////////
+
 type NotiInvalid_data struct {
 	Dummy uint8
 }
@@ -44,6 +48,10 @@ type NotiStageInfo_data struct {
 	Teams      []*BallTeam
 	Effects    []*Effect
 	Clouds     []*Cloud
+}
+
+type NotiStatsInfo_data struct {
+	ActStats [teamtype.TeamType_Count]acttype_stats.ActTypeStat
 }
 
 ////////////////

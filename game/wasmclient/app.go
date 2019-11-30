@@ -12,13 +12,19 @@
 package wasmclient
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"syscall/js"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/enums/acttype"
+
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+
 	"github.com/kasworld/actjitter"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connwasm"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_pid2rspfn"
 	"github.com/kasworld/intervalduration"
 )
@@ -33,7 +39,8 @@ type WasmClient struct {
 	ServerClientTictDiff int64
 	DispInterDur         *intervalduration.IntervalDuration
 
-	vp *Viewport2d
+	vp        *Viewport2d
+	statsInfo *w2d_obj.NotiStatsInfo_data
 }
 
 func InitApp() {
@@ -72,14 +79,36 @@ loop:
 
 		case <-timerPingTk.C:
 			go app.reqHeartbeat()
-			div := js.Global().Get("document").Call("getElementById", "sysmsg")
-			div.Set("innerHTML",
-				fmt.Sprintf("%v<br/>Ping %v<br/>ServerClientTickDiff %v",
-					app.DispInterDur, app.PingDur, app.ServerClientTictDiff,
-				),
-			)
+			app.updateSysmsg()
 		}
 	}
+}
+
+func (app *WasmClient) updateSysmsg() {
+	div := js.Global().Get("document").Call("getElementById", "sysmsg")
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf,
+		"%v<br/>Ping %v<br/>ServerClientTickDiff %v<br/>",
+		app.DispInterDur, app.PingDur, app.ServerClientTictDiff,
+	)
+
+	buf.WriteString(`<table border=1 style="border-collapse:collapse;">
+	<tr><th>act\team</th>`)
+	for teami := 0; teami < teamtype.TeamType_Count; teami++ {
+		fmt.Fprintf(&buf, "<th>%v</th>", teamtype.TeamType(teami))
+	}
+	buf.WriteString(`</tr>`)
+
+	for acti := 0; acti < acttype.ActType_Count; acti++ {
+		fmt.Fprintf(&buf, "<tr><td>%v</td>", acttype.ActType(acti))
+		for teami := 0; teami < teamtype.TeamType_Count; teami++ {
+			fmt.Fprintf(&buf, "<td>%v</td>", app.statsInfo.ActStats[teami][acti])
+		}
+		buf.WriteString(`</tr>`)
+	}
+	buf.WriteString(`</table>`)
+
+	div.Set("innerHTML", buf.String())
 }
 
 func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {

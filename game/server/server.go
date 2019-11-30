@@ -145,6 +145,14 @@ func (svr *Server) ServiceMain(ctx context.Context) {
 		case <-timerInfoTk.C:
 			svr.SendStat.UpdateLap()
 			svr.RecvStat.UpdateLap()
+			si := svr.stage.ToStatsInfo()
+			conlist := svr.connManager.GetList()
+			for _, v := range conlist {
+				v.SendNotiPacket(w2d_idnoti.StatsInfo,
+					si,
+				)
+			}
+
 		case <-timerTurnTk.C:
 			svr.stage.Turn()
 			si := svr.stage.ToStageInfo()
