@@ -182,9 +182,8 @@ func (o *GameObj) Wrap(w, h float64) (float64, float64) {
 }
 
 func (o *GameObj) CalcCircularPos(cx, cy, r float64) (float64, float64) {
-	rad := o.Angle //* math.Pi / 180
-	dstx := cx + r*math.Cos(rad)
-	dsty := cy + r*math.Sin(rad)
+	dstx := cx + r*math.Cos(o.Angle)
+	dsty := cy + r*math.Sin(o.Angle)
 	return dstx, dsty
 }
 

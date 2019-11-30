@@ -21,9 +21,8 @@ import (
 )
 
 func CalcDxyFromAngelV(angle float64, speed float64) (float64, float64) {
-	rad := angle //* math.Pi / 180
-	dx := speed * math.Cos(rad)
-	dy := speed * math.Sin(rad)
+	dx := speed * math.Cos(angle)
+	dy := speed * math.Sin(angle)
 	return dx, dy
 }
 
