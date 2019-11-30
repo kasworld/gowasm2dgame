@@ -22,6 +22,8 @@ python2가 지원이 종료된다니 겸사 겸사 이기도 합니다. (python3
 
 [signalhandle](https://github.com/kasworld/signalhandle) : signal을 관리해서 프로그램의 linux 서비스화, start,stop,forcestart,logreopen
 
+    windows에서 동작 시키려면 이 signalhandle을 사용하지 않도록 수정해야 합니다. 
+
 정도가 중요하게 사용될 예정이며 그외에도 그동안 만들어둔 자잘한 package들을 적극 사용할 생각입니다. 
 
 marshaler는 json, network은 websocket을 사용합니다. 
