@@ -56,6 +56,7 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 		connID, // connid
 		gameconst.SendBufferSize,
 		w2d_authorize.NewAllSet(),
+		svr.SendStat, svr.RecvStat,
 		svr.apiStat,
 		svr.notiStat,
 		svr.errorStat,
