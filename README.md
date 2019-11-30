@@ -39,3 +39,5 @@ open admin web
 open client web
     
     http://localhost:24101/
+
+![screenshot](gowasm2dgame.png)
