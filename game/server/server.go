@@ -18,21 +18,19 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
-
-	"github.com/kasworld/prettystring"
-
 	"github.com/kasworld/actpersec"
-	"github.com/kasworld/gowasm2dgame/game/connectionmanager"
 	"github.com/kasworld/gowasm2dgame/game/serverconfig"
 	"github.com/kasworld/gowasm2dgame/game/stage"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connmanager"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statapierror"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statnoti"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statserveapi"
+	"github.com/kasworld/prettystring"
 	"github.com/kasworld/signalhandle"
 	"github.com/kasworld/weblib/retrylistenandserve"
 )
@@ -59,7 +57,7 @@ type Server struct {
 		me interface{}, hd w2d_packet.Header, rbody []byte) (
 		w2d_packet.Header, interface{}, error)
 
-	connManager *connectionmanager.Manager
+	connManager *w2d_connmanager.Manager
 	stage       *stage.Stage
 }
 
@@ -75,7 +73,7 @@ func New(config serverconfig.Config) *Server {
 		apiStat:     w2d_statserveapi.New(),
 		notiStat:    w2d_statnoti.New(),
 		errorStat:   w2d_statapierror.New(),
-		connManager: connectionmanager.New(),
+		connManager: w2d_connmanager.New(),
 	}
 	svr.sendRecvStop = func() {
 		fmt.Printf("Too early sendRecvStop call\n")
