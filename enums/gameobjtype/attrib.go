@@ -34,21 +34,60 @@ var Attrib = [GameObjType_Count]struct {
 	HommingBullet: {16, 0, 300, 30, int64(time.Second) * 60},
 }
 
-var collisionRule = [GameObjType_Count][]GameObjType{
-	Ball:          {Ball, Shield, SuperShield, Bullet, HommingShield, SuperBullet, HommingBullet},
-	Shield:        {Ball, Shield, SuperShield, Bullet, HommingShield, SuperBullet, HommingBullet},
-	SuperShield:   {SuperShield, SuperBullet, HommingBullet},
-	Bullet:        {Ball, Shield, SuperShield, Bullet, HommingShield, SuperBullet, HommingBullet},
-	HommingShield: {Ball, Shield, SuperShield, Bullet, HommingShield, SuperBullet, HommingBullet},
-	SuperBullet:   {SuperShield, SuperBullet, HommingBullet},
-	HommingBullet: {SuperShield, SuperBullet, HommingBullet},
+var collisionRule = [GameObjType_Count][GameObjType_Count]bool{
+	Ball: {
+		Ball:          true,
+		Shield:        true,
+		SuperShield:   true,
+		Bullet:        true,
+		HommingShield: true,
+		SuperBullet:   true,
+		HommingBullet: true,
+	},
+	Shield: {
+		Ball:          true,
+		Shield:        true,
+		SuperShield:   true,
+		Bullet:        true,
+		HommingShield: true,
+		SuperBullet:   true,
+		HommingBullet: true,
+	},
+	SuperShield: {
+		SuperShield:   true,
+		SuperBullet:   true,
+		HommingBullet: true,
+	},
+	Bullet: {
+		Ball:          true,
+		Shield:        true,
+		SuperShield:   true,
+		Bullet:        true,
+		HommingShield: true,
+		SuperBullet:   true,
+		HommingBullet: true,
+	},
+	HommingShield: {
+		Ball:          true,
+		Shield:        true,
+		SuperShield:   true,
+		Bullet:        true,
+		HommingShield: true,
+		SuperBullet:   true,
+		HommingBullet: true,
+	},
+	SuperBullet: {
+		SuperShield:   true,
+		SuperBullet:   true,
+		HommingBullet: true,
+	},
+	HommingBullet: {
+		SuperShield:   true,
+		SuperBullet:   true,
+		HommingBullet: true,
+	},
 }
 
 func CollisionTo(srcType, dstType GameObjType) bool {
-	for _, v := range collisionRule[srcType] {
-		if v == dstType {
-			return true
-		}
-	}
-	return false
+	return collisionRule[srcType][dstType]
 }
