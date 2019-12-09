@@ -33,7 +33,7 @@ type Stage struct {
 	Clouds     []*w2d_obj.Cloud
 
 	Effects []*w2d_obj.Effect
-	Teams   []*BallTeam
+	Teams   []*Team
 }
 
 func New(l *w2dlog.LogBase) *Stage {
@@ -47,9 +47,9 @@ func New(l *w2dlog.LogBase) *Stage {
 	for i := range stg.Clouds {
 		stg.Clouds[i] = stg.NewCloud(i)
 	}
-	stg.Teams = make([]*BallTeam, teamtype.TeamType_Count)
+	stg.Teams = make([]*Team, teamtype.TeamType_Count)
 	for i := range stg.Teams {
-		stg.Teams[i] = NewBallTeam(l, teamtype.TeamType(i))
+		stg.Teams[i] = NewTeam(l, teamtype.TeamType(i))
 	}
 	return stg
 }
@@ -87,7 +87,7 @@ func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 		if !bt.IsAlive {
 			continue
 		}
-		toDelList := stg.MoveBallTeam(bt, now)
+		toDelList := stg.MoveTeam(bt, now)
 		for _, v := range toDelList {
 			stg.AddEffectByGameObj(v)
 		}
@@ -133,7 +133,7 @@ func (stg *Stage) handleBallKilled(now int64, gobj *GameObj) {
 	stg.log.Fatal("ball not in ballteam? %v", gobj)
 }
 
-func (stg *Stage) MoveBallTeam(bt *BallTeam, now int64) []*GameObj {
+func (stg *Stage) MoveTeam(bt *Team, now int64) []*GameObj {
 	toDeleteList := make([]*GameObj, 0)
 	bt.Ball.MoveStraight(now)
 	bt.Ball.BounceNormalize(gameconst.StageW, gameconst.StageH)

@@ -26,7 +26,7 @@ import (
 	"github.com/kasworld/uuidstr"
 )
 
-type BallTeam struct {
+type Team struct {
 	rnd *rand.Rand      `prettystring:"hide"`
 	log *w2dlog.LogBase `prettystring:"hide"`
 
@@ -39,10 +39,10 @@ type BallTeam struct {
 	Objs []*GameObj
 }
 
-func NewBallTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *BallTeam {
+func NewTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *Team {
 	nowtick := time.Now().UnixNano()
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
-	bt := &BallTeam{
+	bt := &Team{
 		rnd:      rnd,
 		log:      l,
 		IsAlive:  true,
@@ -67,7 +67,7 @@ func NewBallTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *BallTeam {
 	return bt
 }
 
-func (bt *BallTeam) RespawnBall(now int64) {
+func (bt *Team) RespawnBall(now int64) {
 	bt.IsAlive = true
 	bt.Ball.toDelete = false
 	bt.Ball.X = bt.rnd.Float64() * gameconst.StageW
@@ -78,8 +78,8 @@ func (bt *BallTeam) RespawnBall(now int64) {
 	// bt.Ball.BirthTick = now
 }
 
-func (bt *BallTeam) ToPacket() *w2d_obj.BallTeam {
-	rtn := &w2d_obj.BallTeam{
+func (bt *Team) ToPacket() *w2d_obj.Team {
+	rtn := &w2d_obj.Team{
 		TeamType: bt.TeamType,
 		Ball:     bt.Ball.ToPacket(),
 		Objs:     make([]*w2d_obj.GameObj, 0),
@@ -93,7 +93,7 @@ func (bt *BallTeam) ToPacket() *w2d_obj.BallTeam {
 	return rtn
 }
 
-func (bt *BallTeam) Count(ot gameobjtype.GameObjType) int {
+func (bt *Team) Count(ot gameobjtype.GameObjType) int {
 	rtn := 0
 	for _, v := range bt.Objs {
 		if v.toDelete {
@@ -106,7 +106,7 @@ func (bt *BallTeam) Count(ot gameobjtype.GameObjType) int {
 	return rtn
 }
 
-func (bt *BallTeam) addGObj(o *GameObj) {
+func (bt *Team) addGObj(o *GameObj) {
 	for i, v := range bt.Objs {
 		if v.toDelete {
 			bt.Objs[i] = o
@@ -116,7 +116,7 @@ func (bt *BallTeam) addGObj(o *GameObj) {
 	bt.Objs = append(bt.Objs, o)
 }
 
-func (bt *BallTeam) GetRemainAct(now int64, act acttype.ActType) float64 {
+func (bt *Team) GetRemainAct(now int64, act acttype.ActType) float64 {
 	durSec := float64(now-bt.Ball.BirthTick) / float64(time.Second)
 	actedCount := float64(bt.ActStats[act])
 	totalCanAct := durSec * acttype.Attrib[act].PerSec
@@ -124,7 +124,7 @@ func (bt *BallTeam) GetRemainAct(now int64, act acttype.ActType) float64 {
 	return remainAct
 }
 
-func (bt *BallTeam) ApplyAct(actObj *w2d_obj.Act) {
+func (bt *Team) ApplyAct(actObj *w2d_obj.Act) {
 	bt.ActStats.Inc(actObj.Act)
 	switch actObj.Act {
 	default:
@@ -148,7 +148,7 @@ func (bt *BallTeam) ApplyAct(actObj *w2d_obj.Act) {
 	}
 }
 
-func (bt *BallTeam) AddShield(angle, anglev float64) *GameObj {
+func (bt *Team) AddShield(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	o := &GameObj{
 		teamType:     bt.TeamType,
@@ -163,7 +163,7 @@ func (bt *BallTeam) AddShield(angle, anglev float64) *GameObj {
 	return o
 }
 
-func (bt *BallTeam) AddSuperShield(angle, anglev float64) *GameObj {
+func (bt *Team) AddSuperShield(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	o := &GameObj{
 		teamType:     bt.TeamType,
@@ -178,7 +178,7 @@ func (bt *BallTeam) AddSuperShield(angle, anglev float64) *GameObj {
 	return o
 }
 
-func (bt *BallTeam) AddBullet(angle, anglev float64) *GameObj {
+func (bt *Team) AddBullet(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
@@ -196,7 +196,7 @@ func (bt *BallTeam) AddBullet(angle, anglev float64) *GameObj {
 	return o
 }
 
-func (bt *BallTeam) AddSuperBullet(angle, anglev float64) *GameObj {
+func (bt *Team) AddSuperBullet(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
@@ -214,7 +214,7 @@ func (bt *BallTeam) AddSuperBullet(angle, anglev float64) *GameObj {
 	return o
 }
 
-func (bt *BallTeam) AddHommingShield(angle, anglev float64) *GameObj {
+func (bt *Team) AddHommingShield(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
 	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
@@ -234,7 +234,7 @@ func (bt *BallTeam) AddHommingShield(angle, anglev float64) *GameObj {
 	return o
 }
 
-func (bt *BallTeam) AddHommingBullet(angle, anglev float64, dstid string) *GameObj {
+func (bt *Team) AddHommingBullet(angle, anglev float64, dstid string) *GameObj {
 	nowtick := time.Now().UnixNano()
 	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
@@ -255,7 +255,7 @@ func (bt *BallTeam) AddHommingBullet(angle, anglev float64, dstid string) *GameO
 	return o
 }
 
-func (bt *BallTeam) CalcAimAngleAndV(
+func (bt *Team) CalcAimAngleAndV(
 	bullet gameobjtype.GameObjType, dsto *GameObj) (float64, float64) {
 	s1 := gameobjtype.Attrib[bullet].V
 	vt := dsto.PosVector2f().Sub(bt.Ball.PosVector2f())

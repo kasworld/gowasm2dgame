@@ -45,7 +45,7 @@ type NotiInvalid_data struct {
 type NotiStageInfo_data struct {
 	Tick       int64
 	Background *Background
-	Teams      []*BallTeam
+	Teams      []*Team
 	Effects    []*Effect
 	Clouds     []*Cloud
 }

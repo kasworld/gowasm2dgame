@@ -22,7 +22,7 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
-func (stg *Stage) SelectRandomTeam(me *BallTeam) *BallTeam {
+func (stg *Stage) SelectRandomTeam(me *Team) *Team {
 	for i := 0; i < teamtype.TeamType_Count; i++ {
 		dstteam := stg.Teams[stg.rnd.Intn(len(stg.Teams))]
 		if dstteam != me && dstteam.IsAlive {
@@ -33,7 +33,7 @@ func (stg *Stage) SelectRandomTeam(me *BallTeam) *BallTeam {
 }
 
 func (stg *Stage) FindDangerObj(
-	me *BallTeam, aienv *quadtreef.QuadTree) *GameObj {
+	me *Team, aienv *quadtreef.QuadTree) *GameObj {
 
 	searchW, searchH := 500.0, 500.0
 	searchRect := rectf.Rect{
@@ -63,7 +63,7 @@ func (stg *Stage) FindDangerObj(
 	return findObj
 }
 
-func (stg *Stage) TryEvade(me *BallTeam, now int64, dsto *GameObj) *w2d_obj.Act {
+func (stg *Stage) TryEvade(me *Team, now int64, dsto *GameObj) *w2d_obj.Act {
 	actt := acttype.Accel
 	objt := gameobjtype.Ball
 	if me.GetRemainAct(now, actt) <= 0 {
@@ -79,7 +79,7 @@ func (stg *Stage) TryEvade(me *BallTeam, now int64, dsto *GameObj) *w2d_obj.Act 
 
 }
 
-func (stg *Stage) AI(me *BallTeam, now int64, aienv *quadtreef.QuadTree) *w2d_obj.Act {
+func (stg *Stage) AI(me *Team, now int64, aienv *quadtreef.QuadTree) *w2d_obj.Act {
 	dangerObj := stg.FindDangerObj(me, aienv)
 	if dangerObj != nil {
 		acto := stg.TryEvade(me, now, dangerObj)

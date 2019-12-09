@@ -99,7 +99,7 @@ func (o *Effect) Move(now int64) {
 
 ////////////////////
 
-type BallTeam struct {
+type Team struct {
 	TeamType teamtype.TeamType
 	Ball     *GameObj
 	Objs     []*GameObj

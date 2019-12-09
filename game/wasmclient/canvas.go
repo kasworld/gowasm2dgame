@@ -77,7 +77,7 @@ func (vp *Viewport2d) draw(now int64) {
 	}
 	vp.drawBG()
 	for _, v := range si.Teams {
-		vp.drawBallTeam(v, now)
+		vp.drawTeam(v, now)
 	}
 	for _, v := range si.Effects {
 		vp.drawEffect(v, now)
@@ -134,7 +134,7 @@ func (vp *Viewport2d) drawEffect(eff *w2d_obj.Effect, now int64) {
 	)
 }
 
-func (vp *Viewport2d) drawBallTeam(bl *w2d_obj.BallTeam, now int64) {
+func (vp *Viewport2d) drawTeam(bl *w2d_obj.Team, now int64) {
 	vp.drawGameObj(bl.TeamType, bl.Ball, now)
 	for _, v := range bl.Objs {
 		vp.drawGameObj(bl.TeamType, v, now)
