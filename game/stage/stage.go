@@ -88,7 +88,10 @@ func (stg *Stage) Turn() {
 
 func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 	stg.Background.Move(now)
-	stg.Background.Wrap(gameconst.StageW*2, gameconst.StageH*2)
+	stg.Background.PosVt = vector2f.Rect{
+		0, 0, gameconst.StageW * 2, gameconst.StageH * 2,
+	}.WrapVector(stg.Background.PosVt)
+	// stg.Background.Wrap(gameconst.StageW*2, gameconst.StageH*2)
 
 	for _, bt := range stg.Teams {
 		if !bt.IsAlive {
@@ -112,7 +115,7 @@ func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 	}
 	for _, cld := range stg.Clouds {
 		cld.Move(now)
-		cld.Wrap(gameconst.StageW, gameconst.StageH)
+		gameconst.StageRect.WrapVector(cld.PosVt)
 	}
 	return aienv
 }

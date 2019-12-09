@@ -62,9 +62,9 @@ func (vp *Viewport2d) draw(now int64) {
 			case gameobjtype.Bullet, gameobjtype.SuperBullet:
 				v.MoveStraight(now)
 			case gameobjtype.Shield, gameobjtype.SuperShield:
-				v.MoveCircular(now, bt.Ball.X, bt.Ball.Y)
+				v.MoveCircular(now, bt.Ball.PosVt)
 			case gameobjtype.HommingShield:
-				v.MoveHomming(now, bt.Ball.X, bt.Ball.Y)
+				v.MoveHomming(now, bt.Ball.PosVt)
 			case gameobjtype.HommingBullet:
 			}
 		}
@@ -90,7 +90,7 @@ func (vp *Viewport2d) draw(now int64) {
 func (vp *Viewport2d) drawBG() {
 	si := vp.stageInfo
 	sp := gSprites.BGSprite
-	x, y := si.Background.X, si.Background.Y
+	x, y := si.Background.PosVt.X, si.Background.PosVt.Y
 	srcx, srcy := sp.GetSliceXY(0)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, sp.W, sp.H,
@@ -111,7 +111,7 @@ func (vp *Viewport2d) drawBG() {
 }
 
 func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
-	x, y := cld.X, cld.Y
+	x, y := cld.PosVt.X, cld.PosVt.Y
 	sp := gSprites.CloudSprite
 	srcx, srcy := sp.GetSliceXY(cld.SpriteNum)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
@@ -121,7 +121,7 @@ func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
 }
 
 func (vp *Viewport2d) drawEffect(eff *w2d_obj.Effect, now int64) {
-	x, y := eff.X, eff.Y
+	x, y := eff.PosVt.X, eff.PosVt.Y
 	sp := gSprites.EffectSprite[eff.EffectType]
 	lifeTick := int(effecttype.Attrib[eff.EffectType].LifeTick)
 
@@ -151,6 +151,6 @@ func (vp *Viewport2d) drawGameObj(
 	srcx, srcy := sp.GetSliceXY(frame)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, dispSize, dispSize,
-		v.X-dispSize/2, v.Y-dispSize/2, dispSize, dispSize,
+		v.PosVt.X-dispSize/2, v.PosVt.Y-dispSize/2, dispSize, dispSize,
 	)
 }

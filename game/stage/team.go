@@ -63,11 +63,12 @@ func NewTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *Team {
 		Objs: make([]*GameObj, 0),
 	}
 	maxv := gameobjtype.Attrib[gameobjtype.Ball].V
-	dx, dy := CalcDxyFromAngelV(
-		bt.rnd.Float64()*360,
+
+	vt := vector2f.NewVectorLenAngle(
 		bt.rnd.Float64()*maxv,
+		bt.rnd.Float64()*360,
 	)
-	bt.Ball.SetDxy(vector2f.Vector2f{dx, dy})
+	bt.Ball.SetDxy(vt)
 	return bt
 }
 
@@ -150,8 +151,8 @@ func (bt *Team) ApplyAct(actObj *w2d_obj.Act) {
 	case acttype.HommingBullet:
 		bt.AddHommingBullet(actObj.Angle, actObj.AngleV, actObj.DstObjID)
 	case acttype.Accel:
-		dx, dy := CalcDxyFromAngelV(actObj.Angle, actObj.AngleV)
-		bt.Ball.AddDxy(vector2f.Vector2f{dx, dy})
+		vt := vector2f.NewVectorLenAngle(actObj.AngleV, actObj.Angle)
+		bt.Ball.AddDxy(vt)
 	}
 }
 
@@ -187,7 +188,6 @@ func (bt *Team) AddSuperShield(angle, anglev float64) *GameObj {
 
 func (bt *Team) AddBullet(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
-	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
 		teamType:     bt.TeamType,
 		GOType:       gameobjtype.Bullet,
@@ -195,7 +195,7 @@ func (bt *Team) AddBullet(angle, anglev float64) *GameObj {
 		BirthTick:    nowtick,
 		LastMoveTick: nowtick,
 		PosVt:        bt.Ball.PosVt,
-		MvVt:         vector2f.Vector2f{dx, dy},
+		MvVt:         vector2f.NewVectorLenAngle(anglev, angle),
 	}
 	bt.addGObj(o)
 	return o
@@ -203,7 +203,6 @@ func (bt *Team) AddBullet(angle, anglev float64) *GameObj {
 
 func (bt *Team) AddSuperBullet(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
-	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
 		teamType:     bt.TeamType,
 		GOType:       gameobjtype.SuperBullet,
@@ -211,7 +210,7 @@ func (bt *Team) AddSuperBullet(angle, anglev float64) *GameObj {
 		BirthTick:    nowtick,
 		LastMoveTick: nowtick,
 		PosVt:        bt.Ball.PosVt,
-		MvVt:         vector2f.Vector2f{dx, dy},
+		MvVt:         vector2f.NewVectorLenAngle(anglev, angle),
 	}
 	bt.addGObj(o)
 	return o
@@ -219,7 +218,7 @@ func (bt *Team) AddSuperBullet(angle, anglev float64) *GameObj {
 
 func (bt *Team) AddHommingShield(angle, anglev float64) *GameObj {
 	nowtick := time.Now().UnixNano()
-	dx, dy := CalcDxyFromAngelV(angle, anglev)
+	mvvt := vector2f.NewVectorLenAngle(anglev, angle)
 	o := &GameObj{
 		teamType:     bt.TeamType,
 		GOType:       gameobjtype.HommingShield,
@@ -228,8 +227,8 @@ func (bt *Team) AddHommingShield(angle, anglev float64) *GameObj {
 		LastMoveTick: nowtick,
 		Angle:        angle,
 		AngleV:       anglev,
-		PosVt:        bt.Ball.PosVt.Add(vector2f.Vector2f{dx, dy}),
-		MvVt:         vector2f.Vector2f{dx, dy},
+		PosVt:        bt.Ball.PosVt.Add(mvvt),
+		MvVt:         mvvt,
 	}
 	bt.addGObj(o)
 	return o
@@ -237,7 +236,6 @@ func (bt *Team) AddHommingShield(angle, anglev float64) *GameObj {
 
 func (bt *Team) AddHommingBullet(angle, anglev float64, dstid string) *GameObj {
 	nowtick := time.Now().UnixNano()
-	dx, dy := CalcDxyFromAngelV(angle, anglev)
 	o := &GameObj{
 		teamType:     bt.TeamType,
 		GOType:       gameobjtype.HommingBullet,
@@ -247,7 +245,7 @@ func (bt *Team) AddHommingBullet(angle, anglev float64, dstid string) *GameObj {
 		Angle:        angle,
 		AngleV:       anglev,
 		PosVt:        bt.Ball.PosVt,
-		MvVt:         vector2f.Vector2f{dx, dy},
+		MvVt:         vector2f.NewVectorLenAngle(anglev, angle),
 		DstUUID:      dstid,
 	}
 	bt.addGObj(o)

@@ -56,10 +56,8 @@ func (o *GameObj) ToPacket() *w2d_obj.GameObj {
 		UUID:         o.UUID,
 		BirthTick:    o.BirthTick,
 		LastMoveTick: o.LastMoveTick,
-		X:            o.PosVt.X,
-		Y:            o.PosVt.Y,
-		Dx:           o.MvVt.X,
-		Dy:           o.MvVt.Y,
+		PosVt:        o.PosVt,
+		MvVt:         o.MvVt,
 		Angle:        o.Angle,
 		AngleV:       o.AngleV,
 		DstUUID:      o.DstUUID,
@@ -148,25 +146,9 @@ func (o *GameObj) BounceNormalize(w, h float64) {
 	}
 }
 
-func (o *GameObj) Wrap(w, h float64) vector2f.Vector2f {
-	if o.PosVt.X < 0 {
-		o.PosVt.X = w
-	}
-	if o.PosVt.Y < 0 {
-		o.PosVt.Y = h
-	}
-
-	if o.PosVt.X > w {
-		o.PosVt.X = 0
-	}
-	if o.PosVt.Y > h {
-		o.PosVt.Y = 0
-	}
-	return o.PosVt
-}
+// return gameconst.StageRect.Wrap(o.PosVt)
 
 func (o *GameObj) CalcCircularPos(center vector2f.Vector2f, r float64) vector2f.Vector2f {
-
 	rpos := vector2f.Vector2f{r * math.Cos(o.Angle), r * math.Sin(o.Angle)}
 	return center.Add(rpos)
 }

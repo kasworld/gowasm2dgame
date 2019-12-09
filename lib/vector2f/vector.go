@@ -20,7 +20,7 @@ type Vector2f struct {
 
 var VtZero = Vector2f{0, 0}
 
-func FromLenAngle(l, a float64) Vector2f {
+func NewVectorLenAngle(l, a float64) Vector2f {
 	return Vector2f{
 		X: l * math.Cos(a),
 		Y: l * math.Sin(a),
@@ -93,7 +93,7 @@ func (v Vector2f) Phase() float64 {
 }
 
 func (v Vector2f) AddAngle(angle float64) Vector2f {
-	return FromLenAngle(v.Abs(), v.Phase()+angle)
+	return NewVectorLenAngle(v.Abs(), v.Phase()+angle)
 }
 
 func (v Vector2f) RotateBy(center Vector2f, angle float64) Vector2f {

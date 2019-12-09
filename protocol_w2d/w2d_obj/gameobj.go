@@ -7,80 +7,40 @@ import (
 	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 )
 
 type Cloud struct {
 	SpriteNum    int
 	LastMoveTick int64 // time.unixnano
-	X            float64
-	Y            float64
-	Dx           float64
-	Dy           float64
+	PosVt        vector2f.Vector2f
+	MvVt         vector2f.Vector2f
 }
 
 func (o *Cloud) Move(now int64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.X += o.Dx * diff
-	o.Y += o.Dy * diff
-}
-
-func (o *Cloud) Wrap(w, h float64) (float64, float64) {
-	if o.X < 0 {
-		o.X = w
-	}
-	if o.Y < 0 {
-		o.Y = h
-	}
-
-	if o.X > w {
-		o.X = 0
-	}
-	if o.Y > h {
-		o.Y = 0
-	}
-	return o.X, o.Y
+	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
 }
 
 type Background struct {
 	LastMoveTick int64 // time.unixnano
-	X            float64
-	Y            float64
-	Dx           float64
-	Dy           float64
+	PosVt        vector2f.Vector2f
+	MvVt         vector2f.Vector2f
 }
 
 func (o *Background) Move(now int64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.X += o.Dx * diff
-	o.Y += o.Dy * diff
-}
-func (o *Background) Wrap(w, h float64) (float64, float64) {
-	if o.X < 0 {
-		o.X = w
-	}
-	if o.Y < 0 {
-		o.Y = h
-	}
-
-	if o.X > w {
-		o.X = 0
-	}
-	if o.Y > h {
-		o.Y = 0
-	}
-	return o.X, o.Y
+	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
 }
 
 type Effect struct {
 	EffectType   effecttype.EffectType
 	BirthTick    int64
 	LastMoveTick int64 // time.unixnano
-	X            float64
-	Y            float64
-	Dx           float64
-	Dy           float64
+	PosVt        vector2f.Vector2f
+	MvVt         vector2f.Vector2f
 }
 
 func (o *Effect) CheckLife(now int64) bool {
@@ -91,10 +51,8 @@ func (o *Effect) CheckLife(now int64) bool {
 func (o *Effect) Move(now int64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.X += o.Dx * diff
-	o.Y += o.Dy * diff
-	o.Dx *= 0.9
-	o.Dy *= 0.9
+	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
+	o.MvVt = o.MvVt.MulF(0.9)
 }
 
 ////////////////////
@@ -110,10 +68,8 @@ type GameObj struct {
 	UUID         string
 	BirthTick    int64
 	LastMoveTick int64 // time.unixnano
-	X            float64
-	Y            float64
-	Dx           float64 // move line
-	Dy           float64
+	PosVt        vector2f.Vector2f
+	MvVt         vector2f.Vector2f
 	Angle        float64 // move circular
 	AngleV       float64
 	DstUUID      string // move to dest
@@ -122,34 +78,28 @@ type GameObj struct {
 func (o *GameObj) MoveStraight(now int64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.X += o.Dx * diff
-	o.Y += o.Dy * diff
+	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
 }
 
-func (o *GameObj) MoveCircular(now int64, cx, cy float64) {
+func (o *GameObj) MoveCircular(now int64, center vector2f.Vector2f) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
 	o.Angle += o.AngleV * diff
 	r := gameobjtype.Attrib[o.GOType].R
-	o.X, o.Y = o.CalcCircularPos(cx, cy, r)
+	o.PosVt = o.CalcCircularPos(center, r)
 }
 
-func (o *GameObj) CalcCircularPos(cx, cy, r float64) (float64, float64) {
-	dstx := cx + r*math.Cos(o.Angle)
-	dsty := cy + r*math.Sin(o.Angle)
-	return dstx, dsty
+func (o *GameObj) CalcCircularPos(center vector2f.Vector2f, r float64) vector2f.Vector2f {
+	rpos := vector2f.Vector2f{r * math.Cos(o.Angle), r * math.Sin(o.Angle)}
+	return center.Add(rpos)
 }
 
-func (o *GameObj) MoveHomming(now int64, dstx, dsty float64) {
+func (o *GameObj) MoveHomming(now int64, dstPosVt vector2f.Vector2f) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.X += o.Dx * diff
-	o.Y += o.Dy * diff
+	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
 
 	maxv := gameobjtype.Attrib[o.GOType].V
-	dx := dstx - o.X
-	dy := dsty - o.Y
-	l := math.Sqrt(dx*dx + dy*dy)
-	o.Dx += dx / l * maxv
-	o.Dy += dy / l * maxv
+	dxyVt := dstPosVt.Sub(o.PosVt)
+	o.MvVt = o.MvVt.Add(dxyVt.Normalize().MulF(maxv))
 }

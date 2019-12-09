@@ -137,3 +137,20 @@ func (r Rect) Contain(p [2]float64) bool {
 func (r Rect) RelPos(x, y float64) (float64, float64) {
 	return x - r.X, y - r.Y
 }
+
+func (r Rect) WrapVector(vt Vector2f) Vector2f {
+	if vt.X < r.X1() {
+		vt.X = r.X2()
+	}
+	if vt.Y < r.Y1() {
+		vt.Y = r.Y2()
+	}
+
+	if vt.X > r.X2() {
+		vt.X = r.X1()
+	}
+	if vt.Y > r.Y2() {
+		vt.Y = r.Y1()
+	}
+	return vt
+}

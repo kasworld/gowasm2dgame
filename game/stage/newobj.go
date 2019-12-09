@@ -12,7 +12,6 @@
 package stage
 
 import (
-	"math"
 	"time"
 
 	"github.com/kasworld/gowasm2dgame/lib/vector2f"
@@ -22,35 +21,29 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
-func CalcDxyFromAngelV(angle float64, speed float64) (float64, float64) {
-	dx := speed * math.Cos(angle)
-	dy := speed * math.Sin(angle)
-	return dx, dy
-}
-
 func (stg *Stage) NewBackground() *w2d_obj.Background {
-	dx, dy := CalcDxyFromAngelV(
-		stg.rnd.Float64()*360,
+	vt := vector2f.NewVectorLenAngle(
 		stg.rnd.Float64()*300,
+		stg.rnd.Float64()*360,
 	)
 	return &w2d_obj.Background{
 		LastMoveTick: time.Now().UnixNano(),
-		Dx:           dx,
-		Dy:           dy,
+		MvVt:         vt,
 	}
 }
 
 func (stg *Stage) NewCloud(i int) *w2d_obj.Cloud {
-	dx, dy := CalcDxyFromAngelV(
-		stg.rnd.Float64()*360,
+	vt := vector2f.NewVectorLenAngle(
 		stg.rnd.Float64()*300,
+		stg.rnd.Float64()*360,
 	)
 	return &w2d_obj.Cloud{
-		SpriteNum:    i,
-		X:            stg.rnd.Float64() * gameconst.StageW,
-		Y:            stg.rnd.Float64() * gameconst.StageH,
-		Dx:           dx,
-		Dy:           dy,
+		SpriteNum: i,
+		PosVt: vector2f.Vector2f{
+			X: stg.rnd.Float64() * gameconst.StageW,
+			Y: stg.rnd.Float64() * gameconst.StageH,
+		},
+		MvVt:         vt,
 		LastMoveTick: time.Now().UnixNano(),
 	}
 }
@@ -62,10 +55,8 @@ func (stg *Stage) AddEffect(
 		EffectType:   et,
 		BirthTick:    now,
 		LastMoveTick: now,
-		X:            posVt.X,
-		Y:            posVt.Y,
-		Dx:           mvVt.X,
-		Dy:           mvVt.Y,
+		PosVt:        posVt,
+		MvVt:         mvVt,
 	}
 	for i, v := range stg.Effects {
 		if !v.CheckLife(now) {
