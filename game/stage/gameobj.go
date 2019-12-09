@@ -19,7 +19,6 @@ import (
 
 	"github.com/kasworld/go-abs"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
-	"github.com/kasworld/gowasm2dgame/lib/rectf"
 	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
@@ -27,10 +26,10 @@ import (
 func (o *GameObj) GetUUID() string {
 	return o.UUID
 }
-func (o *GameObj) GetRect() rectf.Rect {
+func (o *GameObj) GetRect() vector2f.Rect {
 	r := gameobjtype.Attrib[o.GOType].Size
-	return rectf.Rect{
-		o.X - r/2, o.Y - r/2, r, r,
+	return vector2f.Rect{
+		o.PosVt.X - r/2, o.PosVt.Y - r/2, r, r,
 	}
 }
 
@@ -42,11 +41,8 @@ type GameObj struct {
 	LastMoveTick int64 // time.unixnano
 	toDelete     bool
 
-	X float64
-	Y float64
-
-	Dx float64 // move line
-	Dy float64
+	PosVt vector2f.Vector2f
+	MvVt  vector2f.Vector2f
 
 	Angle  float64 // move circular
 	AngleV float64
@@ -60,10 +56,10 @@ func (o *GameObj) ToPacket() *w2d_obj.GameObj {
 		UUID:         o.UUID,
 		BirthTick:    o.BirthTick,
 		LastMoveTick: o.LastMoveTick,
-		X:            o.X,
-		Y:            o.Y,
-		Dx:           o.Dx,
-		Dy:           o.Dy,
+		X:            o.PosVt.X,
+		Y:            o.PosVt.Y,
+		Dx:           o.MvVt.X,
+		Dy:           o.MvVt.Y,
 		Angle:        o.Angle,
 		AngleV:       o.AngleV,
 		DstUUID:      o.DstUUID,
@@ -73,44 +69,36 @@ func (o *GameObj) ToPacket() *w2d_obj.GameObj {
 func (o *GameObj) MoveStraight(now int64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.X += o.Dx * diff
-	o.Y += o.Dy * diff
+	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
 }
 
-func (o *GameObj) MoveCircular(now int64, cx, cy float64) {
+func (o *GameObj) MoveCircular(now int64, ctvt vector2f.Vector2f) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
 	o.Angle += o.AngleV * diff
 	r := gameobjtype.Attrib[o.GOType].R
-	o.X, o.Y = o.CalcCircularPos(cx, cy, r)
+	o.PosVt = o.CalcCircularPos(ctvt, r)
 }
 
-func (o *GameObj) MoveHommingShield(now int64, dstx, dsty float64) {
+func (o *GameObj) MoveHommingShield(now int64, dstPosVt vector2f.Vector2f) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.X += o.Dx * diff
-	o.Y += o.Dy * diff
+	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
 
 	maxv := gameobjtype.Attrib[o.GOType].V
-	dx := dstx - o.X
-	dy := dsty - o.Y
-	l := math.Sqrt(dx*dx + dy*dy)
-	o.Dx += dx / l * maxv
-	o.Dy += dy / l * maxv
+
+	dxyVt := dstPosVt.Sub(o.PosVt)
+	o.MvVt = o.MvVt.Add(dxyVt.Normalize().MulF(maxv))
 }
 
-func (o *GameObj) MoveHommingBullet(now int64, dstx, dsty float64) {
+func (o *GameObj) MoveHommingBullet(now int64, dstPosVt vector2f.Vector2f) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.X += o.Dx * diff
-	o.Y += o.Dy * diff
+	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
 
 	maxv := gameobjtype.Attrib[o.GOType].V
-	dx := dstx - o.X
-	dy := dsty - o.Y
-	l := math.Sqrt(dx*dx + dy*dy)
-	o.Dx += dx / l * maxv
-	o.Dy += dy / l * maxv
+	dxyVt := dstPosVt.Sub(o.PosVt)
+	o.MvVt = o.MvVt.Add(dxyVt.Normalize().MulF(maxv))
 	o.LimitDxy()
 }
 
@@ -120,95 +108,83 @@ func (o *GameObj) CheckLife(now int64) bool {
 }
 
 func (o *GameObj) IsIn(w, h float64) bool {
-	return 0 <= o.X && o.X <= w && 0 <= o.Y && o.Y <= h
+	return 0 <= o.PosVt.X && o.PosVt.X <= w && 0 <= o.PosVt.Y && o.PosVt.Y <= h
 }
 
-func (o *GameObj) SetDxy(dx, dy float64) {
-	o.Dx = dx
-	o.Dy = dy
+func (o *GameObj) SetDxy(vt vector2f.Vector2f) {
+	o.MvVt = vt
 	o.LimitDxy()
 }
 
-func (o *GameObj) AddDxy(dx, dy float64) {
-	o.Dx += dx
-	o.Dy += dy
+func (o *GameObj) AddDxy(vt vector2f.Vector2f) {
+	o.MvVt = o.MvVt.Add(vt)
 	o.LimitDxy()
 }
 
 func (o *GameObj) LimitDxy() {
 	maxv := gameobjtype.Attrib[o.GOType].V
-	l := math.Sqrt(o.Dx*o.Dx + o.Dy*o.Dy)
-	if l > maxv {
-		o.Dx = o.Dx / l * maxv
-		o.Dy = o.Dy / l * maxv
+	if o.MvVt.Abs() > maxv {
+		o.MvVt = o.MvVt.Normalize().MulF(maxv)
 	}
 }
 
 func (o *GameObj) BounceNormalize(w, h float64) {
-	if o.X < 0 {
-		o.X = 0
-		o.Dx = abs.Absf(o.Dx)
+	if o.PosVt.X < 0 {
+		o.PosVt.X = 0
+		o.MvVt.X = abs.Absf(o.MvVt.X)
 	}
-	if o.Y < 0 {
-		o.Y = 0
-		o.Dy = abs.Absf(o.Dy)
+	if o.PosVt.Y < 0 {
+		o.PosVt.Y = 0
+		o.MvVt.Y = abs.Absf(o.MvVt.Y)
 	}
 
-	if o.X > w {
-		o.X = w
-		o.Dx = -abs.Absf(o.Dx)
+	if o.PosVt.X > w {
+		o.PosVt.X = w
+		o.MvVt.X = -abs.Absf(o.MvVt.X)
 	}
-	if o.Y > h {
-		o.Y = h
-		o.Dy = -abs.Absf(o.Dy)
+	if o.PosVt.Y > h {
+		o.PosVt.Y = h
+		o.MvVt.Y = -abs.Absf(o.MvVt.Y)
 	}
 }
 
-func (o *GameObj) Wrap(w, h float64) (float64, float64) {
-	if o.X < 0 {
-		o.X = w
+func (o *GameObj) Wrap(w, h float64) vector2f.Vector2f {
+	if o.PosVt.X < 0 {
+		o.PosVt.X = w
 	}
-	if o.Y < 0 {
-		o.Y = h
+	if o.PosVt.Y < 0 {
+		o.PosVt.Y = h
 	}
 
-	if o.X > w {
-		o.X = 0
+	if o.PosVt.X > w {
+		o.PosVt.X = 0
 	}
-	if o.Y > h {
-		o.Y = 0
+	if o.PosVt.Y > h {
+		o.PosVt.Y = 0
 	}
-	return o.X, o.Y
+	return o.PosVt
 }
 
-func (o *GameObj) CalcCircularPos(cx, cy, r float64) (float64, float64) {
-	dstx := cx + r*math.Cos(o.Angle)
-	dsty := cy + r*math.Sin(o.Angle)
-	return dstx, dsty
+func (o *GameObj) CalcCircularPos(vt vector2f.Vector2f, r float64) vector2f.Vector2f {
+	// dstx := cx + r*math.Cos(o.Angle)
+	// dsty := cy + r*math.Sin(o.Angle)
+	return vt.Add(vector2f.Vector2f{r * math.Cos(o.Angle), r * math.Sin(o.Angle)})
 }
 
 func (o *GameObj) PosVector2f() vector2f.Vector2f {
-	return vector2f.Vector2f{
-		X: o.X,
-		Y: o.Y,
-	}
+	return o.PosVt
 }
 
-func (o *GameObj) SetPosByVector2f(v vector2f.Vector2f) {
-	o.X = v.X
-	o.Y = v.Y
+func (o *GameObj) SetPosByVector2f(vt vector2f.Vector2f) {
+	o.PosVt = vt
 }
 
 func (o *GameObj) DxyVector2f() vector2f.Vector2f {
-	return vector2f.Vector2f{
-		X: o.Dx,
-		Y: o.Dy,
-	}
+	return o.MvVt
 }
 
-func (o *GameObj) SetDxyByVector2f(v vector2f.Vector2f) {
-	o.Dx = v.X
-	o.Dy = v.Y
+func (o *GameObj) SetDxyByVector2f(vt vector2f.Vector2f) {
+	o.MvVt = vt
 }
 
 // CalcLenChange calc two gameobj change of len with time

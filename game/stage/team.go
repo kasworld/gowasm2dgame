@@ -16,6 +16,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/lib/vector2f"
+
 	"github.com/kasworld/gowasm2dgame/enums/acttype"
 	"github.com/kasworld/gowasm2dgame/enums/acttype_stats"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
@@ -53,8 +55,10 @@ func NewTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *Team {
 			UUID:         uuidstr.New(),
 			BirthTick:    nowtick,
 			LastMoveTick: nowtick,
-			X:            rnd.Float64() * gameconst.StageW,
-			Y:            rnd.Float64() * gameconst.StageH,
+			PosVt: vector2f.Vector2f{
+				X: rnd.Float64() * gameconst.StageW,
+				Y: rnd.Float64() * gameconst.StageH,
+			},
 		},
 		Objs: make([]*GameObj, 0),
 	}
@@ -63,17 +67,20 @@ func NewTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *Team {
 		bt.rnd.Float64()*360,
 		bt.rnd.Float64()*maxv,
 	)
-	bt.Ball.SetDxy(dx, dy)
+	bt.Ball.SetDxy(vector2f.Vector2f{dx, dy})
 	return bt
 }
 
 func (bt *Team) RespawnBall(now int64) {
 	bt.IsAlive = true
 	bt.Ball.toDelete = false
-	bt.Ball.X = bt.rnd.Float64() * gameconst.StageW
-	bt.Ball.Y = bt.rnd.Float64() * gameconst.StageH
-	bt.Ball.Dx = 0
-	bt.Ball.Dy = 0
+	bt.Ball.PosVt = vector2f.Vector2f{
+		bt.rnd.Float64() * gameconst.StageW,
+		bt.rnd.Float64() * gameconst.StageH,
+	}
+	bt.Ball.MvVt = vector2f.Vector2f{
+		0, 0,
+	}
 	bt.Ball.LastMoveTick = now
 	// bt.Ball.BirthTick = now
 }
@@ -144,7 +151,7 @@ func (bt *Team) ApplyAct(actObj *w2d_obj.Act) {
 		bt.AddHommingBullet(actObj.Angle, actObj.AngleV, actObj.DstObjID)
 	case acttype.Accel:
 		dx, dy := CalcDxyFromAngelV(actObj.Angle, actObj.AngleV)
-		bt.Ball.AddDxy(dx, dy)
+		bt.Ball.AddDxy(vector2f.Vector2f{dx, dy})
 	}
 }
 
@@ -187,10 +194,8 @@ func (bt *Team) AddBullet(angle, anglev float64) *GameObj {
 		UUID:         uuidstr.New(),
 		BirthTick:    nowtick,
 		LastMoveTick: nowtick,
-		X:            bt.Ball.X,
-		Y:            bt.Ball.Y,
-		Dx:           dx,
-		Dy:           dy,
+		PosVt:        bt.Ball.PosVt,
+		MvVt:         vector2f.Vector2f{dx, dy},
 	}
 	bt.addGObj(o)
 	return o
@@ -205,10 +210,8 @@ func (bt *Team) AddSuperBullet(angle, anglev float64) *GameObj {
 		UUID:         uuidstr.New(),
 		BirthTick:    nowtick,
 		LastMoveTick: nowtick,
-		X:            bt.Ball.X,
-		Y:            bt.Ball.Y,
-		Dx:           dx,
-		Dy:           dy,
+		PosVt:        bt.Ball.PosVt,
+		MvVt:         vector2f.Vector2f{dx, dy},
 	}
 	bt.addGObj(o)
 	return o
@@ -225,10 +228,8 @@ func (bt *Team) AddHommingShield(angle, anglev float64) *GameObj {
 		LastMoveTick: nowtick,
 		Angle:        angle,
 		AngleV:       anglev,
-		X:            bt.Ball.X + dx,
-		Y:            bt.Ball.Y + dy,
-		Dx:           dx,
-		Dy:           dy,
+		PosVt:        bt.Ball.PosVt.Add(vector2f.Vector2f{dx, dy}),
+		MvVt:         vector2f.Vector2f{dx, dy},
 	}
 	bt.addGObj(o)
 	return o
@@ -245,10 +246,8 @@ func (bt *Team) AddHommingBullet(angle, anglev float64, dstid string) *GameObj {
 		LastMoveTick: nowtick,
 		Angle:        angle,
 		AngleV:       anglev,
-		X:            bt.Ball.X,
-		Y:            bt.Ball.Y,
-		Dx:           dx,
-		Dy:           dy,
+		PosVt:        bt.Ball.PosVt,
+		MvVt:         vector2f.Vector2f{dx, dy},
 		DstUUID:      dstid,
 	}
 	bt.addGObj(o)

@@ -15,6 +15,8 @@ import (
 	"math"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/lib/vector2f"
+
 	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
@@ -54,16 +56,16 @@ func (stg *Stage) NewCloud(i int) *w2d_obj.Cloud {
 }
 
 func (stg *Stage) AddEffect(
-	et effecttype.EffectType, x, y, dx, dy float64) {
+	et effecttype.EffectType, posVt, mvVt vector2f.Vector2f) {
 	now := time.Now().UnixNano()
 	o := &w2d_obj.Effect{
 		EffectType:   et,
 		BirthTick:    now,
 		LastMoveTick: now,
-		X:            x,
-		Y:            y,
-		Dx:           dx,
-		Dy:           dy,
+		X:            posVt.X,
+		Y:            posVt.Y,
+		Dx:           mvVt.X,
+		Dy:           mvVt.Y,
 	}
 	for i, v := range stg.Effects {
 		if !v.CheckLife(now) {

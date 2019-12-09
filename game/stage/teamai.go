@@ -17,8 +17,9 @@ import (
 	"github.com/kasworld/gowasm2dgame/enums/acttype"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
-	"github.com/kasworld/gowasm2dgame/lib/rectf"
+	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
@@ -35,13 +36,14 @@ func (stg *Stage) SelectRandomTeam(me *Team) *Team {
 func (stg *Stage) FindDangerObj(
 	me *Team, aienv *quadtreef.QuadTree) *GameObj {
 
-	searchW, searchH := 500.0, 500.0
-	searchRect := rectf.Rect{
-		X: me.Ball.X - searchW/2,
-		Y: me.Ball.Y - searchH/2,
-		W: searchW,
-		H: searchH,
+	searchWHVt := vector2f.Vector2f{
+		gameconst.StageW / 2,
+		gameconst.StageH / 2,
 	}
+	searchRect := vector2f.NewRectCenterWH(
+		me.Ball.PosVt,
+		searchWHVt,
+	)
 	var findObj *GameObj
 	aienv.QueryByRect(
 		func(qo quadtreef.QuadTreeObjI) bool {

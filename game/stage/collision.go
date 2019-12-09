@@ -15,12 +15,12 @@ import (
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
-	"github.com/kasworld/gowasm2dgame/lib/rectf"
+	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 )
 
 func (stg *Stage) newQtree() *quadtreef.QuadTree {
 	maxr := 32.0
-	qtree := quadtreef.New(rectf.Rect{
+	qtree := quadtreef.New(vector2f.Rect{
 		0 - maxr, 0 - maxr,
 		gameconst.StageW + maxr*2, gameconst.StageH + maxr*2,
 	})

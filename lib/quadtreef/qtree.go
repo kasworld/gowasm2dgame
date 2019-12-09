@@ -15,7 +15,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/kasworld/gowasm2dgame/lib/rectf"
+	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 )
 
 const (
@@ -23,19 +23,19 @@ const (
 )
 
 type QuadTreeObjI interface {
-	GetRect() rectf.Rect
+	GetRect() vector2f.Rect
 	GetUUID() string
 }
 
 type QuadTree struct {
-	BoundRect    rectf.Rect
+	BoundRect    vector2f.Rect
 	Center       [2]float64
 	DataList     []QuadTreeObjI
 	Children     [4]*QuadTree
 	TerminalNode bool // cannot split
 }
 
-func New(rt rectf.Rect) *QuadTree {
+func New(rt vector2f.Rect) *QuadTree {
 	rtn := QuadTree{
 		BoundRect: rt,
 		Center:    rt.Center(),
@@ -144,7 +144,7 @@ func (ot *QuadTree) split() {
 	return
 }
 
-func (ot *QuadTree) QueryByRect(fn func(QuadTreeObjI) bool, hr rectf.Rect) bool {
+func (ot *QuadTree) QueryByRect(fn func(QuadTreeObjI) bool, hr vector2f.Rect) bool {
 	if !ot.BoundRect.IsOverlap(hr) {
 		return false
 	}

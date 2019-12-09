@@ -9,10 +9,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rectf
+package vector2f
 
 type Rect struct {
 	X, Y, W, H float64
+}
+
+func NewRectCenterWH(ctVt, whVt Vector2f) Rect {
+	return Rect{
+		ctVt.X - whVt.X/2,
+		ctVt.Y - whVt.Y/2,
+		whVt.X,
+		whVt.Y,
+	}
 }
 
 func (r Rect) Center() [2]float64 {

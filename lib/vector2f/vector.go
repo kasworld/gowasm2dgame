@@ -18,6 +18,8 @@ type Vector2f struct {
 	Y float64
 }
 
+var VtZero = Vector2f{0, 0}
+
 func FromLenAngle(l, a float64) Vector2f {
 	return Vector2f{
 		X: l * math.Cos(a),
@@ -107,4 +109,9 @@ func (v Vector2f) Cross() Vector2f {
 		X: v.Y,
 		Y: -v.X,
 	}
+}
+
+func (v Vector2f) IsIn(rt Rect) bool {
+	return v.X >= rt.X1() && v.X <= rt.X2() &&
+		v.Y >= rt.Y1() && v.Y <= rt.Y2()
 }

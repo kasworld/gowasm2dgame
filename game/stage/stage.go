@@ -15,6 +15,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/lib/vector2f"
+
 	"github.com/kasworld/gowasm2dgame/enums/effecttype"
 
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
@@ -32,14 +34,19 @@ type Stage struct {
 	Background *w2d_obj.Background
 	Clouds     []*w2d_obj.Cloud
 
-	Effects []*w2d_obj.Effect
-	Teams   []*Team
+	Effects   []*w2d_obj.Effect
+	Teams     []*Team
+	StageRect vector2f.Rect
 }
 
 func New(l *w2dlog.LogBase) *Stage {
 	stg := &Stage{
 		log: l,
 		rnd: rand.New(rand.NewSource(time.Now().UnixNano())),
+		StageRect: vector2f.Rect{
+			0, 0,
+			gameconst.StageW, gameconst.StageH,
+		},
 	}
 
 	stg.Background = stg.NewBackground()
@@ -61,7 +68,7 @@ func (stg *Stage) Turn() {
 	for _, bt := range stg.Teams {
 		if !bt.IsAlive && bt.RespawnTick < now {
 			bt.RespawnBall(now)
-			stg.AddEffect(effecttype.Spawn, bt.Ball.X, bt.Ball.Y, 0, 0)
+			stg.AddEffect(effecttype.Spawn, bt.Ball.PosVt, vector2f.VtZero)
 		}
 	}
 
@@ -150,9 +157,9 @@ func (stg *Stage) MoveTeam(bt *Team, now int64) []*GameObj {
 				toDeleteList = append(toDeleteList, v)
 			}
 		case gameobjtype.Shield, gameobjtype.SuperShield:
-			v.MoveCircular(now, bt.Ball.X, bt.Ball.Y)
+			v.MoveCircular(now, bt.Ball.PosVt)
 		case gameobjtype.HommingShield:
-			v.MoveHommingShield(now, bt.Ball.X, bt.Ball.Y)
+			v.MoveHommingShield(now, bt.Ball.PosVt)
 		case gameobjtype.HommingBullet:
 			findDst := false
 			for _, dstbt := range stg.Teams {
@@ -161,7 +168,7 @@ func (stg *Stage) MoveTeam(bt *Team, now int64) []*GameObj {
 				}
 				if dstbt.Ball.UUID == v.DstUUID {
 					findDst = true
-					v.MoveHommingBullet(now, dstbt.Ball.X, dstbt.Ball.Y)
+					v.MoveHommingBullet(now, dstbt.Ball.PosVt)
 					break
 				}
 			}
@@ -185,10 +192,10 @@ func (stg *Stage) AddEffectByGameObj(gobj *GameObj) {
 	switch gobj.GOType {
 	case gameobjtype.Bullet, gameobjtype.HommingBullet, gameobjtype.Shield, gameobjtype.SuperShield, gameobjtype.HommingShield:
 		// small effect
-		stg.AddEffect(effecttype.ExplodeSmall, gobj.X, gobj.Y, gobj.Dx, gobj.Dy)
+		stg.AddEffect(effecttype.ExplodeSmall, gobj.PosVt, gobj.MvVt)
 	case gameobjtype.Ball, gameobjtype.SuperBullet:
 		// big effect
-		stg.AddEffect(effecttype.ExplodeBig, gobj.X, gobj.Y, gobj.Dx, gobj.Dy)
+		stg.AddEffect(effecttype.ExplodeBig, gobj.PosVt, gobj.MvVt)
 	}
 }
 
