@@ -165,27 +165,11 @@ func (o *GameObj) Wrap(w, h float64) vector2f.Vector2f {
 	return o.PosVt
 }
 
-func (o *GameObj) CalcCircularPos(vt vector2f.Vector2f, r float64) vector2f.Vector2f {
-	// dstx := cx + r*math.Cos(o.Angle)
-	// dsty := cy + r*math.Sin(o.Angle)
-	return vt.Add(vector2f.Vector2f{r * math.Cos(o.Angle), r * math.Sin(o.Angle)})
+func (o *GameObj) CalcCircularPos(center vector2f.Vector2f, r float64) vector2f.Vector2f {
+
+	rpos := vector2f.Vector2f{r * math.Cos(o.Angle), r * math.Sin(o.Angle)}
+	return center.Add(rpos)
 }
-
-// func (o *GameObj) PosVector2f() vector2f.Vector2f {
-// 	return o.PosVt
-// }
-
-// func (o *GameObj) SetPosByVector2f(vt vector2f.Vector2f) {
-// 	o.PosVt = vt
-// }
-
-// func (o *GameObj) DxyVector2f() vector2f.Vector2f {
-// 	return o.MvVt
-// }
-
-// func (o *GameObj) SetDxyByVector2f(vt vector2f.Vector2f) {
-// 	o.MvVt = vt
-// }
 
 // CalcLenChange calc two gameobj change of len with time
 // return current len , len change with time
