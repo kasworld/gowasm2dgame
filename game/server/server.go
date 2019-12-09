@@ -25,7 +25,6 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connmanager"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statapierror"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statnoti"
@@ -58,7 +57,7 @@ type Server struct {
 		w2d_packet.Header, interface{}, error)
 
 	connManager *w2d_connmanager.Manager
-	stage       *stage.Stage
+	stages      []*stage.Stage
 }
 
 func New(config serverconfig.Config) *Server {
@@ -88,7 +87,7 @@ func New(config serverconfig.Config) *Server {
 		w2d_idcmd.Act:       svr.bytesAPIFn_ReqAct,
 		w2d_idcmd.Heartbeat: svr.bytesAPIFn_ReqHeartbeat,
 	} // DemuxReq2BytesAPIFnMap
-	svr.stage = stage.New(svr.log)
+	svr.stages = make([]*stage.Stage, 0)
 	return svr
 }
 
@@ -112,11 +111,11 @@ func (svr *Server) ServiceCleanup() {
 }
 
 // called from signal handler
-func (svr *Server) ServiceMain(ctx context.Context) {
+func (svr *Server) ServiceMain(mainctx context.Context) {
 	fmt.Println(prettystring.PrettyString(svr.config, 4))
 	svr.startTime = time.Now()
 
-	ctx, stopFn := context.WithCancel(ctx)
+	ctx, stopFn := context.WithCancel(mainctx)
 	svr.sendRecvStop = stopFn
 	defer svr.sendRecvStop()
 
@@ -129,12 +128,10 @@ func (svr *Server) ServiceMain(ctx context.Context) {
 	go retrylistenandserve.RetryListenAndServe(svr.adminWeb, svr.log, "serveAdminWeb")
 	go retrylistenandserve.RetryListenAndServe(svr.clientWeb, svr.log, "serveServiceWeb")
 
+	svr.AddNewStage(ctx)
+
 	timerInfoTk := time.NewTicker(1 * time.Second)
 	defer timerInfoTk.Stop()
-
-	turnDur := time.Duration(float64(time.Second) / svr.config.ActTurnPerSec)
-	timerTurnTk := time.NewTicker(turnDur)
-	defer timerTurnTk.Stop()
 
 	for {
 		select {
@@ -143,23 +140,12 @@ func (svr *Server) ServiceMain(ctx context.Context) {
 		case <-timerInfoTk.C:
 			svr.SendStat.UpdateLap()
 			svr.RecvStat.UpdateLap()
-			si := svr.stage.ToStatsInfo()
-			conlist := svr.connManager.GetList()
-			for _, v := range conlist {
-				v.SendNotiPacket(w2d_idnoti.StatsInfo,
-					si,
-				)
-			}
-
-		case <-timerTurnTk.C:
-			svr.stage.Turn()
-			si := svr.stage.ToStageInfo()
-			conlist := svr.connManager.GetList()
-			for _, v := range conlist {
-				v.SendNotiPacket(w2d_idnoti.StageInfo,
-					si,
-				)
-			}
 		}
 	}
+}
+
+func (svr *Server) AddNewStage(ctx context.Context) {
+	stg := stage.New(svr.log, svr.config)
+	svr.stages = append(svr.stages, stg)
+	go stg.Run(ctx)
 }

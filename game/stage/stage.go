@@ -12,41 +12,42 @@
 package stage
 
 import (
+	"context"
 	"math/rand"
 	"time"
 
-	"github.com/kasworld/gowasm2dgame/lib/vector2f"
-
 	"github.com/kasworld/gowasm2dgame/enums/effecttype"
-
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
+	"github.com/kasworld/gowasm2dgame/game/serverconfig"
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
+	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connmanager"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
 type Stage struct {
-	rnd *rand.Rand      `prettystring:"hide"`
-	log *w2dlog.LogBase `prettystring:"hide"`
+	rnd    *rand.Rand      `prettystring:"hide"`
+	log    *w2dlog.LogBase `prettystring:"hide"`
+	config serverconfig.Config
 
 	Background *w2d_obj.Background
 	Clouds     []*w2d_obj.Cloud
 
-	Effects   []*w2d_obj.Effect
-	Teams     []*Team
-	StageRect vector2f.Rect
+	Effects []*w2d_obj.Effect
+	Teams   []*Team
+	Conns   *w2d_connmanager.Manager
 }
 
-func New(l *w2dlog.LogBase) *Stage {
+func New(l *w2dlog.LogBase, config serverconfig.Config) *Stage {
 	stg := &Stage{
-		log: l,
-		rnd: rand.New(rand.NewSource(time.Now().UnixNano())),
-		StageRect: vector2f.Rect{
-			0, 0,
-			gameconst.StageW, gameconst.StageH,
-		},
+		config: config,
+		log:    l,
+		rnd:    rand.New(rand.NewSource(time.Now().UnixNano())),
+		Conns:  w2d_connmanager.New(),
 	}
 
 	stg.Background = stg.NewBackground()
@@ -59,6 +60,40 @@ func New(l *w2dlog.LogBase) *Stage {
 		stg.Teams[i] = NewTeam(l, teamtype.TeamType(i))
 	}
 	return stg
+}
+
+func (stg *Stage) Run(ctx context.Context) {
+
+	timerInfoTk := time.NewTicker(1 * time.Second)
+	defer timerInfoTk.Stop()
+
+	turnDur := time.Duration(float64(time.Second) / stg.config.ActTurnPerSec)
+	timerTurnTk := time.NewTicker(turnDur)
+	defer timerTurnTk.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-timerInfoTk.C:
+			si := stg.ToStatsInfo()
+			conlist := stg.Conns.GetList()
+			for _, v := range conlist {
+				v.SendNotiPacket(w2d_idnoti.StatsInfo,
+					si,
+				)
+			}
+		case <-timerTurnTk.C:
+			stg.Turn()
+			si := stg.ToStageInfo()
+			conlist := stg.Conns.GetList()
+			for _, v := range conlist {
+				v.SendNotiPacket(w2d_idnoti.StageInfo,
+					si,
+				)
+			}
+		}
+	}
 }
 
 func (stg *Stage) Turn() {

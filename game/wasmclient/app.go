@@ -18,12 +18,10 @@ import (
 	"syscall/js"
 	"time"
 
-	"github.com/kasworld/gowasm2dgame/enums/acttype"
-	"github.com/kasworld/gowasm2dgame/game/gameconst"
-
-	"github.com/kasworld/gowasm2dgame/enums/teamtype"
-
 	"github.com/kasworld/actjitter"
+	"github.com/kasworld/gowasm2dgame/enums/acttype"
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connwasm"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_pid2rspfn"

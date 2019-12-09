@@ -15,10 +15,9 @@ import (
 	"math"
 	"time"
 
-	"github.com/kasworld/gowasm2dgame/enums/teamtype"
-
 	"github.com/kasworld/go-abs"
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
@@ -145,8 +144,6 @@ func (o *GameObj) BounceNormalize(w, h float64) {
 		o.MvVt.Y = -abs.Absf(o.MvVt.Y)
 	}
 }
-
-// return gameconst.StageRect.Wrap(o.PosVt)
 
 func (o *GameObj) CalcCircularPos(center vector2f.Vector2f, r float64) vector2f.Vector2f {
 	rpos := vector2f.Vector2f{r * math.Cos(o.Angle), r * math.Sin(o.Angle)}
