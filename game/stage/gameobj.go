@@ -171,21 +171,21 @@ func (o *GameObj) CalcCircularPos(vt vector2f.Vector2f, r float64) vector2f.Vect
 	return vt.Add(vector2f.Vector2f{r * math.Cos(o.Angle), r * math.Sin(o.Angle)})
 }
 
-func (o *GameObj) PosVector2f() vector2f.Vector2f {
-	return o.PosVt
-}
+// func (o *GameObj) PosVector2f() vector2f.Vector2f {
+// 	return o.PosVt
+// }
 
-func (o *GameObj) SetPosByVector2f(vt vector2f.Vector2f) {
-	o.PosVt = vt
-}
+// func (o *GameObj) SetPosByVector2f(vt vector2f.Vector2f) {
+// 	o.PosVt = vt
+// }
 
-func (o *GameObj) DxyVector2f() vector2f.Vector2f {
-	return o.MvVt
-}
+// func (o *GameObj) DxyVector2f() vector2f.Vector2f {
+// 	return o.MvVt
+// }
 
-func (o *GameObj) SetDxyByVector2f(vt vector2f.Vector2f) {
-	o.MvVt = vt
-}
+// func (o *GameObj) SetDxyByVector2f(vt vector2f.Vector2f) {
+// 	o.MvVt = vt
+// }
 
 // CalcLenChange calc two gameobj change of len with time
 // return current len , len change with time
@@ -193,9 +193,9 @@ func (o *GameObj) SetDxyByVector2f(vt vector2f.Vector2f) {
 func (o *GameObj) CalcLenChange(dsto *GameObj) (float64, float64) {
 	r1 := gameobjtype.Attrib[o.GOType].Size / 2
 	r2 := gameobjtype.Attrib[dsto.GOType].Size / 2
-	curLen := dsto.PosVector2f().Sub(o.PosVector2f()).Abs()
-	nextLen := dsto.PosVector2f().Add(dsto.DxyVector2f()).Sub(
-		o.PosVector2f().Add(o.DxyVector2f()),
+	curLen := dsto.PosVt.Sub(o.PosVt).Abs()
+	nextLen := dsto.PosVt.Add(dsto.MvVt).Sub(
+		o.PosVt.Add(o.MvVt),
 	).Abs()
 	lenChange := nextLen - curLen
 	return curLen - r1 - r2, lenChange

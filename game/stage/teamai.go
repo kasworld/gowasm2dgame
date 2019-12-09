@@ -72,7 +72,7 @@ func (stg *Stage) TryEvade(me *Team, now int64, dsto *GameObj) *w2d_obj.Act {
 		return nil
 	}
 	maxv := gameobjtype.Attrib[objt].V
-	angle := dsto.DxyVector2f().AddAngle(me.rnd.Float64()*math.Pi - math.Pi/2).Phase()
+	angle := dsto.MvVt.AddAngle(me.rnd.Float64()*math.Pi - math.Pi/2).Phase()
 	return &w2d_obj.Act{
 		Act:    actt,
 		Angle:  angle,

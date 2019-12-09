@@ -257,12 +257,12 @@ func (bt *Team) AddHommingBullet(angle, anglev float64, dstid string) *GameObj {
 func (bt *Team) CalcAimAngleAndV(
 	bullet gameobjtype.GameObjType, dsto *GameObj) (float64, float64) {
 	s1 := gameobjtype.Attrib[bullet].V
-	vt := dsto.PosVector2f().Sub(bt.Ball.PosVector2f())
-	s2 := dsto.DxyVector2f().Abs()
+	vt := dsto.PosVt.Sub(bt.Ball.PosVt)
+	s2 := dsto.MvVt.Abs()
 	if s2 == 0 {
 		return vt.Phase(), s1
 	}
-	a2 := dsto.DxyVector2f().Phase() - vt.Phase()
+	a2 := dsto.MvVt.Phase() - vt.Phase()
 	a1 := math.Asin(s2 / s1 * math.Sin(a2))
 
 	return vt.AddAngle(a1).Phase(), s1
