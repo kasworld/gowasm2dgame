@@ -16,21 +16,21 @@ import (
 	"time"
 )
 
-const LongLife = int64(time.Second) * 3600 * 24 * 365
+const LongLife = 3600 * 24 * 365
 
 var Attrib = [GameObjType_Count]struct {
 	Size        float64
 	R           float64 // from main ball center
 	V           float64 // speed pixel/sec or rad/sec
-	FramePerSec float64
+	FramePerSec float64 // animation speed
 	LifeTick    int64
 }{
-	Ball:          {32, 0, 300, 0, LongLife},
-	Shield:        {16, 28, 180 * math.Pi / 180, 0, LongLife},
-	SuperShield:   {16, 48, 180 * math.Pi / 180, 30, int64(time.Second) * 60},
+	Ball:          {32, 0, 300, 0, int64(time.Second) * LongLife},
+	Shield:        {16, 28, math.Pi, 0, int64(time.Second) * LongLife},
+	SuperShield:   {16, 48, math.Pi, 30, int64(time.Second) * 60},
 	HommingShield: {16, 0, 50, 30, int64(time.Second) * 60},
-	Bullet:        {16, 0, 500, 0, LongLife},
-	SuperBullet:   {32, 0, 600, 30, LongLife},
+	Bullet:        {16, 0, 500, 0, int64(time.Second) * LongLife},
+	SuperBullet:   {32, 0, 600, 30, int64(time.Second) * LongLife},
 	HommingBullet: {16, 0, 300, 30, int64(time.Second) * 60},
 }
 
