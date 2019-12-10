@@ -17,16 +17,20 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"os"
 	"time"
 
 	"github.com/kasworld/argdefault"
-	"github.com/kasworld/goguelike2/lib/configutil"
-	"github.com/kasworld/goguelike2/lib/g2log"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connwsgorilla"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_error"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_pid2rspfn"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statapierror"
@@ -34,6 +38,7 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statnoti"
 	"github.com/kasworld/prettystring"
 	"github.com/kasworld/rangestat"
+	"gopkg.in/ini.v1"
 )
 
 // service const
@@ -51,14 +56,49 @@ func main() {
 	config := &MultiClientConfig{}
 	ads.SetDefaultToNonZeroField(config)
 	if *configurl != "" {
-		if err := configutil.LoadIni(*configurl, config); err != nil {
-			g2log.Error("%v", err)
+		if err := LoadIni(*configurl, config); err != nil {
+			w2dlog.Error("%v", err)
 		}
 	}
 	ads.ApplyFlagTo(config)
 	fmt.Println(prettystring.PrettyString(config, 4))
 
 	RunMultiClient(*config)
+}
+
+func LoadIni(urlpath string, config interface{}) error {
+	datas, err := LoadData(urlpath)
+	if err != nil {
+		return err
+	}
+	f, err := ini.Load(datas)
+	if err != nil {
+		return err
+	}
+	if err := f.MapTo(config); err != nil {
+		return err
+	}
+	return nil
+}
+func LoadData(urlpath string) ([]byte, error) {
+	var fd io.Reader
+	u, err := url.Parse(urlpath)
+	if err == nil && (u.Scheme == "http" || u.Scheme == "https") {
+		resp, err := http.Get(urlpath)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		fd = resp.Body
+	} else {
+		ffd, err := os.Open(urlpath)
+		if err != nil {
+			return nil, err
+		}
+		defer ffd.Close()
+		fd = ffd
+	}
+	return ioutil.ReadAll(fd)
 }
 
 type MultiClientConfig struct {
@@ -246,12 +286,33 @@ func (app *App) Run(mainctx context.Context) {
 		app.runResult = app.c2scWS.Run(ctx)
 	}(ctx)
 
+	timerPingTk := time.NewTicker(time.Second)
+	defer timerPingTk.Stop()
+loop:
 	for {
 		select {
 		case <-ctx.Done():
-			return
+			break loop
+		case <-timerPingTk.C:
+			go app.reqHeartbeat()
+
 		}
 	}
+}
+
+func (app *App) reqHeartbeat() error {
+	return app.ReqWithRspFn(
+		w2d_idcmd.Heartbeat,
+		&w2d_obj.ReqHeartbeat_data{
+			Tick: time.Now().UnixNano(),
+		},
+		func(hd w2d_packet.Header, rsp interface{}) error {
+			// rpk := rsp.(*w2d_obj.RspHeartbeat_data)
+			// pingDur := time.Now().UnixNano() - rpk.Tick
+			// app.PingDur = (app.PingDur + pingDur) / 2
+			return nil
+		},
+	)
 }
 
 func (app *App) handleSentPacket(header w2d_packet.Header) error {
