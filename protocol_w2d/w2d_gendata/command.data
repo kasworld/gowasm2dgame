@@ -1,5 +1,9 @@
 # this line is ignored
 Invalid
+ListStage
+EnterStage
+LeaveStage
+ChatToStage
 MakeTeam // make team 
 Act // client user,ai action 
 Heartbeat // sayHello? 

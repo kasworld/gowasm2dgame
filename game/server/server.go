@@ -82,10 +82,14 @@ func New(config serverconfig.Config) *Server {
 	svr.DemuxReq2BytesAPIFnMap = [...]func(
 		me interface{}, hd w2d_packet.Header, rbody []byte) (
 		w2d_packet.Header, interface{}, error){
-		w2d_idcmd.Invalid:   svr.bytesAPIFn_ReqInvalid,
-		w2d_idcmd.MakeTeam:  svr.bytesAPIFn_ReqMakeTeam,
-		w2d_idcmd.Act:       svr.bytesAPIFn_ReqAct,
-		w2d_idcmd.Heartbeat: svr.bytesAPIFn_ReqHeartbeat,
+		w2d_idcmd.Invalid:     svr.bytesAPIFn_ReqInvalid,
+		w2d_idcmd.ListStage:   svr.bytesAPIFn_ReqListStage,
+		w2d_idcmd.EnterStage:  svr.bytesAPIFn_ReqEnterStage,
+		w2d_idcmd.LeaveStage:  svr.bytesAPIFn_ReqLeaveStage,
+		w2d_idcmd.ChatToStage: svr.bytesAPIFn_ReqChatToStage,
+		w2d_idcmd.MakeTeam:    svr.bytesAPIFn_ReqMakeTeam,
+		w2d_idcmd.Act:         svr.bytesAPIFn_ReqAct,
+		w2d_idcmd.Heartbeat:   svr.bytesAPIFn_ReqHeartbeat,
 	} // DemuxReq2BytesAPIFnMap
 	svr.stages = make([]*stage.Stage, 0)
 	return svr

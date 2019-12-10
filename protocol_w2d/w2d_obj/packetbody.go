@@ -13,6 +13,34 @@ type RspInvalid_data struct {
 	Dummy uint8
 }
 
+type ReqListStage_data struct {
+	Dummy uint8
+}
+type RspListStage_data struct {
+	Dummy uint8
+}
+
+type ReqEnterStage_data struct {
+	Dummy uint8
+}
+type RspEnterStage_data struct {
+	Dummy uint8
+}
+
+type ReqLeaveStage_data struct {
+	Dummy uint8
+}
+type RspLeaveStage_data struct {
+	Dummy uint8
+}
+
+type ReqChatToStage_data struct {
+	Dummy uint8
+}
+type RspChatToStage_data struct {
+	Dummy uint8
+}
+
 type ReqMakeTeam_data struct {
 	TeamName string
 }
@@ -52,6 +80,10 @@ type NotiStageInfo_data struct {
 
 type NotiStatsInfo_data struct {
 	ActStats [teamtype.TeamType_Count]acttype_stats.ActTypeStat
+}
+
+type NotiStageBroadCast_data struct {
+	Dummy uint8
 }
 
 ////////////////

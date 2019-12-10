@@ -127,9 +127,10 @@ func (app *WasmClient) reqHeartbeat() error {
 }
 
 var DemuxNoti2ObjFnMap = [...]func(me interface{}, hd w2d_packet.Header, body interface{}) error{
-	w2d_idnoti.Invalid:   objRecvNotiFn_Invalid,
-	w2d_idnoti.StageInfo: objRecvNotiFn_StageInfo,
-	w2d_idnoti.StatsInfo: objRecvNotiFn_StatsInfo,
+	w2d_idnoti.Invalid:        objRecvNotiFn_Invalid,
+	w2d_idnoti.StageInfo:      objRecvNotiFn_StageInfo,
+	w2d_idnoti.StatsInfo:      objRecvNotiFn_StatsInfo,
+	w2d_idnoti.StageBroadCast: objRecvNotiFn_StageBroadCast,
 }
 
 func objRecvNotiFn_Invalid(me interface{}, hd w2d_packet.Header, body interface{}) error {
@@ -166,4 +167,12 @@ func objRecvNotiFn_StatsInfo(me interface{}, hd w2d_packet.Header, body interfac
 	}
 	app.statsInfo = robj
 	return nil
+}
+
+func objRecvNotiFn_StageBroadCast(me interface{}, hd w2d_packet.Header, body interface{}) error {
+	robj, ok := body.(*w2d_obj.NotiStageBroadCast_data)
+	if !ok {
+		return fmt.Errorf("packet mismatch %v", body)
+	}
+	return fmt.Errorf("Not implemented %v", robj)
 }
