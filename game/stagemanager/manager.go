@@ -15,17 +15,14 @@ import (
 	"sync"
 
 	"github.com/kasworld/gowasm2dgame/game/stage"
-	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 )
 
 type Manager struct {
-	log *w2dlog.LogBase `prettystring:"hide"`
-
 	mutex    sync.RWMutex `prettystring:"hide"`
 	id2stage map[string]*stage.Stage
 }
 
-func New(l *w2dlog.LogBase) *Manager {
+func New() *Manager {
 	man := &Manager{
 		id2stage: make(map[string]*stage.Stage),
 	}
@@ -34,6 +31,15 @@ func New(l *w2dlog.LogBase) *Manager {
 
 func (man *Manager) Count() int {
 	return len(man.id2stage)
+}
+
+func (man *Manager) GetAny() *stage.Stage {
+	man.mutex.RLock()
+	defer man.mutex.RUnlock()
+	for _, v := range man.id2stage {
+		return v
+	}
+	return nil
 }
 
 func (man *Manager) GetAll() []*stage.Stage {

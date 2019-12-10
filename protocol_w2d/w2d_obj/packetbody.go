@@ -21,7 +21,8 @@ type RspListStage_data struct {
 }
 
 type ReqEnterStage_data struct {
-	Dummy uint8
+	StageUUID string
+	NickToUse string
 }
 type RspEnterStage_data struct {
 	Dummy uint8
@@ -35,7 +36,7 @@ type RspLeaveStage_data struct {
 }
 
 type ReqChatToStage_data struct {
-	Dummy uint8
+	Chat string
 }
 type RspChatToStage_data struct {
 	Dummy uint8
@@ -46,12 +47,12 @@ type ReqMakeTeam_data struct {
 }
 type RspMakeTeam_data struct {
 	TeamName string
-	TeamID   int
+	TeamUUID string
 }
 
 type ReqAct_data struct {
-	TeamID string
-	Acts   []Act
+	TeamUUID string
+	Acts     []Act
 }
 type RspAct_data struct {
 	Dummy uint8
@@ -83,7 +84,8 @@ type NotiStatsInfo_data struct {
 }
 
 type NotiStageBroadCast_data struct {
-	Dummy uint8
+	SenderNick string
+	Chat       string
 }
 
 ////////////////

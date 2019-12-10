@@ -21,6 +21,7 @@ import (
 	"github.com/kasworld/actpersec"
 	"github.com/kasworld/gowasm2dgame/game/serverconfig"
 	"github.com/kasworld/gowasm2dgame/game/stage"
+	"github.com/kasworld/gowasm2dgame/game/stagemanager"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connmanager"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
@@ -56,8 +57,8 @@ type Server struct {
 		me interface{}, hd w2d_packet.Header, rbody []byte) (
 		w2d_packet.Header, interface{}, error)
 
-	connManager *w2d_connmanager.Manager
-	stages      []*stage.Stage
+	connManager  *w2d_connmanager.Manager
+	stageManager *stagemanager.Manager
 }
 
 func New(config serverconfig.Config) *Server {
@@ -69,10 +70,11 @@ func New(config serverconfig.Config) *Server {
 		SendStat: actpersec.New(),
 		RecvStat: actpersec.New(),
 
-		apiStat:     w2d_statserveapi.New(),
-		notiStat:    w2d_statnoti.New(),
-		errorStat:   w2d_statapierror.New(),
-		connManager: w2d_connmanager.New(),
+		apiStat:      w2d_statserveapi.New(),
+		notiStat:     w2d_statnoti.New(),
+		errorStat:    w2d_statapierror.New(),
+		connManager:  w2d_connmanager.New(),
+		stageManager: stagemanager.New(),
 	}
 	svr.sendRecvStop = func() {
 		fmt.Printf("Too early sendRecvStop call\n")
@@ -91,7 +93,6 @@ func New(config serverconfig.Config) *Server {
 		w2d_idcmd.Act:         svr.bytesAPIFn_ReqAct,
 		w2d_idcmd.Heartbeat:   svr.bytesAPIFn_ReqHeartbeat,
 	} // DemuxReq2BytesAPIFnMap
-	svr.stages = make([]*stage.Stage, 0)
 	return svr
 }
 
@@ -132,7 +133,11 @@ func (svr *Server) ServiceMain(mainctx context.Context) {
 	go retrylistenandserve.RetryListenAndServe(svr.adminWeb, svr.log, "serveAdminWeb")
 	go retrylistenandserve.RetryListenAndServe(svr.clientWeb, svr.log, "serveServiceWeb")
 
-	svr.AddNewStage(ctx)
+	for i := 0; i < 100; i++ {
+		stg := stage.New(svr.log, svr.config)
+		svr.stageManager.Add(stg)
+		go stg.Run(ctx)
+	}
 
 	timerInfoTk := time.NewTicker(1 * time.Second)
 	defer timerInfoTk.Stop()
@@ -146,10 +151,4 @@ func (svr *Server) ServiceMain(mainctx context.Context) {
 			svr.RecvStat.UpdateLap()
 		}
 	}
-}
-
-func (svr *Server) AddNewStage(ctx context.Context) {
-	stg := stage.New(svr.log, svr.config)
-	svr.stages = append(svr.stages, stg)
-	go stg.Run(ctx)
 }

@@ -51,6 +51,7 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 		return
 	}
 
+	stg := svr.stageManager.GetAny()
 	connID := uuidstr.New()
 	c2sc := w2d_serveconnbyte.NewWithStats(
 		connID, // connid
@@ -64,9 +65,7 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 
 	// add to conn manager
 	svr.connManager.Add(connID, c2sc)
-
-	//
-	svr.stages[0].Conns.Add(connID, c2sc)
+	stg.Conns.Add(connID, c2sc)
 
 	// start client service
 	c2sc.StartServeWS(ctx, wsConn,
@@ -76,5 +75,5 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 
 	// del from conn manager
 	svr.connManager.Del(connID)
-	svr.stages[0].Conns.Del(connID)
+	stg.Conns.Del(connID)
 }
