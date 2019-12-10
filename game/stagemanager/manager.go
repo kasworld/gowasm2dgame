@@ -14,9 +14,8 @@ package stagemanager
 import (
 	"sync"
 
-	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
-
 	"github.com/kasworld/gowasm2dgame/game/stage"
+	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 )
 
 type Manager struct {
@@ -46,7 +45,7 @@ func (man *Manager) GetAny() *stage.Stage {
 	return nil
 }
 
-func (man *Manager) GetAll() []*stage.Stage {
+func (man *Manager) GetList() []*stage.Stage {
 	man.mutex.RLock()
 	defer man.mutex.RUnlock()
 	rtn := make([]*stage.Stage, len(man.id2stage))

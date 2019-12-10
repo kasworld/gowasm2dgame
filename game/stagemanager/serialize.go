@@ -35,7 +35,7 @@ func (man *Manager) ToWeb(w http.ResponseWriter, r *http.Request) {
 
 func (man *Manager) ToWebMid(w http.ResponseWriter, r *http.Request) {
 
-	connList := man.GetAll()
+	connList := man.GetList()
 	page := weblib.GetIntByName("page", -1, w, r)
 	if page < 0 {
 		return
