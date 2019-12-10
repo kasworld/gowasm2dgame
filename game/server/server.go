@@ -62,9 +62,10 @@ type Server struct {
 }
 
 func New(config serverconfig.Config) *Server {
+	l := w2dlog.GlobalLogger
 	svr := &Server{
 		config: config,
-		log:    w2dlog.GlobalLogger,
+		log:    l,
 		rnd:    rand.New(rand.NewSource(time.Now().UnixNano())),
 
 		SendStat: actpersec.New(),
@@ -74,7 +75,7 @@ func New(config serverconfig.Config) *Server {
 		notiStat:     w2d_statnoti.New(),
 		errorStat:    w2d_statapierror.New(),
 		connManager:  w2d_connmanager.New(),
-		stageManager: stagemanager.New(),
+		stageManager: stagemanager.New(l),
 	}
 	svr.sendRecvStop = func() {
 		fmt.Printf("Too early sendRecvStop call\n")

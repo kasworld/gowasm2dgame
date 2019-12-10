@@ -14,16 +14,20 @@ package stagemanager
 import (
 	"sync"
 
+	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
+
 	"github.com/kasworld/gowasm2dgame/game/stage"
 )
 
 type Manager struct {
+	log      *w2dlog.LogBase
 	mutex    sync.RWMutex `prettystring:"hide"`
 	id2stage map[string]*stage.Stage
 }
 
-func New() *Manager {
+func New(log *w2dlog.LogBase) *Manager {
 	man := &Manager{
+		log:      log,
 		id2stage: make(map[string]*stage.Stage),
 	}
 	return man
