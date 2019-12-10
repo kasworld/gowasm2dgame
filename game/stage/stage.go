@@ -27,6 +27,7 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connmanager"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
+	"github.com/kasworld/uuidstr"
 )
 
 type Stage struct {
@@ -34,16 +35,18 @@ type Stage struct {
 	log    *w2dlog.LogBase `prettystring:"hide"`
 	config serverconfig.Config
 
+	UUID  string
+	Conns *w2d_connmanager.Manager
+
 	Background *w2d_obj.Background
 	Clouds     []*w2d_obj.Cloud
-
-	Effects []*w2d_obj.Effect
-	Teams   []*Team
-	Conns   *w2d_connmanager.Manager
+	Effects    []*w2d_obj.Effect
+	Teams      []*Team
 }
 
 func New(l *w2dlog.LogBase, config serverconfig.Config) *Stage {
 	stg := &Stage{
+		UUID:   uuidstr.New(),
 		config: config,
 		log:    l,
 		rnd:    rand.New(rand.NewSource(time.Now().UnixNano())),
