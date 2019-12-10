@@ -41,6 +41,9 @@ func (man *Manager) ToWebMid(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	pagesize := 20
+
+	weblib.PageMid(len(connList), pagesize, "/StageManager", w, r)
+
 	st := page * pagesize
 	if st < 0 || st >= len(connList) {
 		st = 0
