@@ -59,7 +59,7 @@ func (stg *Stage) checkCollision() ([]*GameObj, *quadtreef.QuadTree) {
 					return false
 				}
 				if !v.toDelete && !targetObj.toDelete {
-					if gameobjtype.CollisionTo(v.GOType, targetObj.GOType) {
+					if gameobjtype.InteractTo(v.GOType, targetObj.GOType) {
 						toDeleteList = append(toDeleteList, v)
 						return true
 					}

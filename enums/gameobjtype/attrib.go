@@ -88,6 +88,6 @@ var collisionRule = [GameObjType_Count][GameObjType_Count]bool{
 	},
 }
 
-func CollisionTo(srcType, dstType GameObjType) bool {
+func InteractTo(srcType, dstType GameObjType) bool {
 	return collisionRule[srcType][dstType]
 }
