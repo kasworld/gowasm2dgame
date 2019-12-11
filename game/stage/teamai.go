@@ -71,7 +71,7 @@ func (stg *Stage) TryEvade(me *Team, now int64, dsto *GameObj) *w2d_obj.Act {
 	if me.GetRemainAct(now, actt) <= 0 {
 		return nil
 	}
-	maxv := gameobjtype.Attrib[objt].V
+	maxv := gameobjtype.Attrib[objt].SpeedLimit
 	angle := dsto.MvVt.AddAngle(me.rnd.Float64()*math.Pi - math.Pi/2).Phase()
 	return &w2d_obj.Act{
 		Act:    actt,
@@ -134,7 +134,7 @@ func (stg *Stage) AI(me *Team, now int64, aienv *quadtreef.QuadTree) *w2d_obj.Ac
 		if dstteam == nil {
 			break
 		}
-		maxv := gameobjtype.Attrib[objt].V
+		maxv := gameobjtype.Attrib[objt].SpeedLimit
 		if dstteam != me && dstteam.IsAlive {
 			return &w2d_obj.Act{
 				Act:      actt,
@@ -150,7 +150,7 @@ func (stg *Stage) AI(me *Team, now int64, aienv *quadtreef.QuadTree) *w2d_obj.Ac
 			break
 		}
 		if me.Count(objt) < 12 {
-			maxv := gameobjtype.Attrib[objt].V
+			maxv := gameobjtype.Attrib[objt].SpeedLimit
 			return &w2d_obj.Act{
 				Act:    actt,
 				Angle:  me.rnd.Float64() * 2 * math.Pi,
@@ -164,7 +164,7 @@ func (stg *Stage) AI(me *Team, now int64, aienv *quadtreef.QuadTree) *w2d_obj.Ac
 			break
 		}
 		if me.Count(objt) < 12 && me.rnd.Intn(10) == 0 {
-			maxv := gameobjtype.Attrib[objt].V
+			maxv := gameobjtype.Attrib[objt].SpeedLimit
 			return &w2d_obj.Act{
 				Act:    actt,
 				Angle:  me.rnd.Float64() * 2 * math.Pi,
@@ -178,7 +178,7 @@ func (stg *Stage) AI(me *Team, now int64, aienv *quadtreef.QuadTree) *w2d_obj.Ac
 			break
 		}
 		if me.Count(objt) < 6 && me.rnd.Intn(10) == 0 {
-			maxv := gameobjtype.Attrib[objt].V
+			maxv := gameobjtype.Attrib[objt].SpeedLimit
 			return &w2d_obj.Act{
 				Act:    actt,
 				Angle:  me.rnd.Float64() * 2 * math.Pi,
@@ -191,7 +191,7 @@ func (stg *Stage) AI(me *Team, now int64, aienv *quadtreef.QuadTree) *w2d_obj.Ac
 		if me.GetRemainAct(now, actt) <= 0 {
 			break
 		}
-		maxv := gameobjtype.Attrib[objt].V
+		maxv := gameobjtype.Attrib[objt].SpeedLimit
 		return &w2d_obj.Act{
 			Act:    actt,
 			Angle:  me.rnd.Float64() * 2 * math.Pi,

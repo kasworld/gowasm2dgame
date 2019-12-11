@@ -85,7 +85,7 @@ func (o *GameObj) MoveCircular(now int64, center vector2f.Vector2f) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
 	o.Angle += o.AngleV * diff
-	r := gameobjtype.Attrib[o.GOType].R
+	r := gameobjtype.Attrib[o.GOType].RadiusToCenter
 	o.PosVt = o.CalcCircularPos(center, r)
 }
 
@@ -99,7 +99,7 @@ func (o *GameObj) MoveHomming(now int64, dstPosVt vector2f.Vector2f) {
 	o.LastMoveTick = now
 	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
 
-	maxv := gameobjtype.Attrib[o.GOType].V
+	maxv := gameobjtype.Attrib[o.GOType].SpeedLimit
 	dxyVt := dstPosVt.Sub(o.PosVt)
 	o.MvVt = o.MvVt.Add(dxyVt.Normalize().MulF(maxv))
 }

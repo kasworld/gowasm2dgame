@@ -19,11 +19,11 @@ import (
 const LongLife = 3600 * 24 * 365
 
 var Attrib = [GameObjType_Count]struct {
-	Size        float64
-	R           float64 // from main ball center
-	V           float64 // speed pixel/sec or rad/sec
-	FramePerSec float64 // animation speed
-	LifeTick    int64
+	Size           float64
+	RadiusToCenter float64 // from main ball center
+	SpeedLimit     float64 // speed pixel/sec or rad/sec
+	FramePerSec    float64 // animation speed
+	LifeTick       int64
 }{
 	Ball:          {32, 0, 300, 0, int64(time.Second) * LongLife},
 	Shield:        {16, 28, math.Pi, 0, int64(time.Second) * LongLife},

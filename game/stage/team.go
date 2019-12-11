@@ -61,7 +61,7 @@ func NewTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *Team {
 		},
 		Objs: make([]*GameObj, 0),
 	}
-	maxv := gameobjtype.Attrib[gameobjtype.Ball].V
+	maxv := gameobjtype.Attrib[gameobjtype.Ball].SpeedLimit
 
 	vt := vector2f.NewVectorLenAngle(
 		bt.rnd.Float64()*maxv,
@@ -253,7 +253,7 @@ func (bt *Team) AddHommingBullet(angle, anglev float64, dstid string) *GameObj {
 
 func (bt *Team) CalcAimAngleAndV(
 	bullet gameobjtype.GameObjType, dsto *GameObj) (float64, float64) {
-	s1 := gameobjtype.Attrib[bullet].V
+	s1 := gameobjtype.Attrib[bullet].SpeedLimit
 	vt := dsto.PosVt.Sub(bt.Ball.PosVt)
 	s2 := dsto.MvVt.Abs()
 	if s2 == 0 {
