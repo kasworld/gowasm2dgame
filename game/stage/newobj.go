@@ -39,8 +39,8 @@ func (stg *Stage) NewCloud(i int) *w2d_obj.Cloud {
 	return &w2d_obj.Cloud{
 		SpriteNum: i,
 		PosVt: vector2f.Vector2f{
-			X: stg.rnd.Float64() * gameconst.StageW,
-			Y: stg.rnd.Float64() * gameconst.StageH,
+			stg.rnd.Float64() * gameconst.StageW,
+			stg.rnd.Float64() * gameconst.StageH,
 		},
 		MvVt:         vt,
 		LastMoveTick: time.Now().UnixNano(),

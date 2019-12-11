@@ -21,8 +21,8 @@ import (
 func (stg *Stage) newQtree() *quadtreef.QuadTree {
 	maxr := 32.0
 	qtree := quadtreef.New(vector2f.Rect{
-		0 - maxr, 0 - maxr,
-		gameconst.StageW + maxr*2, gameconst.StageH + maxr*2,
+		vector2f.Vector2f{0 - maxr, 0 - maxr},
+		vector2f.Vector2f{gameconst.StageW + maxr, gameconst.StageH + maxr},
 	})
 	return qtree
 }

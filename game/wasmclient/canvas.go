@@ -89,7 +89,7 @@ func (vp *Viewport2d) draw(now int64) {
 func (vp *Viewport2d) drawBG() {
 	si := vp.stageInfo
 	sp := gSprites.BGSprite
-	x, y := si.Background.PosVt.X, si.Background.PosVt.Y
+	x, y := si.Background.PosVt[0], si.Background.PosVt[1]
 	srcx, srcy := sp.GetSliceXY(0)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, sp.W, sp.H,
@@ -110,7 +110,7 @@ func (vp *Viewport2d) drawBG() {
 }
 
 func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
-	x, y := cld.PosVt.X, cld.PosVt.Y
+	x, y := cld.PosVt[0], cld.PosVt[1]
 	sp := gSprites.CloudSprite
 	srcx, srcy := sp.GetSliceXY(cld.SpriteNum)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
@@ -120,7 +120,7 @@ func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
 }
 
 func (vp *Viewport2d) drawEffect(eff *w2d_obj.Effect, now int64) {
-	x, y := eff.PosVt.X, eff.PosVt.Y
+	x, y := eff.PosVt[0], eff.PosVt[1]
 	sp := gSprites.EffectSprite[eff.EffectType]
 	lifeTick := int(effecttype.Attrib[eff.EffectType].LifeTick)
 
@@ -150,6 +150,6 @@ func (vp *Viewport2d) drawGameObj(
 	srcx, srcy := sp.GetSliceXY(frame)
 	vp.context2d.Call("drawImage", sp.ImgCanvas,
 		srcx, srcy, dispSize, dispSize,
-		v.PosVt.X-dispSize/2, v.PosVt.Y-dispSize/2, dispSize, dispSize,
+		v.PosVt[0]-dispSize/2, v.PosVt[1]-dispSize/2, dispSize, dispSize,
 	)
 }

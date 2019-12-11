@@ -127,7 +127,8 @@ func (stg *Stage) Turn() {
 func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 	stg.Background.Move(now)
 	stg.Background.PosVt = vector2f.Rect{
-		0, 0, gameconst.StageW * 2, gameconst.StageH * 2,
+		vector2f.Vector2f{0, 0},
+		vector2f.Vector2f{gameconst.StageW * 2, gameconst.StageH * 2},
 	}.WrapVector(stg.Background.PosVt)
 	// stg.Background.Wrap(gameconst.StageW*2, gameconst.StageH*2)
 

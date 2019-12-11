@@ -8,4 +8,7 @@ const (
 	BallRespawnDurSec = 5
 )
 
-var StageRect = vector2f.Rect{0, 0, StageW, StageH}
+var StageRect = vector2f.Rect{
+	vector2f.Vector2f{0, 0},
+	vector2f.Vector2f{StageW, StageH},
+}

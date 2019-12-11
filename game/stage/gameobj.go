@@ -27,9 +27,10 @@ func (o *GameObj) GetUUID() string {
 }
 func (o *GameObj) GetRect() vector2f.Rect {
 	r := gameobjtype.Attrib[o.GOType].Size
-	return vector2f.Rect{
-		o.PosVt.X - r/2, o.PosVt.Y - r/2, r, r,
-	}
+	return vector2f.NewRectCenterWH(
+		o.PosVt,
+		vector2f.Vector2f{r, r},
+	)
 }
 
 type GameObj struct {
@@ -105,7 +106,7 @@ func (o *GameObj) CheckLife(now int64) bool {
 }
 
 func (o *GameObj) IsIn(w, h float64) bool {
-	return 0 <= o.PosVt.X && o.PosVt.X <= w && 0 <= o.PosVt.Y && o.PosVt.Y <= h
+	return 0 <= o.PosVt[0] && o.PosVt[0] <= w && 0 <= o.PosVt[1] && o.PosVt[1] <= h
 }
 
 func (o *GameObj) SetDxy(vt vector2f.Vector2f) {
@@ -126,22 +127,22 @@ func (o *GameObj) LimitDxy() {
 }
 
 func (o *GameObj) BounceNormalize(w, h float64) {
-	if o.PosVt.X < 0 {
-		o.PosVt.X = 0
-		o.MvVt.X = abs.Absf(o.MvVt.X)
+	if o.PosVt[0] < 0 {
+		o.PosVt[0] = 0
+		o.MvVt[0] = abs.Absf(o.MvVt[0])
 	}
-	if o.PosVt.Y < 0 {
-		o.PosVt.Y = 0
-		o.MvVt.Y = abs.Absf(o.MvVt.Y)
+	if o.PosVt[1] < 0 {
+		o.PosVt[1] = 0
+		o.MvVt[1] = abs.Absf(o.MvVt[1])
 	}
 
-	if o.PosVt.X > w {
-		o.PosVt.X = w
-		o.MvVt.X = -abs.Absf(o.MvVt.X)
+	if o.PosVt[0] > w {
+		o.PosVt[0] = w
+		o.MvVt[0] = -abs.Absf(o.MvVt[0])
 	}
-	if o.PosVt.Y > h {
-		o.PosVt.Y = h
-		o.MvVt.Y = -abs.Absf(o.MvVt.Y)
+	if o.PosVt[1] > h {
+		o.PosVt[1] = h
+		o.MvVt[1] = -abs.Absf(o.MvVt[1])
 	}
 }
 

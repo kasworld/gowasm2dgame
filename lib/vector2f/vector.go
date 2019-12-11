@@ -13,105 +13,102 @@ package vector2f
 
 import "math"
 
-type Vector2f struct {
-	X float64
-	Y float64
-}
+type Vector2f [2]float64
 
 var VtZero = Vector2f{0, 0}
 
 func NewVectorLenAngle(l, a float64) Vector2f {
 	return Vector2f{
-		X: l * math.Cos(a),
-		Y: l * math.Sin(a),
+		l * math.Cos(a),
+		l * math.Sin(a),
 	}
 }
 
-func (v Vector2f) Abs() float64 {
-	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+func (vt Vector2f) Abs() float64 {
+	return math.Sqrt(vt[0]*vt[0] + vt[1]*vt[1])
 }
 
-func (v Vector2f) Add(v2 Vector2f) Vector2f {
+func (vt Vector2f) Add(v2 Vector2f) Vector2f {
 	return Vector2f{
-		X: v.X + v2.X,
-		Y: v.Y + v2.Y,
+		vt[0] + v2[0],
+		vt[1] + v2[1],
 	}
 }
 
-func (v Vector2f) Sub(v2 Vector2f) Vector2f {
+func (vt Vector2f) Sub(v2 Vector2f) Vector2f {
 	return Vector2f{
-		X: v.X - v2.X,
-		Y: v.Y - v2.Y,
+		vt[0] - v2[0],
+		vt[1] - v2[1],
 	}
 }
 
-func (v Vector2f) MulF(f float64) Vector2f {
+func (vt Vector2f) MulF(f float64) Vector2f {
 	return Vector2f{
-		X: v.X * f,
-		Y: v.Y * f,
+		vt[0] * f,
+		vt[1] * f,
 	}
 }
 
-func (v Vector2f) DivF(f float64) Vector2f {
+func (vt Vector2f) DivF(f float64) Vector2f {
 	return Vector2f{
-		X: v.X / f,
-		Y: v.Y / f,
+		vt[0] / f,
+		vt[1] / f,
 	}
 }
 
-func (v Vector2f) Normalize() Vector2f {
-	return v.DivF(v.Abs())
+func (vt Vector2f) Normalize() Vector2f {
+	return vt.DivF(vt.Abs())
 }
 
-func (v Vector2f) Neg() Vector2f {
+func (vt Vector2f) Neg() Vector2f {
 	return Vector2f{
-		X: -v.X,
-		Y: -v.Y,
+		-vt[0],
+		-vt[1],
 	}
 }
 
-func (v Vector2f) NegX() Vector2f {
+func (vt Vector2f) NegX() Vector2f {
 	return Vector2f{
-		X: -v.X,
-		Y: v.Y,
+		-vt[0],
+		vt[1],
 	}
 }
 
-func (v Vector2f) NegY() Vector2f {
+func (vt Vector2f) NegY() Vector2f {
 	return Vector2f{
-		X: v.X,
-		Y: -v.Y,
+		vt[0],
+		-vt[1],
 	}
 }
 
-func (v Vector2f) LenTo(v2 Vector2f) float64 {
-	return v2.Sub(v).Abs()
+func (vt Vector2f) LenTo(v2 Vector2f) float64 {
+	return v2.Sub(vt).Abs()
 }
 
-func (v Vector2f) Phase() float64 {
-	return math.Atan2(v.Y, v.X)
+func (vt Vector2f) Phase() float64 {
+	return math.Atan2(vt[1], vt[0])
 }
 
-func (v Vector2f) AddAngle(angle float64) Vector2f {
-	return NewVectorLenAngle(v.Abs(), v.Phase()+angle)
+func (vt Vector2f) AddAngle(angle float64) Vector2f {
+	return NewVectorLenAngle(vt.Abs(), vt.Phase()+angle)
 }
 
-func (v Vector2f) RotateBy(center Vector2f, angle float64) Vector2f {
-	return v.Sub(center).AddAngle(angle).Add(center)
+func (vt Vector2f) RotateBy(center Vector2f, angle float64) Vector2f {
+	return vt.Sub(center).AddAngle(angle).Add(center)
 }
 
-func (v Vector2f) Dot(v2 Vector2f) float64 {
-	return v.X*v2.X + v.Y*v2.Y
+func (vt Vector2f) Dot(v2 Vector2f) float64 {
+	return vt[0]*v2[0] + vt[1]*v2[1]
 }
 
-func (v Vector2f) Cross() Vector2f {
+func (vt Vector2f) Cross() Vector2f {
 	return Vector2f{
-		X: v.Y,
-		Y: -v.X,
+		vt[1],
+		-vt[0],
 	}
 }
 
-func (v Vector2f) IsIn(rt Rect) bool {
-	return v.X >= rt.X1() && v.X <= rt.X2() &&
-		v.Y >= rt.Y1() && v.Y <= rt.Y2()
+func (vt Vector2f) IsIn(rt Rect) bool {
+	return rt.Min[0] <= vt[0] && vt[0] <= rt.Max[0] &&
+		rt.Min[1] <= vt[1] && vt[1] <= rt.Max[1]
 }

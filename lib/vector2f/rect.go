@@ -12,83 +12,118 @@
 package vector2f
 
 type Rect struct {
-	X, Y, W, H float64
+	Min Vector2f
+	Max Vector2f
+
+	// X, Y float64
+	// W, H float64
+}
+
+func NewRect(v1, v2 Vector2f) Rect {
+	rtn := Rect{
+		Min: v1,
+		Max: v2,
+	}
+	for i := 0; i < 2; i++ {
+		if rtn.Min[i] > rtn.Max[i] {
+			rtn.Max[i] = rtn.Min[i]
+			rtn.Min[i] = rtn.Max[i]
+		}
+	}
+	return rtn
 }
 
 func NewRectCenterWH(ctVt, whVt Vector2f) Rect {
-	return Rect{
-		ctVt.X - whVt.X/2,
-		ctVt.Y - whVt.Y/2,
-		whVt.X,
-		whVt.Y,
+	rtn := Rect{
+		Min: ctVt,
+		Max: ctVt.Add(whVt),
 	}
+	for i := 0; i < 2; i++ {
+		if rtn.Min[i] > rtn.Max[i] {
+			rtn.Max[i] = rtn.Min[i]
+			rtn.Min[i] = rtn.Max[i]
+		}
+	}
+	return rtn
 }
 
-func (r Rect) Center() [2]float64 {
-	return [2]float64{
-		r.X + r.W/2, r.Y + r.H/2,
-	}
+func (rt Rect) Center() Vector2f {
+	return rt.Min.Add(rt.Max).DivF(2)
 }
 
-func (r Rect) SizeVector() [2]float64 {
-	return [2]float64{r.W, r.H}
+func (rt Rect) DiagLen() float64 {
+	return rt.Min.LenTo(rt.Max)
 }
 
-func (r Rect) Enlarge(size [2]float64) Rect {
-	return Rect{
-		r.X - size[0], r.Y - size[1],
-		r.W + size[0]*2, r.H + size[1]*2,
-	}
-}
-func (r Rect) Shrink(size [2]float64) Rect {
-	return Rect{
-		r.X + size[0], r.Y + size[1],
-		r.W - size[0]*2, r.H - size[1]*2,
-	}
-}
-func (r Rect) ShrinkSym(n float64) Rect {
-	return Rect{r.X + n, r.Y + n, r.W - n*2, r.H - n*2}
+func (rt Rect) SizeVector() Vector2f {
+	return rt.Max.Sub(rt.Min)
 }
 
-func (r Rect) X1() float64 {
-	return r.X
-}
-func (r Rect) X2() float64 {
-	return r.X + r.W
-}
-func (r Rect) Y1() float64 {
-	return r.Y
-}
-func (r Rect) Y2() float64 {
-	return r.Y + r.H
-}
+// func (rt Rect) Enlarge(size Vector2f) Rect {
+// 	return Rect{
+// 		rt.X - size[0], rt.Y - size[1],
+// 		rt.W + size[0]*2, rt.H + size[1]*2,
+// 	}
+// }
+// func (rt Rect) Shrink(size Vector2f) Rect {
+// 	return Rect{
+// 		rt.X + size[0], rt.Y + size[1],
+// 		rt.W - size[0]*2, rt.H - size[1]*2,
+// 	}
+// }
+// func (rt Rect) ShrinkSym(n float64) Rect {
+// 	return Rect{rt.X + n, rt.Y + n, rt.W - n*2, rt.H - n*2}
+// }
 
-func (r Rect) MakeRectBy4Driect(c [2]float64, direct4 int) Rect {
-	w1, w2 := c[0]-r.X1(), r.X2()-c[0]
-	h1, h2 := c[1]-r.Y1(), r.Y2()-c[1]
-	switch direct4 {
-	case 0:
-		return Rect{r.X, r.Y, w1, h1}
-	case 1:
-		return Rect{c[0], r.Y, w2, h1}
-	case 2:
-		return Rect{c[0], c[1], w2, h2}
-	case 3:
-		return Rect{r.X, c[1], w1, h2}
+// func (rt Rect) X1() float64 {
+// 	return rt.X
+// }
+// func (rt Rect) X2() float64 {
+// 	return rt.X + rt.W
+// }
+// func (rt Rect) Y1() float64 {
+// 	return rt.Y
+// }
+// func (rt Rect) Y2() float64 {
+// 	return rt.Y + rt.H
+// }
+
+func (rt Rect) MakeRectBy4Driect(center Vector2f, direct4 int) Rect {
+	rtn := Vector2f{}
+	for i := 0; i < 2; i++ {
+		if direct4&(1<<uint(i)) != 0 {
+			rtn[i] = rt.Min[i]
+		} else {
+			rtn[i] = rt.Max[i]
+		}
 	}
-	return Rect{}
+	return NewRect(center, rtn)
+
+	// w1, w2 := c[0]-rt.X1(), rt.X2()-c[0]
+	// h1, h2 := c[1]-rt.Y1(), rt.Y2()-c[1]
+	// switch direct4 {
+	// case 0:
+	// 	return Rect{rt.X, rt.Y, w1, h1}
+	// case 1:
+	// 	return Rect{c[0], rt.Y, w2, h1}
+	// case 2:
+	// 	return Rect{c[0], c[1], w2, h2}
+	// case 3:
+	// 	return Rect{rt.X, c[1], w1, h2}
+	// }
+	// return Rect{}
 }
 
 func (r1 Rect) IsOverlap(r2 Rect) bool {
-	return !((r1.X1() >= r2.X2() || r1.X2() <= r2.X1()) ||
-		(r1.Y1() >= r2.Y2() || r1.Y2() <= r2.Y1()))
+	return !((r1.Min[0] >= r2.Max[0] || r1.Max[0] <= r2.Min[0]) ||
+		(r1.Min[1] >= r2.Max[1] || r1.Max[1] <= r2.Min[1]))
 }
 
 func (r1 Rect) IsIn(r2 Rect) bool {
-	if r1.X < r2.X || r1.X2() > r2.X2() {
+	if r1.Min[0] < r2.Min[0] || r1.Max[0] > r2.Max[0] {
 		return false
 	}
-	if r1.Y < r2.Y || r1.Y2() > r2.Y2() {
+	if r1.Min[1] < r2.Min[1] || r1.Max[1] > r2.Max[1] {
 		return false
 	}
 	return true
@@ -108,49 +143,54 @@ func max(i, j float64) float64 {
 }
 
 func (r1 Rect) Union(r2 Rect) Rect {
-	r := Rect{
-		min(r1.X1(), r2.X1()),
-		min(r1.Y1(), r2.Y1()),
-		0, 0,
+	rt := Rect{
+		Vector2f{
+			min(r1.Min[0], r2.Min[0]),
+			min(r1.Min[1], r2.Min[1])},
+		Vector2f{
+			max(r1.Max[0], r2.Max[0]),
+			max(r1.Max[1], r2.Max[1]),
+		},
 	}
-	r.W = max(r1.X2(), r2.X2()) - r.X1()
-	r.H = max(r1.Y2(), r2.Y2()) - r.Y1()
-	return r
+	return rt
 }
 
 func (r1 Rect) Intersection(r2 Rect) Rect {
-	r := Rect{
-		max(r1.X1(), r2.X1()),
-		max(r1.Y1(), r2.Y1()),
-		0, 0,
+	rt := Rect{
+		Vector2f{
+			max(r1.Min[0], r2.Min[0]),
+			max(r1.Min[1], r2.Min[1]),
+		},
+		Vector2f{
+			min(r1.Max[0], r2.Max[0]),
+			min(r1.Max[1], r2.Max[1]),
+		},
 	}
-	r.W = min(r1.X2(), r2.X2()) - r.X1()
-	r.H = min(r1.Y2(), r2.Y2()) - r.Y1()
-	return r
+	return rt
 }
 
-func (r Rect) Contain(p [2]float64) bool {
-	return r.X <= p[0] && p[0] < r.X2() &&
-		r.Y <= p[1] && p[1] < r.Y2()
+func (rt Rect) Contain(vt Vector2f) bool {
+	return rt.Min[0] <= vt[0] && vt[0] <= rt.Max[0] &&
+		rt.Min[1] <= vt[1] && vt[1] <= rt.Max[1]
 }
 
-func (r Rect) RelPos(x, y float64) (float64, float64) {
-	return x - r.X, y - r.Y
-}
+// func (rt Rect) RelPos(x, y float64) (float64, float64) {
+// 	return x - rt.X, y - rt.Y
+// }
 
-func (r Rect) WrapVector(vt Vector2f) Vector2f {
-	if vt.X < r.X1() {
-		vt.X = r.X2()
+func (rt Rect) WrapVector(vt Vector2f) Vector2f {
+	if vt[0] < rt.Min[0] {
+		vt[0] = rt.Max[0]
 	}
-	if vt.Y < r.Y1() {
-		vt.Y = r.Y2()
+	if vt[1] < rt.Min[1] {
+		vt[1] = rt.Max[1]
 	}
 
-	if vt.X > r.X2() {
-		vt.X = r.X1()
+	if vt[0] > rt.Max[0] {
+		vt[0] = rt.Min[0]
 	}
-	if vt.Y > r.Y2() {
-		vt.Y = r.Y1()
+	if vt[1] > rt.Max[1] {
+		vt[1] = rt.Min[1]
 	}
 	return vt
 }

@@ -55,8 +55,8 @@ func NewTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *Team {
 			BirthTick:    nowtick,
 			LastMoveTick: nowtick,
 			PosVt: vector2f.Vector2f{
-				X: rnd.Float64() * gameconst.StageW,
-				Y: rnd.Float64() * gameconst.StageH,
+				rnd.Float64() * gameconst.StageW,
+				rnd.Float64() * gameconst.StageH,
 			},
 		},
 		Objs: make([]*GameObj, 0),
