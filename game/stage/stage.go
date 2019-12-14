@@ -154,7 +154,7 @@ func (stg *Stage) move(now int64) *quadtreef.QuadTree {
 	}
 	for _, cld := range stg.Clouds {
 		cld.Move(now)
-		gameconst.StageRect.WrapVector(cld.PosVt)
+		cld.PosVt = gameconst.StageRect.WrapVector(cld.PosVt)
 	}
 	return aienv
 }
