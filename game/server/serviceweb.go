@@ -19,6 +19,9 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_authorize"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_serveconnbyte"
 	"github.com/kasworld/uuidstr"
 )
@@ -35,6 +38,21 @@ func (svr *Server) initServiceWeb(ctx context.Context) {
 		Handler: webMux,
 		Addr:    svr.config.ServicePort,
 	}
+	svr.marshalBodyFn = w2d_gob.MarshalBodyFn
+	svr.unmarshalPacketFn = w2d_gob.UnmarshalPacket
+	svr.DemuxReq2BytesAPIFnMap = [...]func(
+		me interface{}, hd w2d_packet.Header, rbody []byte) (
+		w2d_packet.Header, interface{}, error){
+		w2d_idcmd.Invalid:     svr.bytesAPIFn_ReqInvalid,
+		w2d_idcmd.ListStage:   svr.bytesAPIFn_ReqListStage,
+		w2d_idcmd.EnterStage:  svr.bytesAPIFn_ReqEnterStage,
+		w2d_idcmd.LeaveStage:  svr.bytesAPIFn_ReqLeaveStage,
+		w2d_idcmd.ChatToStage: svr.bytesAPIFn_ReqChatToStage,
+		w2d_idcmd.MakeTeam:    svr.bytesAPIFn_ReqMakeTeam,
+		w2d_idcmd.Act:         svr.bytesAPIFn_ReqAct,
+		w2d_idcmd.Heartbeat:   svr.bytesAPIFn_ReqHeartbeat,
+	} // DemuxReq2BytesAPIFnMap
+
 }
 
 func CheckOrigin(r *http.Request) bool {
