@@ -26,8 +26,7 @@ func NewRect(v1, v2 Vector2f) Rect {
 	}
 	for i := 0; i < 2; i++ {
 		if rtn.Min[i] > rtn.Max[i] {
-			rtn.Max[i] = rtn.Min[i]
-			rtn.Min[i] = rtn.Max[i]
+			rtn.Max[i], rtn.Min[i] = rtn.Min[i], rtn.Max[i]
 		}
 	}
 	return rtn
@@ -87,32 +86,6 @@ func (rt Rect) SizeVector() Vector2f {
 // func (rt Rect) Y2() float64 {
 // 	return rt.Y + rt.H
 // }
-
-func (rt Rect) MakeRectBy4Driect(center Vector2f, direct4 int) Rect {
-	rtn := Vector2f{}
-	for i := 0; i < 2; i++ {
-		if direct4&(1<<uint(i)) != 0 {
-			rtn[i] = rt.Min[i]
-		} else {
-			rtn[i] = rt.Max[i]
-		}
-	}
-	return NewRect(center, rtn)
-
-	// w1, w2 := c[0]-rt.X1(), rt.X2()-c[0]
-	// h1, h2 := c[1]-rt.Y1(), rt.Y2()-c[1]
-	// switch direct4 {
-	// case 0:
-	// 	return Rect{rt.X, rt.Y, w1, h1}
-	// case 1:
-	// 	return Rect{c[0], rt.Y, w2, h1}
-	// case 2:
-	// 	return Rect{c[0], c[1], w2, h2}
-	// case 3:
-	// 	return Rect{rt.X, c[1], w1, h2}
-	// }
-	// return Rect{}
-}
 
 func (r1 Rect) IsOverlap(r2 Rect) bool {
 	return !((r1.Min[0] >= r2.Max[0] || r1.Max[0] <= r2.Min[0]) ||

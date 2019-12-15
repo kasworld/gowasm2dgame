@@ -74,6 +74,35 @@ func (ot *QuadTree) Insert(o QuadTreeObjI) bool {
 	}
 }
 
+func (ot *QuadTree) insertChild(o QuadTreeObjI) bool {
+	for _, chot := range ot.Children { // try child
+		if chot.Insert(o) {
+			return true
+		}
+	}
+	return false
+}
+
+func (ot *QuadTree) split() {
+	if ot.Children[0] != nil {
+		return
+	}
+	// split all data and make datalist nil
+	for i, _ := range ot.Children {
+		newbound := ot.BoundRect.MakeRectBy4Driect(ot.Center, i)
+		ot.Children[i] = New(newbound)
+	}
+	// move this node data to child
+	newDataList := make([]QuadTreeObjI, 0, len(ot.DataList))
+	for _, o := range ot.DataList {
+		if !ot.insertChild(o) {
+			newDataList = append(newDataList, o)
+		}
+	}
+	ot.DataList = newDataList
+	return
+}
+
 func (ot *QuadTree) Remove(o QuadTreeObjI) bool {
 	if !o.GetRect().IsIn(ot.BoundRect) {
 		return false
@@ -113,35 +142,6 @@ func (ot *QuadTree) RemoveByID(o QuadTreeObjI) bool {
 		}
 	}
 	return false
-}
-
-func (ot *QuadTree) insertChild(o QuadTreeObjI) bool {
-	for _, chot := range ot.Children { // try child
-		if chot.Insert(o) {
-			return true
-		}
-	}
-	return false
-}
-
-func (ot *QuadTree) split() {
-	if ot.Children[0] != nil {
-		return
-	}
-	// split all data and make datalist nil
-	for i, _ := range ot.Children {
-		newbound := ot.BoundRect.MakeRectBy4Driect(ot.Center, i)
-		ot.Children[i] = New(newbound)
-	}
-	// move this node data to child
-	newDataList := make([]QuadTreeObjI, 0, len(ot.DataList))
-	for _, o := range ot.DataList {
-		if !ot.insertChild(o) {
-			newDataList = append(newDataList, o)
-		}
-	}
-	ot.DataList = newDataList
-	return
 }
 
 func (ot *QuadTree) QueryByRect(fn func(QuadTreeObjI) bool, hr vector2f.Rect) bool {
