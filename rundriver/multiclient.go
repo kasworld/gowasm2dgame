@@ -87,14 +87,13 @@ func main() {
 }
 
 type MultiClientConfig struct {
-	ConnectToServer   string `default:"localhost:24101" argname:""`
-	PlayerNameBase    string `default:"MC_" argname:""`
-	Concurrent        int    `default:"1000" argname:""`
-	AccountPool       int    `default:"0" argname:""`
-	AccountOverlap    int    `default:"0" argname:""`
-	LimitStartCount   int    `default:"0" argname:""`
-	LimitEndCount     int    `default:"0" argname:""`
-	RetryDelayTimeOut int    `default:"-1" argname:""`
+	ConnectToServer string `default:"localhost:24101" argname:""`
+	PlayerNameBase  string `default:"MC_" argname:""`
+	Concurrent      int    `default:"1000" argname:""`
+	AccountPool     int    `default:"0" argname:""`
+	AccountOverlap  int    `default:"0" argname:""`
+	LimitStartCount int    `default:"0" argname:""`
+	LimitEndCount   int    `default:"0" argname:""`
 }
 
 type AppArg struct {
