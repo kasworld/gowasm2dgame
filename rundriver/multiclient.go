@@ -67,10 +67,10 @@ func main() {
 		config.AccountOverlap,
 		config.LimitStartCount,
 		config.LimitEndCount,
-		func(config multirun.ClientArgI) multirun.ClientI {
+		func(config interface{}) multirun.ClientI {
 			return NewApp(config.(AppArg), w2dlog.GlobalLogger)
 		},
-		func(i int) multirun.ClientArgI {
+		func(i int) interface{} {
 			return AppArg{
 				ConnectToServer: config.ConnectToServer,
 				Nickname:        fmt.Sprintf("%v_%v", config.PlayerNameBase, i),
@@ -130,7 +130,7 @@ func NewApp(config AppArg, log *w2dlog.LogBase) *App {
 	return app
 }
 
-func (app *App) GetArg() multirun.ClientArgI {
+func (app *App) GetArg() interface{} {
 	return app.config
 }
 
