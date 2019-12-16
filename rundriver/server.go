@@ -16,6 +16,7 @@ import (
 	"fmt"
 
 	"github.com/kasworld/argdefault"
+	"github.com/kasworld/configutil"
 	"github.com/kasworld/go-profile"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/game/server"
@@ -57,13 +58,13 @@ func main() {
 	}
 	ads.SetDefaultToNonZeroField(config)
 	if *configurl != "" {
-		if err := serverconfig.LoadIni(*configurl, &config); err != nil {
+		if err := configutil.LoadIni(*configurl, &config); err != nil {
 			w2dlog.Fatal("%v", err)
 		}
 	}
 	ads.ApplyFlagTo(config)
 	if *configurl == "" {
-		serverconfig.SaveIni("w2dserver.ini", &config)
+		configutil.SaveIni("w2dserver.ini", &config)
 	}
 	if profile.IsCpu() {
 		fn := profile.StartCPUProfile()

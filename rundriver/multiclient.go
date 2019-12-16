@@ -17,14 +17,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"os"
 	"time"
 
 	"github.com/kasworld/argdefault"
+	"github.com/kasworld/configutil"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connwsgorilla"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_error"
@@ -38,7 +34,6 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statnoti"
 	"github.com/kasworld/prettystring"
 	"github.com/kasworld/rangestat"
-	"gopkg.in/ini.v1"
 )
 
 // service const
@@ -56,7 +51,7 @@ func main() {
 	config := &MultiClientConfig{}
 	ads.SetDefaultToNonZeroField(config)
 	if *configurl != "" {
-		if err := LoadIni(*configurl, config); err != nil {
+		if err := configutil.LoadIni(*configurl, config); err != nil {
 			w2dlog.Error("%v", err)
 		}
 	}
@@ -64,41 +59,6 @@ func main() {
 	fmt.Println(prettystring.PrettyString(config, 4))
 
 	RunMultiClient(*config)
-}
-
-func LoadIni(urlpath string, config interface{}) error {
-	datas, err := LoadData(urlpath)
-	if err != nil {
-		return err
-	}
-	f, err := ini.Load(datas)
-	if err != nil {
-		return err
-	}
-	if err := f.MapTo(config); err != nil {
-		return err
-	}
-	return nil
-}
-func LoadData(urlpath string) ([]byte, error) {
-	var fd io.Reader
-	u, err := url.Parse(urlpath)
-	if err == nil && (u.Scheme == "http" || u.Scheme == "https") {
-		resp, err := http.Get(urlpath)
-		if err != nil {
-			return nil, err
-		}
-		defer resp.Body.Close()
-		fd = resp.Body
-	} else {
-		ffd, err := os.Open(urlpath)
-		if err != nil {
-			return nil, err
-		}
-		defer ffd.Close()
-		fd = ffd
-	}
-	return ioutil.ReadAll(fd)
 }
 
 type MultiClientConfig struct {
