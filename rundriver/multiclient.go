@@ -32,6 +32,7 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statapierror"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statcallapi"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statnoti"
+	"github.com/kasworld/multirun"
 	"github.com/kasworld/prettystring"
 	"github.com/kasworld/rangestat"
 )
@@ -58,7 +59,31 @@ func main() {
 	ads.ApplyFlagTo(config)
 	fmt.Println(prettystring.PrettyString(config, 4))
 
-	RunMultiClient(*config)
+	chErr := make(chan error)
+	go multirun.Run(
+		context.Background(),
+		config.Concurrent,
+		config.AccountPool,
+		config.AccountOverlap,
+		config.LimitStartCount,
+		config.LimitEndCount,
+		func(config multirun.ClientArgI) multirun.ClientI {
+			return NewApp(config.(AppArg), w2dlog.GlobalLogger)
+		},
+		func(i int) multirun.ClientArgI {
+			return AppArg{
+				ConnectToServer: config.ConnectToServer,
+				Nickname:        fmt.Sprintf("%v_%v", config.PlayerNameBase, i),
+				SessionUUID:     "",
+				Auth:            "",
+			}
+		},
+		chErr,
+		rangestat.New("", 0, config.Concurrent),
+	)
+	for err := range chErr {
+		fmt.Printf("%v\n", err)
+	}
 }
 
 type MultiClientConfig struct {
@@ -72,118 +97,7 @@ type MultiClientConfig struct {
 	RetryDelayTimeOut int    `default:"-1" argname:""`
 }
 
-func (config MultiClientConfig) CanStartNewAI(startcount int) bool {
-	return config.LimitStartCount == 0 || startcount < config.LimitStartCount
-}
-
-func (config MultiClientConfig) IsAllEnd(endcount int) bool {
-	return config.LimitEndCount != 0 && endcount >= config.LimitEndCount
-}
-
-func (config MultiClientConfig) RetryDelayAtError() (time.Duration, bool) {
-	if config.RetryDelayTimeOut < 0 {
-		return 0, false
-	} else {
-		return time.Second * time.Duration(config.RetryDelayTimeOut), true
-	}
-}
-
-func RunMultiClient(config MultiClientConfig) {
-	log := w2dlog.GlobalLogger
-	waitStartCh := make(chan *App, config.Concurrent)
-	endedCh := make(chan *App, config.Concurrent)
-	runStat := rangestat.New(config.PlayerNameBase, 0, config.Concurrent)
-	if config.AccountPool < config.Concurrent {
-		config.AccountPool = config.Concurrent
-	}
-	ctx, endFn := context.WithCancel(context.Background())
-	defer endFn()
-
-	for i := 0; i < config.Concurrent; i++ {
-		go func(ctx context.Context) {
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				case ra, ok := <-waitStartCh:
-					if !ok {
-						return
-					}
-					if !runStat.Inc() {
-						panic("fail to inc")
-					}
-					ra.Run(ctx)
-					if !runStat.Dec() {
-						panic("fail to dec")
-					}
-					endedCh <- ra
-				}
-			}
-		}(ctx)
-	}
-
-	var aiToRun chan AppConfig
-	if config.AccountOverlap == 1 {
-		aiToRun = make(chan AppConfig, config.AccountPool*2)
-		for i := 0; i < config.AccountPool; i++ {
-			ai := AppConfig{
-				ConnectToServer: config.ConnectToServer,
-				Nickname:        fmt.Sprintf("%s%d", config.PlayerNameBase, i),
-				SessionUUID:     "",
-				Auth:            "",
-			}
-			aiToRun <- ai
-			aiToRun <- ai
-		}
-	} else {
-		aiToRun = make(chan AppConfig, config.AccountPool)
-		for i := 0; i < config.AccountPool; i++ {
-			ai := AppConfig{
-				ConnectToServer: config.ConnectToServer,
-				Nickname:        fmt.Sprintf("%s%d", config.PlayerNameBase, i),
-				SessionUUID:     "",
-				Auth:            "",
-			}
-			aiToRun <- ai
-		}
-	}
-
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case aiarg := <-aiToRun:
-				if config.CanStartNewAI(runStat.GetTotalInc()) {
-					waitStartCh <- NewApp(
-						aiarg,
-						log,
-					)
-				}
-				time.Sleep(time.Microsecond * 1)
-			}
-		}
-	}()
-	for {
-		select {
-		case <-ctx.Done():
-			return
-
-		case endedAI := <-endedCh:
-			if config.IsAllEnd(runStat.GetTotalDec()) {
-				return
-			}
-			if err := endedAI.GetRunResult(); err != nil {
-				log.Error("%v %v", endedAI, err)
-				fmt.Printf("%v %v %v\n", endedAI, runStat, err)
-				// return
-			}
-			aiToRun <- endedAI.GetConfig()
-		}
-	}
-}
-
-type AppConfig struct {
+type AppArg struct {
 	ConnectToServer string
 	Nickname        string
 	SessionUUID     string
@@ -191,7 +105,7 @@ type AppConfig struct {
 }
 
 type App struct {
-	config            AppConfig
+	config            AppArg
 	c2scWS            *w2d_connwsgorilla.Connection
 	EnqueueSendPacket func(pk w2d_packet.Packet) error
 	runResult         error
@@ -204,7 +118,7 @@ type App struct {
 	pid2recv     *w2d_pid2rspfn.PID2RspFn
 }
 
-func NewApp(config AppConfig, log *w2dlog.LogBase) *App {
+func NewApp(config AppArg, log *w2dlog.LogBase) *App {
 	app := &App{
 		config:      config,
 		apistat:     w2d_statcallapi.New(),
@@ -216,7 +130,7 @@ func NewApp(config AppConfig, log *w2dlog.LogBase) *App {
 	return app
 }
 
-func (app *App) GetConfig() AppConfig {
+func (app *App) GetArg() multirun.ClientArgI {
 	return app.config
 }
 
