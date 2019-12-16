@@ -17,6 +17,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/kasworld/gowasm2dgame/game/conndata"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_authorize"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
@@ -70,9 +71,13 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 	}
 
 	stg := svr.stageManager.GetAny()
-	connID := uuidstr.New()
+	connData := &conndata.ConnData{
+		UUID:       uuidstr.New(),
+		RemoteAddr: r.RemoteAddr,
+		StageID:    stg.UUID,
+	}
 	c2sc := w2d_serveconnbyte.NewWithStats(
-		connID, // connid
+		connData, // connid
 		gameconst.SendBufferSize,
 		w2d_authorize.NewAllSet(),
 		svr.SendStat, svr.RecvStat,
@@ -82,8 +87,8 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 		svr.DemuxReq2BytesAPIFnMap)
 
 	// add to conn manager
-	svr.connManager.Add(connID, c2sc)
-	stg.Conns.Add(connID, c2sc)
+	svr.connManager.Add(connData.UUID, c2sc)
+	stg.Conns.Add(connData.UUID, c2sc)
 
 	// start client service
 	c2sc.StartServeWS(ctx, wsConn,
@@ -92,6 +97,6 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 	// connection cleanup here
 
 	// del from conn manager
-	svr.connManager.Del(connID)
-	stg.Conns.Del(connID)
+	svr.connManager.Del(connData.UUID)
+	stg.Conns.Del(connData.UUID)
 }
