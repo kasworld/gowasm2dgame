@@ -24,7 +24,7 @@ import (
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
 	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connmanager"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connbytemanager"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/uuidstr"
@@ -36,7 +36,7 @@ type Stage struct {
 	config serverconfig.Config
 
 	UUID  string
-	Conns *w2d_connmanager.Manager
+	Conns *w2d_connbytemanager.Manager
 
 	Background *w2d_obj.Background
 	Clouds     []*w2d_obj.Cloud
@@ -50,7 +50,7 @@ func New(l *w2dlog.LogBase, config serverconfig.Config) *Stage {
 		config: config,
 		log:    l,
 		rnd:    rand.New(rand.NewSource(time.Now().UnixNano())),
-		Conns:  w2d_connmanager.New(),
+		Conns:  w2d_connbytemanager.New(),
 	}
 
 	stg.Background = stg.NewBackground()

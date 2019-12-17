@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package w2d_connmanager
+package w2d_connbytemanager
 
 import (
 	"fmt"

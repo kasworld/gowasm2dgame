@@ -77,7 +77,7 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 		StageID:    stg.UUID,
 	}
 	c2sc := w2d_serveconnbyte.NewWithStats(
-		connData, // connid
+		connData,
 		gameconst.SendBufferSize,
 		w2d_authorize.NewAllSet(),
 		svr.SendStat, svr.RecvStat,
