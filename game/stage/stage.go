@@ -263,9 +263,17 @@ func (stg *Stage) ToStageInfo() *w2d_obj.NotiStageInfo_data {
 }
 
 func (stg *Stage) ToStatsInfo() *w2d_obj.NotiStatsInfo_data {
-	rtn := &w2d_obj.NotiStatsInfo_data{}
-	for i, bt := range stg.Teams {
-		rtn.ActStats[i] = bt.ActStats
+	rtn := &w2d_obj.NotiStatsInfo_data{
+		UUID: stg.UUID,
+	}
+	for _, bt := range stg.Teams {
+		teamStats := w2d_obj.TeamStat{
+			UUID:     bt.UUID,
+			Alive:    bt.IsAlive,
+			TeamType: bt.TeamType,
+			ActStats: bt.ActStats,
+		}
+		rtn.Stats = append(rtn.Stats, teamStats)
 	}
 	return rtn
 }

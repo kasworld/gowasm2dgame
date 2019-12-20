@@ -24,18 +24,37 @@ import (
 )
 
 func (app *WasmClient) updateTeamStatsInfo() {
+	stats := app.statsInfo
+	if stats == nil {
+		return
+	}
 	var buf bytes.Buffer
-	buf.WriteString(`<table border=1 style="border-collapse:collapse;">
-	<tr><th>act\team</th>`)
+	fmt.Fprintf(&buf, "Stage %v<br/>", stats.UUID)
+
+	buf.WriteString(`<table border=1 style="border-collapse:collapse;">`)
+
+	buf.WriteString(`<tr><th>act\team</th>`)
 	for teami := 0; teami < teamtype.TeamType_Count; teami++ {
 		fmt.Fprintf(&buf, "<th>%v</th>", teamtype.TeamType(teami))
+	}
+	buf.WriteString(`</tr>`)
+
+	buf.WriteString(`<tr><td>UUID</td>`)
+	for _, v := range stats.Stats {
+		fmt.Fprintf(&buf, "<td>%v</td>", v.UUID)
+	}
+	buf.WriteString(`</tr>`)
+
+	buf.WriteString(`<tr><td>Alive</td>`)
+	for _, v := range stats.Stats {
+		fmt.Fprintf(&buf, "<td>%v</td>", v.Alive)
 	}
 	buf.WriteString(`</tr>`)
 
 	for acti := 0; acti < acttype.ActType_Count; acti++ {
 		fmt.Fprintf(&buf, "<tr><td>%v</td>", acttype.ActType(acti))
 		for teami := 0; teami < teamtype.TeamType_Count; teami++ {
-			fmt.Fprintf(&buf, "<td>%v</td>", app.statsInfo.ActStats[teami][acti])
+			fmt.Fprintf(&buf, "<td>%v</td>", stats.Stats[teami].ActStats[acti])
 		}
 		buf.WriteString(`</tr>`)
 	}

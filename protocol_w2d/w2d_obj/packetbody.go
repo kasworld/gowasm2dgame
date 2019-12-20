@@ -36,7 +36,7 @@ type RspHeartbeat_data struct {
 	Tick int64 // same req tick , to calc round trip time
 }
 
-////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 type NotiInvalid_data struct {
 	Dummy uint8
@@ -51,7 +51,8 @@ type NotiStageInfo_data struct {
 }
 
 type NotiStatsInfo_data struct {
-	ActStats [teamtype.TeamType_Count]acttype_stats.ActTypeStat
+	UUID  string
+	Stats []TeamStat
 }
 
 type NotiStageBroadCast_data struct {
@@ -59,7 +60,14 @@ type NotiStageBroadCast_data struct {
 	Chat       string
 }
 
-////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+type TeamStat struct {
+	UUID     string
+	Alive    bool
+	TeamType teamtype.TeamType
+	ActStats acttype_stats.ActTypeStat
+}
 
 type Act struct {
 	Act acttype.ActType

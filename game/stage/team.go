@@ -31,7 +31,9 @@ type Team struct {
 	rnd *rand.Rand      `prettystring:"hide"`
 	log *w2dlog.LogBase `prettystring:"hide"`
 
-	ActStats    acttype_stats.ActTypeStat
+	ActStats acttype_stats.ActTypeStat
+	UUID     string
+
 	TeamType    teamtype.TeamType
 	IsAlive     bool
 	RespawnTick int64
@@ -48,6 +50,7 @@ func NewTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *Team {
 		log:      l,
 		IsAlive:  true,
 		TeamType: TeamType,
+		UUID:     uuidstr.New(),
 		Ball: &GameObj{
 			teamType:     TeamType,
 			GOType:       gameobjtype.Ball,
