@@ -174,5 +174,10 @@ func objRecvNotiFn_StageBroadCast(me interface{}, hd w2d_packet.Header, body int
 	if !ok {
 		return fmt.Errorf("packet mismatch %v", body)
 	}
-	return fmt.Errorf("Not implemented %v", robj)
+	app, ok := me.(*WasmClient)
+	if !ok {
+		return fmt.Errorf("packet mismatch %v", body)
+	}
+	app.systemMessage.Appendf("%v : %v", robj.SenderNick, robj.Chat)
+	return nil
 }
