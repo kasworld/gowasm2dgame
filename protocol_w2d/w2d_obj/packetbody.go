@@ -13,26 +13,13 @@ type RspInvalid_data struct {
 	Dummy uint8
 }
 
-type ReqListStage_data struct {
-	Dummy uint8
-}
-type RspListStage_data struct {
-	Dummy uint8
-}
-
 type ReqEnterStage_data struct {
-	StageUUID string
+	StageUUID string // may be not same to req stage
 	NickToUse string
 }
 type RspEnterStage_data struct {
-	Dummy uint8
-}
-
-type ReqLeaveStage_data struct {
-	Dummy uint8
-}
-type RspLeaveStage_data struct {
-	Dummy uint8
+	StageUUID string // may be not same to req stage
+	NickToUse string // may be not same to req nick
 }
 
 type ReqChatToStage_data struct {
@@ -42,27 +29,11 @@ type RspChatToStage_data struct {
 	Dummy uint8
 }
 
-type ReqMakeTeam_data struct {
-	TeamName string
-}
-type RspMakeTeam_data struct {
-	TeamName string
-	TeamUUID string
-}
-
-type ReqAct_data struct {
-	TeamUUID string
-	Acts     []Act
-}
-type RspAct_data struct {
-	Dummy uint8
-}
-
 type ReqHeartbeat_data struct {
 	Tick int64
 }
 type RspHeartbeat_data struct {
-	Tick int64
+	Tick int64 // same req tick , to calc round trip time
 }
 
 ////////////////

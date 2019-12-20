@@ -14,15 +14,13 @@ package server
 import (
 	"fmt"
 
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
-
 	"github.com/kasworld/gowasm2dgame/game/conndata"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_serveconnbyte"
-
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_error"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_serveconnbyte"
 )
 
 ///////////////////////////////////////////////////////////////
@@ -47,26 +45,6 @@ func (svr *Server) bytesAPIFn_ReqInvalid(
 	return sendHeader, sendBody, fmt.Errorf("invalid packet")
 }
 
-func (svr *Server) bytesAPIFn_ReqListStage(
-	me interface{}, hd w2d_packet.Header, rbody []byte) (
-	w2d_packet.Header, interface{}, error) {
-	robj, err := w2d_gob.UnmarshalPacket(hd, rbody)
-	if err != nil {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", rbody)
-	}
-	recvBody, ok := robj.(*w2d_obj.ReqListStage_data)
-	if !ok {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
-	}
-	_ = recvBody
-
-	sendHeader := w2d_packet.Header{
-		ErrorCode: w2d_error.None,
-	}
-	sendBody := &w2d_obj.RspListStage_data{}
-	return sendHeader, sendBody, nil
-}
-
 func (svr *Server) bytesAPIFn_ReqEnterStage(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {
@@ -84,26 +62,6 @@ func (svr *Server) bytesAPIFn_ReqEnterStage(
 		ErrorCode: w2d_error.None,
 	}
 	sendBody := &w2d_obj.RspEnterStage_data{}
-	return sendHeader, sendBody, nil
-}
-
-func (svr *Server) bytesAPIFn_ReqLeaveStage(
-	me interface{}, hd w2d_packet.Header, rbody []byte) (
-	w2d_packet.Header, interface{}, error) {
-	robj, err := w2d_gob.UnmarshalPacket(hd, rbody)
-	if err != nil {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", rbody)
-	}
-	recvBody, ok := robj.(*w2d_obj.ReqLeaveStage_data)
-	if !ok {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
-	}
-	_ = recvBody
-
-	sendHeader := w2d_packet.Header{
-		ErrorCode: w2d_error.None,
-	}
-	sendBody := &w2d_obj.RspLeaveStage_data{}
 	return sendHeader, sendBody, nil
 }
 
@@ -144,46 +102,6 @@ func (svr *Server) bytesAPIFn_ReqChatToStage(
 		ErrorCode: w2d_error.None,
 	}
 	sendBody := &w2d_obj.RspChatToStage_data{}
-	return sendHeader, sendBody, nil
-}
-
-func (svr *Server) bytesAPIFn_ReqMakeTeam(
-	me interface{}, hd w2d_packet.Header, rbody []byte) (
-	w2d_packet.Header, interface{}, error) {
-	robj, err := w2d_gob.UnmarshalPacket(hd, rbody)
-	if err != nil {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", rbody)
-	}
-	recvBody, ok := robj.(*w2d_obj.ReqMakeTeam_data)
-	if !ok {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
-	}
-	_ = recvBody
-
-	sendHeader := w2d_packet.Header{
-		ErrorCode: w2d_error.None,
-	}
-	sendBody := &w2d_obj.RspMakeTeam_data{}
-	return sendHeader, sendBody, nil
-}
-
-func (svr *Server) bytesAPIFn_ReqAct(
-	me interface{}, hd w2d_packet.Header, rbody []byte) (
-	w2d_packet.Header, interface{}, error) {
-	robj, err := w2d_gob.UnmarshalPacket(hd, rbody)
-	if err != nil {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", rbody)
-	}
-	recvBody, ok := robj.(*w2d_obj.ReqAct_data)
-	if !ok {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
-	}
-	_ = recvBody
-
-	sendHeader := w2d_packet.Header{
-		ErrorCode: w2d_error.None,
-	}
-	sendBody := &w2d_obj.RspAct_data{}
 	return sendHeader, sendBody, nil
 }
 
