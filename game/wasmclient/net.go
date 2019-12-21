@@ -127,10 +127,10 @@ func (app *WasmClient) reqHeartbeat() error {
 }
 
 var DemuxNoti2ObjFnMap = [...]func(me interface{}, hd w2d_packet.Header, body interface{}) error{
-	w2d_idnoti.Invalid:        objRecvNotiFn_Invalid,
-	w2d_idnoti.StageInfo:      objRecvNotiFn_StageInfo,
-	w2d_idnoti.StatsInfo:      objRecvNotiFn_StatsInfo,
-	w2d_idnoti.StageBroadCast: objRecvNotiFn_StageBroadCast,
+	w2d_idnoti.Invalid:   objRecvNotiFn_Invalid,
+	w2d_idnoti.StageInfo: objRecvNotiFn_StageInfo,
+	w2d_idnoti.StatsInfo: objRecvNotiFn_StatsInfo,
+	w2d_idnoti.StageChat: objRecvNotiFn_StageChat,
 }
 
 func objRecvNotiFn_Invalid(me interface{}, hd w2d_packet.Header, body interface{}) error {
@@ -169,8 +169,8 @@ func objRecvNotiFn_StatsInfo(me interface{}, hd w2d_packet.Header, body interfac
 	return nil
 }
 
-func objRecvNotiFn_StageBroadCast(me interface{}, hd w2d_packet.Header, body interface{}) error {
-	robj, ok := body.(*w2d_obj.NotiStageBroadCast_data)
+func objRecvNotiFn_StageChat(me interface{}, hd w2d_packet.Header, body interface{}) error {
+	robj, ok := body.(*w2d_obj.NotiStageChat_data)
 	if !ok {
 		return fmt.Errorf("packet mismatch %v", body)
 	}

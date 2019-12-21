@@ -88,12 +88,12 @@ func (svr *Server) bytesAPIFn_ReqChatToStage(
 	}
 	stg := svr.stageManager.GetByUUID(connData.StageID)
 	connList := stg.Conns.GetList()
-	noti := &w2d_obj.NotiStageBroadCast_data{
+	noti := &w2d_obj.NotiStageChat_data{
 		SenderNick: connData.UUID,
 		Chat:       recvBody.Chat,
 	}
 	for _, v := range connList {
-		v.SendNotiPacket(w2d_idnoti.StageBroadCast,
+		v.SendNotiPacket(w2d_idnoti.StageChat,
 			noti,
 		)
 	}

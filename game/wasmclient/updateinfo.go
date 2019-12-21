@@ -23,6 +23,36 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_version"
 )
 
+func (app *WasmClient) updataServiceInfo() {
+	msgCopyright := `</hr>Copyright 2019 SeukWon Kang 
+		<a href="https://github.com/kasworld/gowasm2dgame" target="_blank">gowasm2dgame</a>`
+
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "gowasm2dgame webclient<br/>")
+	fmt.Fprintf(&buf, "Protocol %v<br/>", w2d_version.ProtocolVersion)
+	fmt.Fprintf(&buf, "Data %v<br/>", gameconst.DataVersion)
+	fmt.Fprintf(&buf, "%v<br/>", msgCopyright)
+	div := js.Global().Get("document").Call("getElementById", "serviceinfo")
+	div.Set("innerHTML", buf.String())
+}
+
+func (app *WasmClient) updateDebugInfo() {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf,
+		"%v<br/>Ping %v<br/>ServerClientTickDiff %v<br/>",
+		app.DispInterDur, app.PingDur, app.ServerClientTictDiff,
+	)
+
+	div := js.Global().Get("document").Call("getElementById", "debuginfo")
+	div.Set("innerHTML", buf.String())
+}
+
+func (app *WasmClient) updateSysmsg() {
+	app.systemMessage = app.systemMessage.GetLastN(achievetype.AchieveType_Count + 100)
+	div := js.Global().Get("document").Call("getElementById", "sysmsg")
+	div.Set("innerHTML", app.systemMessage.ToHtmlStringRev())
+}
+
 func (app *WasmClient) updateTeamStatsInfo() {
 	stats := app.statsInfo
 	if stats == nil {
@@ -60,35 +90,5 @@ func (app *WasmClient) updateTeamStatsInfo() {
 	}
 	buf.WriteString(`</table>`)
 	div := js.Global().Get("document").Call("getElementById", "teamstatsinfo")
-	div.Set("innerHTML", buf.String())
-}
-
-func (app *WasmClient) updateDebugInfo() {
-	var buf bytes.Buffer
-	fmt.Fprintf(&buf,
-		"%v<br/>Ping %v<br/>ServerClientTickDiff %v<br/>",
-		app.DispInterDur, app.PingDur, app.ServerClientTictDiff,
-	)
-
-	div := js.Global().Get("document").Call("getElementById", "debuginfo")
-	div.Set("innerHTML", buf.String())
-}
-
-func (app *WasmClient) updateSysmsg() {
-	app.systemMessage = app.systemMessage.GetLastN(achievetype.AchieveType_Count + 100)
-	div := js.Global().Get("document").Call("getElementById", "sysmsg")
-	div.Set("innerHTML", app.systemMessage.ToHtmlStringRev())
-}
-
-func (app *WasmClient) updataServiceInfo() {
-	msgCopyright := `</hr>Copyright 2019 SeukWon Kang 
-		<a href="https://github.com/kasworld/gowasm2dgame" target="_blank">gowasm2dgame</a>`
-
-	var buf bytes.Buffer
-	fmt.Fprintf(&buf, "gowasm2dgame webclient<br/>")
-	fmt.Fprintf(&buf, "Protocol %v<br/>", w2d_version.ProtocolVersion)
-	fmt.Fprintf(&buf, "Data %v<br/>", gameconst.DataVersion)
-	fmt.Fprintf(&buf, "%v<br/>", msgCopyright)
-	div := js.Global().Get("document").Call("getElementById", "serviceinfo")
 	div.Set("innerHTML", buf.String())
 }
