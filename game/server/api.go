@@ -28,21 +28,8 @@ import (
 func (svr *Server) bytesAPIFn_ReqInvalid(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {
-	robj, err := w2d_gob.UnmarshalPacket(hd, rbody)
-	if err != nil {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", rbody)
-	}
-	recvBody, ok := robj.(*w2d_obj.ReqInvalid_data)
-	if !ok {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
-	}
-	_ = recvBody
-
-	sendHeader := w2d_packet.Header{
-		ErrorCode: w2d_error.None,
-	}
-	sendBody := &w2d_obj.RspInvalid_data{}
-	return sendHeader, sendBody, fmt.Errorf("invalid packet")
+	sendHeader := w2d_packet.Header{}
+	return sendHeader, nil, fmt.Errorf("invalid packet")
 }
 
 func (svr *Server) bytesAPIFn_ReqEnterStage(
@@ -80,11 +67,11 @@ func (svr *Server) bytesAPIFn_ReqChatToStage(
 
 	conn, ok := me.(*w2d_serveconnbyte.ServeConnByte)
 	if !ok {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
+		return hd, nil, fmt.Errorf("Packet type miss match %v", me)
 	}
 	connData, ok := conn.GetConnData().(*conndata.ConnData)
 	if !ok {
-		return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
+		return hd, nil, fmt.Errorf("Packet type miss match %v", conn.GetConnData())
 	}
 	stg := svr.stageManager.GetByUUID(connData.StageID)
 	connList := stg.Conns.GetList()
