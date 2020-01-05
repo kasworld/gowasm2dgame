@@ -16,6 +16,7 @@ import (
 	"syscall/js"
 
 	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/lib/imagecanvas"
 )
 
 /*
@@ -77,110 +78,105 @@ func (sp *Sprite) Filter(index int, value int) {
 
 // LoadSpriteXYN load multi image sprite
 func LoadSpriteXYN(
-	srcImageID string, dstCanvasID string,
+	srcImageID string,
 	xn, yn int) *Sprite {
-	img, srcw, srch := getImgWH(srcImageID)
-	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
 
-	dstcnv.Set("width", srcw)
-	dstcnv.Set("height", srch)
-	dstctx.Call("clearRect", 0, 0, srcw, srch)
-	dstctx.Call("drawImage", img, 0, 0)
+	imgcnv := imagecanvas.NewByID(srcImageID)
+	imgcnv.Cnv.Set("width", imgcnv.W)
+	imgcnv.Cnv.Set("height", imgcnv.H)
+	imgcnv.Ctx.Call("clearRect", 0, 0, imgcnv.W, imgcnv.H)
+	imgcnv.Ctx.Call("drawImage", imgcnv.Img, 0, 0)
 	return &Sprite{
-		W:         srcw / float64(xn),
-		H:         srch / float64(yn),
+		W:         float64(imgcnv.W) / float64(xn),
+		H:         float64(imgcnv.H) / float64(yn),
 		XCount:    xn,
 		YCount:    yn,
-		ImgCanvas: dstcnv,
-		ImgCtx:    dstctx,
+		ImgCanvas: imgcnv.Cnv,
+		ImgCtx:    imgcnv.Ctx,
 	}
 }
 
 func LoadSpriteXYNResize(
-	srcImageID string, dstCanvasID string,
+	srcImageID string,
 	xn, yn int,
 	xSliceW, ySliceH float64,
 ) *Sprite {
-	img, srcw, srch := getImgWH(srcImageID)
-	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
-
+	imgcnv := imagecanvas.NewByID(srcImageID)
 	dstW := float64(xn) * xSliceW
 	dstH := float64(yn) * ySliceH
-	dstcnv.Set("width", dstW)
-	dstcnv.Set("height", dstH)
-	dstctx.Call("clearRect", 0, 0, dstW, dstH)
-	dstctx.Call("drawImage", img,
-		0, 0, srcw, srch,
+	imgcnv.Cnv.Set("width", dstW)
+	imgcnv.Cnv.Set("height", dstH)
+	imgcnv.Ctx.Call("clearRect", 0, 0, dstW, dstH)
+	imgcnv.Ctx.Call("drawImage", imgcnv.Img,
+		0, 0, imgcnv.W, imgcnv.H,
 		0, 0, dstW, dstH)
 	return &Sprite{
 		W:         xSliceW,
 		H:         ySliceH,
 		XCount:    xn,
 		YCount:    yn,
-		ImgCanvas: dstcnv,
-		ImgCtx:    dstctx,
+		ImgCanvas: imgcnv.Cnv,
+		ImgCtx:    imgcnv.Ctx,
 	}
 }
 
 // LoadSpriteRotate load a image and make multi rotated image sptite
 func LoadSpriteRotate(
-	srcImageID string, dstCanvasID string,
+	srcImageID string,
 	start, end, step float64) *Sprite {
-	img, srcw, srch := getImgWH(srcImageID)
-	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
+
+	imgcnv := imagecanvas.NewByID(srcImageID)
 
 	xn := int((end - start) / step)
-	dstcnv.Set("width", srcw*float64(xn))
-	dstcnv.Set("height", srch)
-	dstctx.Call("clearRect", 0, 0, srcw*float64(xn), srch)
+	imgcnv.Cnv.Set("width", imgcnv.W*xn)
+	imgcnv.Cnv.Set("height", imgcnv.H)
+	imgcnv.Ctx.Call("clearRect", 0, 0, imgcnv.W*xn, imgcnv.H)
 	for i := 0; i < xn; i++ {
-		dstctx.Call("save")
-		dstctx.Call("translate", srcw*float64(i)+srcw/2, srch/2)
-		dstctx.Call("rotate", float64(i)*step*math.Pi/180)
-		dstctx.Call("drawImage", img, -srcw/2, -srch/2)
-		dstctx.Call("restore")
+		imgcnv.Ctx.Call("save")
+		imgcnv.Ctx.Call("translate", imgcnv.W*i+imgcnv.W/2, imgcnv.H/2)
+		imgcnv.Ctx.Call("rotate", float64(i)*step*math.Pi/180)
+		imgcnv.Ctx.Call("drawImage", imgcnv.Img, -imgcnv.W/2, -imgcnv.H/2)
+		imgcnv.Ctx.Call("restore")
 	}
 	return &Sprite{
-		W:         float64(srcw),
-		H:         float64(srch),
-		ImgCanvas: dstcnv,
-		ImgCtx:    dstctx,
+		W:         float64(imgcnv.W),
+		H:         float64(imgcnv.H),
+		ImgCanvas: imgcnv.Cnv,
+		ImgCtx:    imgcnv.Ctx,
 		XCount:    xn,
 		YCount:    1,
 	}
 }
 
 func LoadSpriteRotateResize(
-	srcImageID string, dstCanvasID string,
+	srcImageID string,
 	start, end, step float64,
 	xSliceW, ySliceH float64,
 ) *Sprite {
-	img, srcw, srch := getImgWH(srcImageID)
-	dstcnv, dstctx := getCnv2dCtx(dstCanvasID)
-	_ = srcw
-	_ = srch
+
+	imgcnv := imagecanvas.NewByID(srcImageID)
 	xn := (end - start) / step
 	yn := 1.0
 	dstW := xn * xSliceW
 	dstH := yn * ySliceH
 
-	dstcnv.Set("width", dstW)
-	dstcnv.Set("height", dstH)
-	dstctx.Call("clearRect", 0, 0, dstW, dstH)
+	imgcnv.Cnv.Set("width", dstW)
+	imgcnv.Cnv.Set("height", dstH)
+	imgcnv.Ctx.Call("clearRect", 0, 0, dstW, dstH)
 	for i := 0; i < int(xn); i++ {
-		dstctx.Call("save")
-		dstctx.Call("translate", xSliceW*float64(i)+xSliceW/2, ySliceH/2)
-		dstctx.Call("rotate", float64(i)*step*math.Pi/180)
-		dstctx.Call("drawImage", img,
-			0, 0, srcw, srch,
+		imgcnv.Ctx.Call("save")
+		imgcnv.Ctx.Call("translate", xSliceW*float64(i)+xSliceW/2, ySliceH/2)
+		imgcnv.Ctx.Call("rotate", float64(i)*step*math.Pi/180)
+		imgcnv.Ctx.Call("drawImage", imgcnv.Img,
+			0, 0, imgcnv.W, imgcnv.H,
 			-xSliceW/2, -ySliceH/2, xSliceW, ySliceH)
-		dstctx.Call("restore")
+		imgcnv.Ctx.Call("restore")
 	}
 	return &Sprite{
 		W:         float64(xSliceW),
 		H:         float64(ySliceH),
-		ImgCanvas: dstcnv,
-		ImgCtx:    dstctx,
+		ImgCanvas: imgcnv.Cnv,
+		ImgCtx:    imgcnv.Ctx,
 		XCount:    int(xn),
 		YCount:    1,
 	}
@@ -189,45 +185,45 @@ func LoadSpriteRotateResize(
 func LoadBallSprite(teamname string) [gameobjtype.GameObjType_Count]*Sprite {
 	var rtn [gameobjtype.GameObjType_Count]*Sprite
 	rtn[gameobjtype.Ball] = LoadSpriteXYNResize(
-		"grayball", teamname+"_ball",
+		"grayball",
 		1, 1,
 		gameobjtype.Attrib[gameobjtype.Ball].Size,
 		gameobjtype.Attrib[gameobjtype.Ball].Size,
 	)
 
 	rtn[gameobjtype.Shield] = LoadSpriteXYNResize(
-		"grayball", teamname+"_shield",
+		"grayball",
 		1, 1,
 		gameobjtype.Attrib[gameobjtype.Shield].Size,
 		gameobjtype.Attrib[gameobjtype.Shield].Size,
 	)
 
 	rtn[gameobjtype.SuperShield] = LoadSpriteRotateResize(
-		"spiral", teamname+"_supershield",
+		"spiral",
 		0, 360, 10,
 		gameobjtype.Attrib[gameobjtype.SuperShield].Size,
 		gameobjtype.Attrib[gameobjtype.SuperShield].Size,
 	)
 	rtn[gameobjtype.HommingShield] = LoadSpriteRotateResize(
-		"spiral", teamname+"_hommingshield",
+		"spiral",
 		0, 360, 10,
 		gameobjtype.Attrib[gameobjtype.HommingShield].Size,
 		gameobjtype.Attrib[gameobjtype.HommingShield].Size,
 	)
 	rtn[gameobjtype.Bullet] = LoadSpriteXYNResize(
-		"grayball", teamname+"_bullet",
+		"grayball",
 		1, 1,
 		gameobjtype.Attrib[gameobjtype.Bullet].Size,
 		gameobjtype.Attrib[gameobjtype.Bullet].Size,
 	)
 	rtn[gameobjtype.SuperBullet] = LoadSpriteRotateResize(
-		"spiral", teamname+"_superbullet",
+		"spiral",
 		0, 360, 10,
 		gameobjtype.Attrib[gameobjtype.SuperBullet].Size,
 		gameobjtype.Attrib[gameobjtype.SuperBullet].Size,
 	)
 	rtn[gameobjtype.HommingBullet] = LoadSpriteRotateResize(
-		"spiral", teamname+"_hommingbullet",
+		"spiral",
 		0, 360, 10,
 		gameobjtype.Attrib[gameobjtype.HommingBullet].Size,
 		gameobjtype.Attrib[gameobjtype.HommingBullet].Size,

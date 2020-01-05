@@ -9,11 +9,11 @@ import (
 )
 
 type ImageCanvas struct {
-	// Img js.Value
+	Img js.Value
 	W   int
 	H   int
 	Cnv js.Value
-	// Ctx js.Value
+	Ctx js.Value
 }
 
 func NewByID(srcImageID string) *ImageCanvas {
@@ -31,17 +31,17 @@ func NewByID(srcImageID string) *ImageCanvas {
 		jslog.Errorf("fail to get context", srcImageID)
 		return nil
 	}
-	ctx.Set("imageSmoothingEnabled", false)
-	cnv.Set("width", srcw)
-	cnv.Set("height", srch)
-	ctx.Call("clearRect", 0, 0, srcw, srch)
-	ctx.Call("drawImage", img, 0, 0)
+	// ctx.Set("imageSmoothingEnabled", false)
+	// cnv.Set("width", srcw)
+	// cnv.Set("height", srch)
+	// ctx.Call("clearRect", 0, 0, srcw, srch)
+	// ctx.Call("drawImage", img, 0, 0)
 
 	return &ImageCanvas{
-		// Img: img,
+		Img: img,
 		W:   srcw,
 		H:   srch,
 		Cnv: cnv,
-		// Ctx: ctx,
+		Ctx: ctx,
 	}
 }

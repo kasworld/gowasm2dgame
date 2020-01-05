@@ -28,11 +28,11 @@ type Sprites struct {
 
 func LoadSprites() *Sprites {
 	sps := &Sprites{}
-	sps.EffectSprite[effecttype.Spawn] = LoadSpriteXYN("spawn", "spawnStore", 1, 6)
-	sps.EffectSprite[effecttype.ExplodeSmall] = LoadSpriteXYN("explodesmall", "explodesmallStore", 1, 8)
-	sps.EffectSprite[effecttype.ExplodeBig] = LoadSpriteXYN("explodebig", "explodebigStore", 8, 1)
-	sps.CloudSprite = LoadSpriteXYN("clouds", "cloudStore", 1, 4)
-	sps.BGSprite = LoadSpriteXYN("background", "bgStore", 1, 1)
+	sps.EffectSprite[effecttype.Spawn] = LoadSpriteXYN("spawn", 1, 6)
+	sps.EffectSprite[effecttype.ExplodeSmall] = LoadSpriteXYN("explodesmall", 1, 8)
+	sps.EffectSprite[effecttype.ExplodeBig] = LoadSpriteXYN("explodebig", 8, 1)
+	sps.CloudSprite = LoadSpriteXYN("clouds", 1, 4)
+	sps.BGSprite = LoadSpriteXYN("background", 1, 1)
 
 	// load team sprite
 	teamAttrib := teamtype.SpriteFilter
