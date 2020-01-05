@@ -1,4 +1,4 @@
-// Copyright 2015,2016,2017,2018,2019 SeukWon Kang (kasworld@gmail.com)
+// Copyright 2015,2016,2017,2018,2019,2020 SeukWon Kang (kasworld@gmail.com)
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -81,7 +81,7 @@ func (bt *Team) RespawnBall(now int64) {
 		bt.rnd.Float64() * gameconst.StageW,
 		bt.rnd.Float64() * gameconst.StageH,
 	}
-	bt.Ball.MvVt = vector2f.Vector2f{
+	bt.Ball.VelVt = vector2f.Vector2f{
 		0, 0,
 	}
 	bt.Ball.LastMoveTick = now
@@ -197,7 +197,7 @@ func (bt *Team) AddBullet(angle, anglev float64) *GameObj {
 		BirthTick:    nowtick,
 		LastMoveTick: nowtick,
 		PosVt:        bt.Ball.PosVt,
-		MvVt:         vector2f.NewVectorLenAngle(anglev, angle),
+		VelVt:         vector2f.NewVectorLenAngle(anglev, angle),
 	}
 	bt.addGObj(o)
 	return o
@@ -212,7 +212,7 @@ func (bt *Team) AddSuperBullet(angle, anglev float64) *GameObj {
 		BirthTick:    nowtick,
 		LastMoveTick: nowtick,
 		PosVt:        bt.Ball.PosVt,
-		MvVt:         vector2f.NewVectorLenAngle(anglev, angle),
+		VelVt:         vector2f.NewVectorLenAngle(anglev, angle),
 	}
 	bt.addGObj(o)
 	return o
@@ -230,7 +230,7 @@ func (bt *Team) AddHommingShield(angle, anglev float64) *GameObj {
 		Angle:        angle,
 		AngleV:       anglev,
 		PosVt:        bt.Ball.PosVt.Add(mvvt),
-		MvVt:         mvvt,
+		VelVt:         mvvt,
 	}
 	bt.addGObj(o)
 	return o
@@ -247,7 +247,7 @@ func (bt *Team) AddHommingBullet(angle, anglev float64, dstid string) *GameObj {
 		Angle:        angle,
 		AngleV:       anglev,
 		PosVt:        bt.Ball.PosVt,
-		MvVt:         vector2f.NewVectorLenAngle(anglev, angle),
+		VelVt:         vector2f.NewVectorLenAngle(anglev, angle),
 		DstUUID:      dstid,
 	}
 	bt.addGObj(o)
@@ -258,11 +258,11 @@ func (bt *Team) CalcAimAngleAndV(
 	bullet gameobjtype.GameObjType, dsto *GameObj) (float64, float64) {
 	s1 := gameobjtype.Attrib[bullet].SpeedLimit
 	vt := dsto.PosVt.Sub(bt.Ball.PosVt)
-	s2 := dsto.MvVt.Abs()
+	s2 := dsto.VelVt.Abs()
 	if s2 == 0 {
 		return vt.Phase(), s1
 	}
-	a2 := dsto.MvVt.Phase() - vt.Phase()
+	a2 := dsto.VelVt.Phase() - vt.Phase()
 	a1 := math.Asin(s2 / s1 * math.Sin(a2))
 
 	return vt.AddAngle(a1).Phase(), s1

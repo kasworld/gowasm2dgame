@@ -1,4 +1,4 @@
-// Copyright 2015,2016,2017,2018,2019 SeukWon Kang (kasworld@gmail.com)
+// Copyright 2015,2016,2017,2018,2019,2020 SeukWon Kang (kasworld@gmail.com)
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -42,7 +42,7 @@ type GameObj struct {
 	toDelete     bool
 
 	PosVt vector2f.Vector2f
-	MvVt  vector2f.Vector2f
+	VelVt  vector2f.Vector2f
 
 	Angle  float64 // move circular
 	AngleV float64
@@ -57,7 +57,7 @@ func (o *GameObj) ToPacket() *w2d_obj.GameObj {
 		BirthTick:    o.BirthTick,
 		LastMoveTick: o.LastMoveTick,
 		PosVt:        o.PosVt,
-		MvVt:         o.MvVt,
+		VelVt:         o.VelVt,
 		Angle:        o.Angle,
 		AngleV:       o.AngleV,
 		DstUUID:      o.DstUUID,
@@ -67,7 +67,7 @@ func (o *GameObj) ToPacket() *w2d_obj.GameObj {
 func (o *GameObj) MoveStraight(now int64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
+	o.PosVt = o.PosVt.Add(o.VelVt.MulF(diff))
 }
 
 func (o *GameObj) MoveCircular(now int64, ctvt vector2f.Vector2f) {
@@ -81,22 +81,22 @@ func (o *GameObj) MoveCircular(now int64, ctvt vector2f.Vector2f) {
 func (o *GameObj) MoveHommingShield(now int64, dstPosVt vector2f.Vector2f) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
+	o.PosVt = o.PosVt.Add(o.VelVt.MulF(diff))
 
 	maxv := gameobjtype.Attrib[o.GOType].SpeedLimit
 
 	dxyVt := dstPosVt.Sub(o.PosVt)
-	o.MvVt = o.MvVt.Add(dxyVt.Normalize().MulF(maxv))
+	o.VelVt = o.VelVt.Add(dxyVt.Normalize().MulF(maxv))
 }
 
 func (o *GameObj) MoveHommingBullet(now int64, dstPosVt vector2f.Vector2f) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
+	o.PosVt = o.PosVt.Add(o.VelVt.MulF(diff))
 
 	maxv := gameobjtype.Attrib[o.GOType].SpeedLimit
 	dxyVt := dstPosVt.Sub(o.PosVt)
-	o.MvVt = o.MvVt.Add(dxyVt.Normalize().MulF(maxv))
+	o.VelVt = o.VelVt.Add(dxyVt.Normalize().MulF(maxv))
 	o.LimitDxy()
 }
 
@@ -110,39 +110,39 @@ func (o *GameObj) IsIn(w, h float64) bool {
 }
 
 func (o *GameObj) SetDxy(vt vector2f.Vector2f) {
-	o.MvVt = vt
+	o.VelVt = vt
 	o.LimitDxy()
 }
 
 func (o *GameObj) AddDxy(vt vector2f.Vector2f) {
-	o.MvVt = o.MvVt.Add(vt)
+	o.VelVt = o.VelVt.Add(vt)
 	o.LimitDxy()
 }
 
 func (o *GameObj) LimitDxy() {
 	maxv := gameobjtype.Attrib[o.GOType].SpeedLimit
-	if o.MvVt.Abs() > maxv {
-		o.MvVt = o.MvVt.Normalize().MulF(maxv)
+	if o.VelVt.Abs() > maxv {
+		o.VelVt = o.VelVt.Normalize().MulF(maxv)
 	}
 }
 
 func (o *GameObj) BounceNormalize(w, h float64) {
 	if o.PosVt[0] < 0 {
 		o.PosVt[0] = 0
-		o.MvVt[0] = abs.Absf(o.MvVt[0])
+		o.VelVt[0] = abs.Absf(o.VelVt[0])
 	}
 	if o.PosVt[1] < 0 {
 		o.PosVt[1] = 0
-		o.MvVt[1] = abs.Absf(o.MvVt[1])
+		o.VelVt[1] = abs.Absf(o.VelVt[1])
 	}
 
 	if o.PosVt[0] > w {
 		o.PosVt[0] = w
-		o.MvVt[0] = -abs.Absf(o.MvVt[0])
+		o.VelVt[0] = -abs.Absf(o.VelVt[0])
 	}
 	if o.PosVt[1] > h {
 		o.PosVt[1] = h
-		o.MvVt[1] = -abs.Absf(o.MvVt[1])
+		o.VelVt[1] = -abs.Absf(o.VelVt[1])
 	}
 }
 
@@ -158,8 +158,8 @@ func (o *GameObj) CalcLenChange(dsto *GameObj) (float64, float64) {
 	r1 := gameobjtype.Attrib[o.GOType].Size / 2
 	r2 := gameobjtype.Attrib[dsto.GOType].Size / 2
 	curLen := dsto.PosVt.Sub(o.PosVt).Abs()
-	nextLen := dsto.PosVt.Add(dsto.MvVt).Sub(
-		o.PosVt.Add(o.MvVt),
+	nextLen := dsto.PosVt.Add(dsto.VelVt).Sub(
+		o.PosVt.Add(o.VelVt),
 	).Abs()
 	lenChange := nextLen - curLen
 	return curLen - r1 - r2, lenChange

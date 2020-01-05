@@ -1,4 +1,4 @@
-// Copyright 2015,2016,2017,2018,2019 SeukWon Kang (kasworld@gmail.com)
+// Copyright 2015,2016,2017,2018,2019,2020 SeukWon Kang (kasworld@gmail.com)
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -27,7 +27,7 @@ func (stg *Stage) NewBackground() *w2d_obj.Background {
 	)
 	return &w2d_obj.Background{
 		LastMoveTick: time.Now().UnixNano(),
-		MvVt:         vt,
+		VelVt:         vt,
 	}
 }
 
@@ -42,7 +42,7 @@ func (stg *Stage) NewCloud(i int) *w2d_obj.Cloud {
 			stg.rnd.Float64() * gameconst.StageW,
 			stg.rnd.Float64() * gameconst.StageH,
 		},
-		MvVt:         vt,
+		VelVt:         vt,
 		LastMoveTick: time.Now().UnixNano(),
 	}
 }
@@ -55,7 +55,7 @@ func (stg *Stage) AddEffect(
 		BirthTick:    now,
 		LastMoveTick: now,
 		PosVt:        posVt,
-		MvVt:         mvVt,
+		VelVt:         mvVt,
 	}
 	for i, v := range stg.Effects {
 		if !v.CheckLife(now) {

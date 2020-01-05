@@ -14,25 +14,25 @@ type Cloud struct {
 	SpriteNum    int
 	LastMoveTick int64 // time.unixnano
 	PosVt        vector2f.Vector2f
-	MvVt         vector2f.Vector2f
+	VelVt         vector2f.Vector2f
 }
 
 func (o *Cloud) Move(now int64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
+	o.PosVt = o.PosVt.Add(o.VelVt.MulF(diff))
 }
 
 type Background struct {
 	LastMoveTick int64 // time.unixnano
 	PosVt        vector2f.Vector2f
-	MvVt         vector2f.Vector2f
+	VelVt         vector2f.Vector2f
 }
 
 func (o *Background) Move(now int64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
+	o.PosVt = o.PosVt.Add(o.VelVt.MulF(diff))
 }
 
 type Effect struct {
@@ -40,7 +40,7 @@ type Effect struct {
 	BirthTick    int64
 	LastMoveTick int64 // time.unixnano
 	PosVt        vector2f.Vector2f
-	MvVt         vector2f.Vector2f
+	VelVt         vector2f.Vector2f
 }
 
 func (o *Effect) CheckLife(now int64) bool {
@@ -51,8 +51,8 @@ func (o *Effect) CheckLife(now int64) bool {
 func (o *Effect) Move(now int64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
-	o.MvVt = o.MvVt.MulF(0.9)
+	o.PosVt = o.PosVt.Add(o.VelVt.MulF(diff))
+	o.VelVt = o.VelVt.MulF(0.9)
 }
 
 ////////////////////
@@ -69,7 +69,7 @@ type GameObj struct {
 	BirthTick    int64
 	LastMoveTick int64 // time.unixnano
 	PosVt        vector2f.Vector2f
-	MvVt         vector2f.Vector2f
+	VelVt         vector2f.Vector2f
 	Angle        float64 // move circular
 	AngleV       float64
 	DstUUID      string // move to dest
@@ -78,7 +78,7 @@ type GameObj struct {
 func (o *GameObj) MoveStraight(now int64) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
+	o.PosVt = o.PosVt.Add(o.VelVt.MulF(diff))
 }
 
 func (o *GameObj) MoveCircular(now int64, center vector2f.Vector2f) {
@@ -97,9 +97,9 @@ func (o *GameObj) CalcCircularPos(center vector2f.Vector2f, r float64) vector2f.
 func (o *GameObj) MoveHomming(now int64, dstPosVt vector2f.Vector2f) {
 	diff := float64(now-o.LastMoveTick) / float64(time.Second)
 	o.LastMoveTick = now
-	o.PosVt = o.PosVt.Add(o.MvVt.MulF(diff))
+	o.PosVt = o.PosVt.Add(o.VelVt.MulF(diff))
 
 	maxv := gameobjtype.Attrib[o.GOType].SpeedLimit
 	dxyVt := dstPosVt.Sub(o.PosVt)
-	o.MvVt = o.MvVt.Add(dxyVt.Normalize().MulF(maxv))
+	o.VelVt = o.VelVt.Add(dxyVt.Normalize().MulF(maxv))
 }

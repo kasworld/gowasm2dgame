@@ -1,4 +1,4 @@
-// Copyright 2015,2016,2017,2018,2019 SeukWon Kang (kasworld@gmail.com)
+// Copyright 2015,2016,2017,2018,2019,2020 SeukWon Kang (kasworld@gmail.com)
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -234,10 +234,10 @@ func (stg *Stage) AddEffectByGameObj(gobj *GameObj) {
 	switch gobj.GOType {
 	case gameobjtype.Bullet, gameobjtype.HommingBullet, gameobjtype.Shield, gameobjtype.SuperShield, gameobjtype.HommingShield:
 		// small effect
-		stg.AddEffect(effecttype.ExplodeSmall, gobj.PosVt, gobj.MvVt)
+		stg.AddEffect(effecttype.ExplodeSmall, gobj.PosVt, gobj.VelVt)
 	case gameobjtype.Ball, gameobjtype.SuperBullet:
 		// big effect
-		stg.AddEffect(effecttype.ExplodeBig, gobj.PosVt, gobj.MvVt)
+		stg.AddEffect(effecttype.ExplodeBig, gobj.PosVt, gobj.VelVt)
 	}
 }
 

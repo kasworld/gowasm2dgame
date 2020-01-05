@@ -1,4 +1,4 @@
-// Copyright 2015,2016,2017,2018,2019 SeukWon Kang (kasworld@gmail.com)
+// Copyright 2015,2016,2017,2018,2019,2020 SeukWon Kang (kasworld@gmail.com)
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -72,7 +72,7 @@ func (stg *Stage) TryEvade(me *Team, now int64, dsto *GameObj) *w2d_obj.Act {
 		return nil
 	}
 	maxv := gameobjtype.Attrib[objt].SpeedLimit
-	angle := dsto.MvVt.AddAngle(me.rnd.Float64()*math.Pi - math.Pi/2).Phase()
+	angle := dsto.VelVt.AddAngle(me.rnd.Float64()*math.Pi - math.Pi/2).Phase()
 	return &w2d_obj.Act{
 		Act:    actt,
 		Angle:  angle,
