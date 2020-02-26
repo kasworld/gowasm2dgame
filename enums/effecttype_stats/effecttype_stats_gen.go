@@ -24,6 +24,9 @@ func (es *EffectTypeStat) String() string {
 	buf.WriteString("]")
 	return buf.String()
 }
+func (es *EffectTypeStat) Dec(e effecttype.EffectType) {
+	es[e] -= 1
+}
 func (es *EffectTypeStat) Inc(e effecttype.EffectType) {
 	es[e] += 1
 }

@@ -24,6 +24,9 @@ func (es *TeamTypeStat) String() string {
 	buf.WriteString("]")
 	return buf.String()
 }
+func (es *TeamTypeStat) Dec(e teamtype.TeamType) {
+	es[e] -= 1
+}
 func (es *TeamTypeStat) Inc(e teamtype.TeamType) {
 	es[e] += 1
 }
