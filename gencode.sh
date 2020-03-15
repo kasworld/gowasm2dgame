@@ -44,38 +44,7 @@ genprotocol -ver=${PROTOCOL_W2D_VERSION} \
     -basedir=. \
     -prefix=w2d -statstype=int
 
-goimports -w w2d_version/version_gen.go
-goimports -w w2d_idcmd/command_gen.go
-goimports -w w2d_idnoti/noti_gen.go
-goimports -w w2d_error/error_gen.go
-goimports -w w2d_const/const_gen.go
-goimports -w w2d_packet/packet_gen.go
-goimports -w w2d_obj/objtemplate_gen.go
-goimports -w w2d_msgp/serialize_gen.go
-goimports -w w2d_json/serialize_gen.go
-goimports -w w2d_gob/serialize_gen.go
-goimports -w w2d_handlersp/fnobjtemplate_gen.go
-goimports -w w2d_handlersp/fnbytestemplate_gen.go
-goimports -w w2d_handlereq/fnobjtemplate_gen.go
-goimports -w w2d_handlereq/fnbytestemplate_gen.go
-goimports -w w2d_handlenoti/fnobjtemplate_gen.go
-goimports -w w2d_handlenoti/fnbytestemplate_gen.go
-goimports -w w2d_serveconnbyte/serveconnbyte_gen.go
-goimports -w w2d_connbytemanager/connbytemanager_gen.go
-goimports -w w2d_conntcp/conntcp_gen.go
-goimports -w w2d_connwasm/connwasm_gen.go
-goimports -w w2d_connwsgorilla/connwsgorilla_gen.go
-goimports -w w2d_loopwsgorilla/loopwsgorilla_gen.go
-goimports -w w2d_looptcp/looptcp_gen.go
-goimports -w w2d_pid2rspfn/pid2rspfn_gen.go
-goimports -w w2d_statnoti/statnoti_gen.go
-goimports -w w2d_statcallapi/statcallapi_gen.go
-goimports -w w2d_statserveapi/statserveapi_gen.go
-goimports -w w2d_statapierror/statapierror_gen.go
-goimports -w w2d_authorize/authorize_gen.go
-goimports -w w2d_error_stats/w2d_error_stats_gen.go
-goimports -w w2d_idcmd_stats/w2d_idcmd_stats_gen.go
-goimports -w w2d_idnoti_stats/w2d_idnoti_stats_gen.go
+goimports -w .
 
 cd ..
 

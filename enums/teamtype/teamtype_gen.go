@@ -17,20 +17,27 @@ const (
 	TeamType_Count int = iota
 )
 
-var _TeamType2string = [TeamType_Count]string{
-	Red:    "Red",
-	Blue:   "Blue",
-	Green:  "Green",
-	RRed:   "RRed",
-	RBlue:  "RBlue",
-	RGreen: "RGreen",
+var _TeamType2string = [TeamType_Count][2]string{
+	Red:    {"Red", "// red 255"},
+	Blue:   {"Blue", "// blue 255"},
+	Green:  {"Green", "// green 255"},
+	RRed:   {"RRed", "// red 0"},
+	RBlue:  {"RBlue", "// blue 0"},
+	RGreen: {"RGreen", "// green 0"},
 }
 
 func (e TeamType) String() string {
 	if e >= 0 && e < TeamType(TeamType_Count) {
-		return _TeamType2string[e]
+		return _TeamType2string[e][0]
 	}
 	return fmt.Sprintf("TeamType%d", uint8(e))
+}
+
+func (e TeamType) CommentString() string {
+	if e >= 0 && e < TeamType(TeamType_Count) {
+		return _TeamType2string[e][1]
+	}
+	return ""
 }
 
 var _string2TeamType = map[string]TeamType{

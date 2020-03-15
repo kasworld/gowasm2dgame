@@ -14,7 +14,7 @@ type Cloud struct {
 	SpriteNum    int
 	LastMoveTick int64 // time.unixnano
 	PosVt        vector2f.Vector2f
-	VelVt         vector2f.Vector2f
+	VelVt        vector2f.Vector2f
 }
 
 func (o *Cloud) Move(now int64) {
@@ -26,7 +26,7 @@ func (o *Cloud) Move(now int64) {
 type Background struct {
 	LastMoveTick int64 // time.unixnano
 	PosVt        vector2f.Vector2f
-	VelVt         vector2f.Vector2f
+	VelVt        vector2f.Vector2f
 }
 
 func (o *Background) Move(now int64) {
@@ -40,7 +40,7 @@ type Effect struct {
 	BirthTick    int64
 	LastMoveTick int64 // time.unixnano
 	PosVt        vector2f.Vector2f
-	VelVt         vector2f.Vector2f
+	VelVt        vector2f.Vector2f
 }
 
 func (o *Effect) CheckLife(now int64) bool {
@@ -69,7 +69,7 @@ type GameObj struct {
 	BirthTick    int64
 	LastMoveTick int64 // time.unixnano
 	PosVt        vector2f.Vector2f
-	VelVt         vector2f.Vector2f
+	VelVt        vector2f.Vector2f
 	Angle        float64 // move circular
 	AngleV       float64
 	DstUUID      string // move to dest

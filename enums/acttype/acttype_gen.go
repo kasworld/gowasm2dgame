@@ -19,22 +19,29 @@ const (
 	ActType_Count int = iota
 )
 
-var _ActType2string = [ActType_Count]string{
-	Nothing:       "Nothing",
-	Shield:        "Shield",
-	SuperShield:   "SuperShield",
-	HommingShield: "HommingShield",
-	Bullet:        "Bullet",
-	SuperBullet:   "SuperBullet",
-	HommingBullet: "HommingBullet",
-	Accel:         "Accel",
+var _ActType2string = [ActType_Count][2]string{
+	Nothing:       {"Nothing", ""},
+	Shield:        {"Shield", ""},
+	SuperShield:   {"SuperShield", ""},
+	HommingShield: {"HommingShield", ""},
+	Bullet:        {"Bullet", ""},
+	SuperBullet:   {"SuperBullet", ""},
+	HommingBullet: {"HommingBullet", ""},
+	Accel:         {"Accel", ""},
 }
 
 func (e ActType) String() string {
 	if e >= 0 && e < ActType(ActType_Count) {
-		return _ActType2string[e]
+		return _ActType2string[e][0]
 	}
 	return fmt.Sprintf("ActType%d", uint8(e))
+}
+
+func (e ActType) CommentString() string {
+	if e >= 0 && e < ActType(ActType_Count) {
+		return _ActType2string[e][1]
+	}
+	return ""
 }
 
 var _string2ActType = map[string]ActType{

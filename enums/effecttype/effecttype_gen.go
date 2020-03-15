@@ -14,17 +14,24 @@ const (
 	EffectType_Count int = iota
 )
 
-var _EffectType2string = [EffectType_Count]string{
-	Spawn:        "Spawn",
-	ExplodeBig:   "ExplodeBig",
-	ExplodeSmall: "ExplodeSmall",
+var _EffectType2string = [EffectType_Count][2]string{
+	Spawn:        {"Spawn", ""},
+	ExplodeBig:   {"ExplodeBig", ""},
+	ExplodeSmall: {"ExplodeSmall", ""},
 }
 
 func (e EffectType) String() string {
 	if e >= 0 && e < EffectType(EffectType_Count) {
-		return _EffectType2string[e]
+		return _EffectType2string[e][0]
 	}
 	return fmt.Sprintf("EffectType%d", uint8(e))
+}
+
+func (e EffectType) CommentString() string {
+	if e >= 0 && e < EffectType(EffectType_Count) {
+		return _EffectType2string[e][1]
+	}
+	return ""
 }
 
 var _string2EffectType = map[string]EffectType{
