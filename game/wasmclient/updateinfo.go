@@ -16,7 +16,6 @@ import (
 	"fmt"
 	"syscall/js"
 
-	"github.com/kasworld/goguelike2/enum/achievetype"
 	"github.com/kasworld/gowasm2dgame/enums/acttype"
 	"github.com/kasworld/gowasm2dgame/enums/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
@@ -48,7 +47,7 @@ func (app *WasmClient) updateDebugInfo() {
 }
 
 func (app *WasmClient) updateSysmsg() {
-	app.systemMessage = app.systemMessage.GetLastN(achievetype.AchieveType_Count + 100)
+	app.systemMessage = app.systemMessage.GetLastN(100)
 	div := js.Global().Get("document").Call("getElementById", "sysmsg")
 	div.Set("innerHTML", app.systemMessage.ToHtmlStringRev())
 }
