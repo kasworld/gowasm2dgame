@@ -12,9 +12,9 @@
 package wasmclient
 
 import (
-	"github.com/kasworld/gowasm2dgame/enums/effecttype"
-	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
-	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/enum/effecttype"
+	"github.com/kasworld/gowasm2dgame/enum/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/enum/teamtype"
 )
 
 var gSprites *Sprites

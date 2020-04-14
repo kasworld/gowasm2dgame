@@ -12,9 +12,9 @@
 package w2d_obj
 
 import (
-	"github.com/kasworld/gowasm2dgame/enums/acttype"
-	"github.com/kasworld/gowasm2dgame/enums/acttype_stats"
-	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/enum/acttype"
+	"github.com/kasworld/gowasm2dgame/enum/acttype_stats"
+	"github.com/kasworld/gowasm2dgame/enum/teamtype"
 )
 
 type ReqInvalid_data struct {

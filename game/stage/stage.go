@@ -16,9 +16,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/kasworld/gowasm2dgame/enums/effecttype"
-	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
-	"github.com/kasworld/gowasm2dgame/enums/teamtype"
+	"github.com/kasworld/gowasm2dgame/enum/effecttype"
+	"github.com/kasworld/gowasm2dgame/enum/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/enum/teamtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/game/serverconfig"
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"

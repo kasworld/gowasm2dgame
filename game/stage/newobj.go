@@ -14,7 +14,7 @@ package stage
 import (
 	"time"
 
-	"github.com/kasworld/gowasm2dgame/enums/effecttype"
+	"github.com/kasworld/gowasm2dgame/enum/effecttype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"

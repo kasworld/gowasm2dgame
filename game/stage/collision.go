@@ -12,7 +12,7 @@
 package stage
 
 import (
-	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/enum/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
 	"github.com/kasworld/gowasm2dgame/lib/vector2f"

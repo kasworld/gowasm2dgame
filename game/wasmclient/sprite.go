@@ -15,7 +15,7 @@ import (
 	"math"
 	"syscall/js"
 
-	"github.com/kasworld/gowasm2dgame/enums/gameobjtype"
+	"github.com/kasworld/gowasm2dgame/enum/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/lib/imagecanvas"
 )
 
