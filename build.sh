@@ -31,10 +31,7 @@ genlog -leveldatafile ./w2dlog/w2dlog.data -packagename w2dlog
 cd ..
 
 
-ProtocolW2DFiles="protocol_w2d/w2d_gendata/command.data \
-protocol_w2d/w2d_gendata/error.data \
-protocol_w2d/w2d_gendata/noti.data \
-"
+ProtocolW2DFiles="protocol_w2d/*.enum"
 
 PROTOCOL_W2D_VERSION=`cat ${ProtocolW2DFiles}| sha256sum | awk '{print $1}'`
 echo "Protocol W2D Version:" ${PROTOCOL_W2D_VERSION}
