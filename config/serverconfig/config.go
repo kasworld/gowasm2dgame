@@ -15,7 +15,7 @@ type Config struct {
 	SplitLogLevel         w2dlog.LL_Type `argname:""`
 	BaseLogDir            string         `default:"/tmp/"  argname:""`
 	ServerDataFolder      string         `default:"./serverdata" argname:""`
-	ClientDataFolder      string         `default:"./www" argname:""`
+	ClientDataFolder      string         `default:"./clientdata" argname:""`
 	ServicePort           string         `default:":24101"  argname:""`
 	AdminPort             string         `default:":24201"  argname:""`
 	ConcurrentConnections int            `default:"1000" argname:""`
