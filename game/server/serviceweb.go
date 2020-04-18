@@ -17,8 +17,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/kasworld/gowasm2dgame/config/gameconst"
 	"github.com/kasworld/gowasm2dgame/game/conndata"
-	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_authorize"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"

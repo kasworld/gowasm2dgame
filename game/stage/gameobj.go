@@ -42,7 +42,7 @@ type GameObj struct {
 	toDelete     bool
 
 	PosVt vector2f.Vector2f
-	VelVt  vector2f.Vector2f
+	VelVt vector2f.Vector2f
 
 	Angle  float64 // move circular
 	AngleV float64
@@ -57,7 +57,7 @@ func (o *GameObj) ToPacket() *w2d_obj.GameObj {
 		BirthTick:    o.BirthTick,
 		LastMoveTick: o.LastMoveTick,
 		PosVt:        o.PosVt,
-		VelVt:         o.VelVt,
+		VelVt:        o.VelVt,
 		Angle:        o.Angle,
 		AngleV:       o.AngleV,
 		DstUUID:      o.DstUUID,

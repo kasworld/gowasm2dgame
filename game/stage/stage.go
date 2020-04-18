@@ -16,11 +16,11 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/config/gameconst"
+	"github.com/kasworld/gowasm2dgame/config/serverconfig"
 	"github.com/kasworld/gowasm2dgame/enum/effecttype"
 	"github.com/kasworld/gowasm2dgame/enum/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enum/teamtype"
-	"github.com/kasworld/gowasm2dgame/game/gameconst"
-	"github.com/kasworld/gowasm2dgame/game/serverconfig"
 	"github.com/kasworld/gowasm2dgame/lib/quadtreef"
 	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"

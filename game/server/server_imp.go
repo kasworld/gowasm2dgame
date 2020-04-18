@@ -16,8 +16,8 @@ import (
 	"time"
 
 	"github.com/kasworld/actpersec"
-	"github.com/kasworld/gowasm2dgame/game/gameconst"
-	"github.com/kasworld/gowasm2dgame/game/serverconfig"
+	"github.com/kasworld/gowasm2dgame/config/gameconst"
+	"github.com/kasworld/gowasm2dgame/config/serverconfig"
 	"github.com/kasworld/gowasm2dgame/game/stagemanager"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connbytemanager"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statapierror"

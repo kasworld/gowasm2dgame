@@ -14,8 +14,8 @@ package stage
 import (
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/config/gameconst"
 	"github.com/kasworld/gowasm2dgame/enum/effecttype"
-	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
@@ -27,7 +27,7 @@ func (stg *Stage) NewBackground() *w2d_obj.Background {
 	)
 	return &w2d_obj.Background{
 		LastMoveTick: time.Now().UnixNano(),
-		VelVt:         vt,
+		VelVt:        vt,
 	}
 }
 
@@ -42,7 +42,7 @@ func (stg *Stage) NewCloud(i int) *w2d_obj.Cloud {
 			stg.rnd.Float64() * gameconst.StageW,
 			stg.rnd.Float64() * gameconst.StageH,
 		},
-		VelVt:         vt,
+		VelVt:        vt,
 		LastMoveTick: time.Now().UnixNano(),
 	}
 }
@@ -55,7 +55,7 @@ func (stg *Stage) AddEffect(
 		BirthTick:    now,
 		LastMoveTick: now,
 		PosVt:        posVt,
-		VelVt:         mvVt,
+		VelVt:        mvVt,
 	}
 	for i, v := range stg.Effects {
 		if !v.CheckLife(now) {

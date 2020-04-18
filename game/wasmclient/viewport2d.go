@@ -16,10 +16,10 @@ import (
 	"syscall/js"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/config/gameconst"
 	"github.com/kasworld/gowasm2dgame/enum/effecttype"
 	"github.com/kasworld/gowasm2dgame/enum/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enum/teamtype"
-	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 

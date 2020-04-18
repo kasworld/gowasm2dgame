@@ -62,9 +62,9 @@ goimports -w enum/effecttype/effecttype_gen.go
 goimports -w enum/effecttype_stats/effecttype_stats_gen.go
 
 GameDataFiles="
-game/gameconst/gameconst.go \
-game/gameconst/serviceconst.go \
-game/gamedata/*.go \
+config/gameconst/gameconst.go \
+config/gameconst/serviceconst.go \
+config/gamedata/*.go \
 enum/*.enum \
 "
 Data_VERSION=`cat ${GameDataFiles}| sha256sum | awk '{print $1}'`
@@ -74,7 +74,7 @@ echo "
 package gameconst
 
 const DataVersion = \"${Data_VERSION}\"
-" > game/gameconst/dataversion_gen.go 
+" > config/gameconst/dataversion_gen.go 
 
 # build bin
 

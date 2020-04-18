@@ -16,11 +16,11 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/config/gameconst"
 	"github.com/kasworld/gowasm2dgame/enum/acttype"
 	"github.com/kasworld/gowasm2dgame/enum/acttype_stats"
 	"github.com/kasworld/gowasm2dgame/enum/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enum/teamtype"
-	"github.com/kasworld/gowasm2dgame/game/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/vector2f"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
@@ -197,7 +197,7 @@ func (bt *Team) AddBullet(angle, anglev float64) *GameObj {
 		BirthTick:    nowtick,
 		LastMoveTick: nowtick,
 		PosVt:        bt.Ball.PosVt,
-		VelVt:         vector2f.NewVectorLenAngle(anglev, angle),
+		VelVt:        vector2f.NewVectorLenAngle(anglev, angle),
 	}
 	bt.addGObj(o)
 	return o
@@ -212,7 +212,7 @@ func (bt *Team) AddSuperBullet(angle, anglev float64) *GameObj {
 		BirthTick:    nowtick,
 		LastMoveTick: nowtick,
 		PosVt:        bt.Ball.PosVt,
-		VelVt:         vector2f.NewVectorLenAngle(anglev, angle),
+		VelVt:        vector2f.NewVectorLenAngle(anglev, angle),
 	}
 	bt.addGObj(o)
 	return o
@@ -230,7 +230,7 @@ func (bt *Team) AddHommingShield(angle, anglev float64) *GameObj {
 		Angle:        angle,
 		AngleV:       anglev,
 		PosVt:        bt.Ball.PosVt.Add(mvvt),
-		VelVt:         mvvt,
+		VelVt:        mvvt,
 	}
 	bt.addGObj(o)
 	return o
@@ -247,7 +247,7 @@ func (bt *Team) AddHommingBullet(angle, anglev float64, dstid string) *GameObj {
 		Angle:        angle,
 		AngleV:       anglev,
 		PosVt:        bt.Ball.PosVt,
-		VelVt:         vector2f.NewVectorLenAngle(anglev, angle),
+		VelVt:        vector2f.NewVectorLenAngle(anglev, angle),
 		DstUUID:      dstid,
 	}
 	bt.addGObj(o)

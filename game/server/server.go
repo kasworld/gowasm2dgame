@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/kasworld/actpersec"
-	"github.com/kasworld/gowasm2dgame/game/serverconfig"
+	"github.com/kasworld/gowasm2dgame/config/serverconfig"
 	"github.com/kasworld/gowasm2dgame/game/stage"
 	"github.com/kasworld/gowasm2dgame/game/stagemanager"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
