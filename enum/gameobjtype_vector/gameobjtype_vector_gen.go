@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+
+	"github.com/kasworld/gowasm2dgame/enum/gameobjtype"
 )
 
 type GameObjTypeVector [gameobjtype.GameObjType_Count]int

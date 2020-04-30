@@ -46,20 +46,13 @@ goimports -w .
 cd ..
 
 genenum -typename=TeamType -packagename=teamtype -basedir=enum -vectortype=int
-goimports -w enum/teamtype/teamtype_gen.go
-goimports -w enum/teamtype_stats/teamtype_stats_gen.go
-
 genenum -typename=ActType -packagename=acttype -basedir=enum -vectortype=int
-goimports -w enum/acttype/acttype_gen.go
-goimports -w enum/acttype_stats/acttype_stats_gen.go
-
 genenum -typename=GameObjType -packagename=gameobjtype -basedir=enum -vectortype=int
-goimports -w enum/gameobjtype/gameobjtype_gen.go
-goimports -w enum/gameobjtype_stats/gameobjtype_stats_gen.go
-
 genenum -typename=EffectType -packagename=effecttype -basedir=enum -vectortype=int
-goimports -w enum/effecttype/effecttype_gen.go
-goimports -w enum/effecttype_stats/effecttype_stats_gen.go
+
+cd enum 
+goimports -w .
+cd .. 
 
 GameDataFiles="
 config/gameconst/gameconst.go \

@@ -13,7 +13,7 @@ package w2d_obj
 
 import (
 	"github.com/kasworld/gowasm2dgame/enum/acttype"
-	"github.com/kasworld/gowasm2dgame/enum/acttype_stats"
+	"github.com/kasworld/gowasm2dgame/enum/acttype_vector"
 	"github.com/kasworld/gowasm2dgame/enum/teamtype"
 )
 
@@ -77,7 +77,7 @@ type TeamStat struct {
 	UUID     string
 	Alive    bool
 	TeamType teamtype.TeamType
-	ActStats acttype_stats.ActTypeStat
+	ActStats acttype_vector.ActTypeVector
 }
 
 type Act struct {

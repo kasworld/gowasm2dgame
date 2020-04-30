@@ -18,7 +18,7 @@ import (
 
 	"github.com/kasworld/gowasm2dgame/config/gameconst"
 	"github.com/kasworld/gowasm2dgame/enum/acttype"
-	"github.com/kasworld/gowasm2dgame/enum/acttype_stats"
+	"github.com/kasworld/gowasm2dgame/enum/acttype_vector"
 	"github.com/kasworld/gowasm2dgame/enum/gameobjtype"
 	"github.com/kasworld/gowasm2dgame/enum/teamtype"
 	"github.com/kasworld/gowasm2dgame/lib/vector2f"
@@ -31,7 +31,7 @@ type Team struct {
 	rnd *rand.Rand      `prettystring:"hide"`
 	log *w2dlog.LogBase `prettystring:"hide"`
 
-	ActStats acttype_stats.ActTypeStat
+	ActStats acttype_vector.ActTypeVector
 	UUID     string
 
 	TeamType    teamtype.TeamType

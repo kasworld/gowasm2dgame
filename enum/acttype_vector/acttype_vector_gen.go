@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+
+	"github.com/kasworld/gowasm2dgame/enum/acttype"
 )
 
 type ActTypeVector [acttype.ActType_Count]int

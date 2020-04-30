@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+
+	"github.com/kasworld/gowasm2dgame/enum/effecttype"
 )
 
 type EffectTypeVector [effecttype.EffectType_Count]int
