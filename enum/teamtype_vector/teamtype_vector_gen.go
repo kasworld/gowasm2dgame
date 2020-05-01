@@ -44,9 +44,9 @@ func (es *TeamTypeVector) Get(e teamtype.TeamType) int {
 
 // Iter return true if iter stop, return false if iter all
 // fn return true to stop iter
-func (es TeamTypeVector) Iter(fn func(i int, v int) bool) bool {
-	for i := 0; i < teamtype.TeamType_Count; i++ {
-		if fn(i, es[i]) {
+func (es TeamTypeVector) Iter(fn func(i teamtype.TeamType, v int) bool) bool {
+	for i, v := range es {
+		if fn(teamtype.TeamType(i), v) {
 			return true
 		}
 	}
@@ -56,8 +56,8 @@ func (es TeamTypeVector) Iter(fn func(i int, v int) bool) bool {
 // VectorAdd add element to element
 func (es TeamTypeVector) VectorAdd(arg TeamTypeVector) TeamTypeVector {
 	var rtn TeamTypeVector
-	for i := 0; i < teamtype.TeamType_Count; i++ {
-		rtn[i] = es[i] + arg[i]
+	for i, v := range es {
+		rtn[i] = v + arg[i]
 	}
 	return rtn
 }
@@ -65,8 +65,8 @@ func (es TeamTypeVector) VectorAdd(arg TeamTypeVector) TeamTypeVector {
 // VectorSub sub element to element
 func (es TeamTypeVector) VectorSub(arg TeamTypeVector) TeamTypeVector {
 	var rtn TeamTypeVector
-	for i := 0; i < teamtype.TeamType_Count; i++ {
-		rtn[i] = es[i] - arg[i]
+	for i, v := range es {
+		rtn[i] = v - arg[i]
 	}
 	return rtn
 }

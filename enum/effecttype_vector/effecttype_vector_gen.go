@@ -44,9 +44,9 @@ func (es *EffectTypeVector) Get(e effecttype.EffectType) int {
 
 // Iter return true if iter stop, return false if iter all
 // fn return true to stop iter
-func (es EffectTypeVector) Iter(fn func(i int, v int) bool) bool {
-	for i := 0; i < effecttype.EffectType_Count; i++ {
-		if fn(i, es[i]) {
+func (es EffectTypeVector) Iter(fn func(i effecttype.EffectType, v int) bool) bool {
+	for i, v := range es {
+		if fn(effecttype.EffectType(i), v) {
 			return true
 		}
 	}
@@ -56,8 +56,8 @@ func (es EffectTypeVector) Iter(fn func(i int, v int) bool) bool {
 // VectorAdd add element to element
 func (es EffectTypeVector) VectorAdd(arg EffectTypeVector) EffectTypeVector {
 	var rtn EffectTypeVector
-	for i := 0; i < effecttype.EffectType_Count; i++ {
-		rtn[i] = es[i] + arg[i]
+	for i, v := range es {
+		rtn[i] = v + arg[i]
 	}
 	return rtn
 }
@@ -65,8 +65,8 @@ func (es EffectTypeVector) VectorAdd(arg EffectTypeVector) EffectTypeVector {
 // VectorSub sub element to element
 func (es EffectTypeVector) VectorSub(arg EffectTypeVector) EffectTypeVector {
 	var rtn EffectTypeVector
-	for i := 0; i < effecttype.EffectType_Count; i++ {
-		rtn[i] = es[i] - arg[i]
+	for i, v := range es {
+		rtn[i] = v - arg[i]
 	}
 	return rtn
 }
