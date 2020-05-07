@@ -14,7 +14,7 @@ package server
 import (
 	"fmt"
 
-	"github.com/kasworld/gowasm2dgame/game/conndata"
+	"github.com/kasworld/gowasm2dgame/lib/conndata"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_error"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"

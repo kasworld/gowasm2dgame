@@ -13,7 +13,7 @@ import (
 
 type EffectTypeVector [effecttype.EffectType_Count]int
 
-func (es *EffectTypeVector) String() string {
+func (es EffectTypeVector) String() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "EffectTypeVector[")
 	for i, v := range es {
@@ -38,7 +38,7 @@ func (es *EffectTypeVector) SetIfGt(e effecttype.EffectType, v int) {
 		es[e] = v
 	}
 }
-func (es *EffectTypeVector) Get(e effecttype.EffectType) int {
+func (es EffectTypeVector) Get(e effecttype.EffectType) int {
 	return es[e]
 }
 

@@ -13,7 +13,7 @@ import (
 
 type TeamTypeVector [teamtype.TeamType_Count]int
 
-func (es *TeamTypeVector) String() string {
+func (es TeamTypeVector) String() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "TeamTypeVector[")
 	for i, v := range es {
@@ -38,7 +38,7 @@ func (es *TeamTypeVector) SetIfGt(e teamtype.TeamType, v int) {
 		es[e] = v
 	}
 }
-func (es *TeamTypeVector) Get(e teamtype.TeamType) int {
+func (es TeamTypeVector) Get(e teamtype.TeamType) int {
 	return es[e]
 }
 
