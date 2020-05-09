@@ -64,6 +64,7 @@ func InitApp() {
 	gSprites = LoadSprites()
 	app.vp = NewViewport()
 
+	gameOptions = _gameopt // prevent compiler initialize loop
 	jsdoc := js.Global().Get("document")
 	jsobj.Hide(jsdoc.Call("getElementById", "loadmsg"))
 	jsdoc.Call("getElementById", "leftinfo").Set("style",
@@ -73,11 +74,24 @@ func InitApp() {
 	jsdoc.Call("getElementById", "centerinfo").Set("style",
 		"color: white; position: fixed; top: 0%; left: 25%; overflow: hidden;")
 
+	app.ResizeCanvas()
+	win := js.Global().Get("window")
+	win.Call("addEventListener", "resize", js.FuncOf(
+		func(this js.Value, args []js.Value) interface{} {
+			app.ResizeCanvas()
+			return nil
+		},
+	))
+
 	js.Global().Set("clearNickname", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		go clientcookie.ClearSession()
 		return nil
 	}))
 	clientcookie.InitNickname()
+	// js.Global().Set("enterField", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+	// 	go app.enterStage()
+	// 	return nil
+	// }))
 	go app.enterStage()
 }
 
@@ -106,7 +120,14 @@ func (app *WasmClient) enterStage() {
 	jsobj.Hide(jsdoc.Call("getElementById", "titleform"))
 	jsobj.Show(jsdoc.Call("getElementById", "cmdrow"))
 
-	app.updataServiceInfo()
+	gameOptions.RegisterJSFn(app)
+	if err := gameOptions.SetFromURLArg(); err != nil {
+		jslog.Errorf(err.Error())
+	}
+	jsdoc.Call("getElementById", "cmdbuttons").Set("innerHTML",
+		app.makeButtons())
+	app.registerKeyboardMouseEvent()
+
 	js.Global().Call("requestAnimationFrame", js.FuncOf(app.drawCanvas))
 
 	timerPingTk := time.NewTicker(time.Second)
@@ -119,9 +140,9 @@ loop:
 
 		case <-timerPingTk.C:
 			go app.reqHeartbeat()
-			app.updateDebugInfo()
-			app.updateTeamStatsInfo()
-			app.updateSysmsg()
+			app.systemMessage.Appendf("%.1fFPS",
+				1.0/app.DispInterDur.GetInterval().GetLastDuration().Seconds())
+			app.updateRightInfo()
 		}
 	}
 }

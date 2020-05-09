@@ -191,10 +191,10 @@ func (app *WasmClient) processKeyUpEvent(kcode string) bool {
 		return true
 	}
 
-	// if btn := gameOptions.GetByKeyCode(kcode); btn != nil {
-	// 	btn.JSFn(js.Null(), nil)
-	// 	return true
-	// }
+	if btn := gameOptions.GetByKeyCode(kcode); btn != nil {
+		btn.JSFn(js.Null(), nil)
+		return true
+	}
 
 	return false
 }

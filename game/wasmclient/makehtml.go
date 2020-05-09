@@ -14,7 +14,6 @@ package wasmclient
 import (
 	"bytes"
 	"fmt"
-	"syscall/js"
 
 	"github.com/kasworld/gowasm2dgame/config/gameconst"
 	"github.com/kasworld/gowasm2dgame/enum/acttype"
@@ -22,8 +21,20 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_version"
 )
 
-func (app *WasmClient) updataServiceInfo() {
-	msgCopyright := `</hr>Copyright 2019 SeukWon Kang 
+func (app *WasmClient) makeButtons() string {
+	var buf bytes.Buffer
+	gameOptions.MakeButtonToolTipTop(&buf)
+	return buf.String()
+}
+
+func (app *WasmClient) DisplayTextInfo() {
+	app.updateLeftInfo()
+	app.updateRightInfo()
+	app.updateCenterInfo()
+}
+
+func (app *WasmClient) makeServiceInfo() string {
+	msgCopyright := `</hr>Copyright 2019,2020 SeukWon Kang 
 		<a href="https://github.com/kasworld/gowasm2dgame" target="_blank">gowasm2dgame</a>`
 
 	var buf bytes.Buffer
@@ -31,31 +42,22 @@ func (app *WasmClient) updataServiceInfo() {
 	fmt.Fprintf(&buf, "Protocol %v<br/>", w2d_version.ProtocolVersion)
 	fmt.Fprintf(&buf, "Data %v<br/>", gameconst.DataVersion)
 	fmt.Fprintf(&buf, "%v<br/>", msgCopyright)
-	div := js.Global().Get("document").Call("getElementById", "serviceinfo")
-	div.Set("innerHTML", buf.String())
+	return buf.String()
 }
 
-func (app *WasmClient) updateDebugInfo() {
+func (app *WasmClient) makeDebugInfo() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf,
 		"%v<br/>Ping %v<br/>ServerClientTickDiff %v<br/>",
 		app.DispInterDur, app.PingDur, app.ServerClientTictDiff,
 	)
-
-	div := js.Global().Get("document").Call("getElementById", "debuginfo")
-	div.Set("innerHTML", buf.String())
+	return buf.String()
 }
 
-func (app *WasmClient) updateSysmsg() {
-	app.systemMessage = app.systemMessage.GetLastN(100)
-	div := js.Global().Get("document").Call("getElementById", "sysmsg")
-	div.Set("innerHTML", app.systemMessage.ToHtmlStringRev())
-}
-
-func (app *WasmClient) updateTeamStatsInfo() {
+func (app *WasmClient) makeTeamStatsInfo() string {
 	stats := app.statsInfo
 	if stats == nil {
-		return
+		return ""
 	}
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "Stage %v<br/>", stats.UUID)
@@ -88,6 +90,5 @@ func (app *WasmClient) updateTeamStatsInfo() {
 		buf.WriteString(`</tr>`)
 	}
 	buf.WriteString(`</table>`)
-	div := js.Global().Get("document").Call("getElementById", "teamstatsinfo")
-	div.Set("innerHTML", buf.String())
+	return buf.String()
 }
