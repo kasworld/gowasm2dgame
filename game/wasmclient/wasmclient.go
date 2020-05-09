@@ -45,7 +45,7 @@ type WasmClient struct {
 	systemMessage textncount.TextNCountList
 
 	KeyboardPressedMap *jskeypressmap.KeyPressMap
-	vp                 *Viewport2d
+	vp                 *Viewport
 
 	loginData *w2d_obj.RspLogin_data
 	statsInfo *w2d_obj.NotiStatsInfo_data
@@ -62,7 +62,7 @@ func InitApp() {
 		systemMessage:      make(textncount.TextNCountList, 0),
 	}
 	gSprites = LoadSprites()
-	app.vp = NewViewport2d()
+	app.vp = NewViewport()
 
 	jsdoc := js.Global().Get("document")
 	jsobj.Hide(jsdoc.Call("getElementById", "loadmsg"))
@@ -143,4 +143,8 @@ func (app *WasmClient) drawCanvas(this js.Value, args []js.Value) interface{} {
 
 func (app *WasmClient) GetEstServerTick() int64 {
 	return time.Now().UnixNano() + app.ServerClientTictDiff
+}
+
+func (app *WasmClient) ResizeCanvas() {
+	app.vp.Resize()
 }

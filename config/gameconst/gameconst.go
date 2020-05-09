@@ -6,6 +6,8 @@ const (
 	StageW            = 1000.0
 	StageH            = 1000.0
 	BallRespawnDurSec = 5
+
+	MaxChatLen = 80
 )
 
 var StageRect = vector2f.Rect{

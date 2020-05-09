@@ -23,10 +23,11 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 )
 
-type Viewport2d struct {
+type Viewport struct {
+	rnd *rand.Rand
+
 	Canvas    js.Value
 	context2d js.Value
-	rnd       *rand.Rand
 
 	W float64
 	H float64
@@ -34,8 +35,8 @@ type Viewport2d struct {
 	stageInfo *w2d_obj.NotiStageInfo_data
 }
 
-func NewViewport2d() *Viewport2d {
-	vp := &Viewport2d{
+func NewViewport() *Viewport {
+	vp := &Viewport{
 		rnd: rand.New(rand.NewSource(time.Now().UnixNano())),
 		W:   gameconst.StageW,
 		H:   gameconst.StageH,
@@ -47,7 +48,16 @@ func NewViewport2d() *Viewport2d {
 	return vp
 }
 
-func (vp *Viewport2d) draw(now int64) {
+func (vp *Viewport) Focus() {
+	vp.Canvas.Call("focus")
+}
+func (vp *Viewport) AddEventListener(evt string, fn func(this js.Value, args []js.Value) interface{}) {
+	vp.Canvas.Call("addEventListener", evt, js.FuncOf(fn))
+}
+func (vp *Viewport) Resize() {
+}
+
+func (vp *Viewport) draw(now int64) {
 	si := vp.stageInfo
 	if si == nil {
 		return
@@ -86,7 +96,7 @@ func (vp *Viewport2d) draw(now int64) {
 	}
 }
 
-func (vp *Viewport2d) drawBG() {
+func (vp *Viewport) drawBG() {
 	si := vp.stageInfo
 	sp := gSprites.BGSprite
 	x, y := si.Background.PosVt[0], si.Background.PosVt[1]
@@ -109,7 +119,7 @@ func (vp *Viewport2d) drawBG() {
 	)
 }
 
-func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
+func (vp *Viewport) drawCloud(cld *w2d_obj.Cloud) {
 	x, y := cld.PosVt[0], cld.PosVt[1]
 	sp := gSprites.CloudSprite
 	srcx, srcy := sp.GetSliceXY(cld.SpriteNum)
@@ -119,7 +129,7 @@ func (vp *Viewport2d) drawCloud(cld *w2d_obj.Cloud) {
 	)
 }
 
-func (vp *Viewport2d) drawEffect(eff *w2d_obj.Effect, now int64) {
+func (vp *Viewport) drawEffect(eff *w2d_obj.Effect, now int64) {
 	x, y := eff.PosVt[0], eff.PosVt[1]
 	sp := gSprites.EffectSprite[eff.EffectType]
 	lifeTick := int(effecttype.Attrib[eff.EffectType].LifeTick)
@@ -133,14 +143,14 @@ func (vp *Viewport2d) drawEffect(eff *w2d_obj.Effect, now int64) {
 	)
 }
 
-func (vp *Viewport2d) drawTeam(bl *w2d_obj.Team, now int64) {
+func (vp *Viewport) drawTeam(bl *w2d_obj.Team, now int64) {
 	vp.drawGameObj(bl.TeamType, bl.Ball, now)
 	for _, v := range bl.Objs {
 		vp.drawGameObj(bl.TeamType, v, now)
 	}
 }
 
-func (vp *Viewport2d) drawGameObj(
+func (vp *Viewport) drawGameObj(
 	teamtype teamtype.TeamType, v *w2d_obj.GameObj, now int64) {
 	dispSize := gameobjtype.Attrib[v.GOType].Size
 	sp := gSprites.BallSprites[teamtype][v.GOType]
