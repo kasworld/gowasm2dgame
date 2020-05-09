@@ -18,51 +18,93 @@ import (
 	"time"
 
 	"github.com/kasworld/actjitter"
+	"github.com/kasworld/gowasm2dgame/config/gameconst"
+	"github.com/kasworld/gowasm2dgame/lib/clientcookie"
+	"github.com/kasworld/gowasm2dgame/lib/jskeypressmap"
+	"github.com/kasworld/gowasm2dgame/lib/jsobj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connwasm"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_pid2rspfn"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_version"
+	"github.com/kasworld/gowasmlib/jslog"
 	"github.com/kasworld/gowasmlib/textncount"
 	"github.com/kasworld/intervalduration"
 )
 
 type WasmClient struct {
-	DoClose              func()
-	pid2recv             *w2d_pid2rspfn.PID2RspFn
-	wsConn               *w2d_connwasm.Connection
+	DoClose  func()
+	pid2recv *w2d_pid2rspfn.PID2RspFn
+	wsConn   *w2d_connwasm.Connection
+
 	ServerJitter         *actjitter.ActJitter
 	ClientJitter         *actjitter.ActJitter
 	PingDur              int64
 	ServerClientTictDiff int64
-	DispInterDur         *intervalduration.IntervalDuration
-	systemMessage        textncount.TextNCountList
 
-	vp        *Viewport2d
+	DispInterDur  *intervalduration.IntervalDuration
+	systemMessage textncount.TextNCountList
+
+	KeyboardPressedMap *jskeypressmap.KeyPressMap
+	vp                 *Viewport2d
+
+	loginData *w2d_obj.RspLogin_data
 	statsInfo *w2d_obj.NotiStatsInfo_data
 }
 
 func InitApp() {
-	// dst := "ws://localhost:8080/ws"
 	app := &WasmClient{
-		DoClose:      func() { fmt.Println("Too early DoClose call") },
-		pid2recv:     w2d_pid2rspfn.New(),
-		ServerJitter: actjitter.New("Server"),
-		ClientJitter: actjitter.New("Client"),
+		DoClose:            func() { fmt.Println("Too early DoClose call") },
+		pid2recv:           w2d_pid2rspfn.New(),
+		ServerJitter:       actjitter.New("Server"),
+		ClientJitter:       actjitter.New("Client"),
+		DispInterDur:       intervalduration.New(""),
+		KeyboardPressedMap: jskeypressmap.New(),
+		systemMessage:      make(textncount.TextNCountList, 0),
 	}
 	gSprites = LoadSprites()
-	app.DispInterDur = intervalduration.New("Display")
 	app.vp = NewViewport2d()
-	go app.run()
+
+	jsdoc := js.Global().Get("document")
+	jsobj.Hide(jsdoc.Call("getElementById", "loadmsg"))
+	jsdoc.Call("getElementById", "leftinfo").Set("style",
+		"color: white; position: fixed; top: 0; left: 0; overflow: hidden;")
+	jsdoc.Call("getElementById", "rightinfo").Set("style",
+		"color: white; position: fixed; top: 0; right: 0; overflow: hidden; text-align: right;")
+	jsdoc.Call("getElementById", "centerinfo").Set("style",
+		"color: white; position: fixed; top: 0%; left: 25%; overflow: hidden;")
+
+	js.Global().Set("clearNickname", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		go clientcookie.ClearSession()
+		return nil
+	}))
+	clientcookie.InitNickname()
+	go app.enterStage()
 }
 
-func (app *WasmClient) run() {
+func (app *WasmClient) enterStage() {
 	ctx, closeCtx := context.WithCancel(context.Background())
 	app.DoClose = closeCtx
 	defer app.DoClose()
-	if err := app.NetInit(ctx); err != nil {
+
+	var err error
+	if app.loginData, err = app.NetInit(ctx); err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
 	defer app.Cleanup()
+
+	if gameconst.DataVersion != app.loginData.DataVersion {
+		jslog.Errorf("DataVersion mismatch client %v server %v",
+			gameconst.DataVersion, app.loginData.DataVersion)
+	}
+	if w2d_version.ProtocolVersion != app.loginData.ProtocolVersion {
+		jslog.Errorf("ProtocolVersion mismatch client %v server %v",
+			w2d_version.ProtocolVersion, app.loginData.ProtocolVersion)
+	}
+	clientcookie.SetSession(app.loginData.SessionKey, app.loginData.NickName)
+	jsdoc := js.Global().Get("document")
+	jsobj.Hide(jsdoc.Call("getElementById", "titleform"))
+	jsobj.Show(jsdoc.Call("getElementById", "cmdrow"))
 
 	app.updataServiceInfo()
 	js.Global().Call("requestAnimationFrame", js.FuncOf(app.drawCanvas))

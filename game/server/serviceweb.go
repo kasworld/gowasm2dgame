@@ -21,8 +21,6 @@ import (
 	"github.com/kasworld/gowasm2dgame/lib/conndata"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_authorize"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_serveconnbyte"
 	"github.com/kasworld/uuidstr"
 )
@@ -41,15 +39,7 @@ func (svr *Server) initServiceWeb(ctx context.Context) {
 	}
 	svr.marshalBodyFn = w2d_gob.MarshalBodyFn
 	svr.unmarshalPacketFn = w2d_gob.UnmarshalPacket
-	svr.DemuxReq2BytesAPIFnMap = [...]func(
-		me interface{}, hd w2d_packet.Header, rbody []byte) (
-		w2d_packet.Header, interface{}, error){
-		w2d_idcmd.Invalid:     svr.bytesAPIFn_ReqInvalid,
-		w2d_idcmd.EnterStage:  svr.bytesAPIFn_ReqEnterStage,
-		w2d_idcmd.ChatToStage: svr.bytesAPIFn_ReqChatToStage,
-		w2d_idcmd.Heartbeat:   svr.bytesAPIFn_ReqHeartbeat,
-	} // DemuxReq2BytesAPIFnMap
-
+	svr.setFnMap()
 }
 
 func CheckOrigin(r *http.Request) bool {
@@ -75,7 +65,7 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 	c2sc := w2d_serveconnbyte.NewWithStats(
 		connData,
 		gameconst.SendBufferSize,
-		w2d_authorize.NewAllSet(),
+		w2d_authorize.NewPreLoginAuthorCmdIDList(),
 		svr.SendStat, svr.RecvStat,
 		svr.apiStat,
 		svr.notiStat,

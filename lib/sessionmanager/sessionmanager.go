@@ -20,8 +20,8 @@ import (
 	"time"
 
 	"github.com/kasworld/g2rand"
-	"github.com/kasworld/gowasm3dgame/lib/session"
-	"github.com/kasworld/gowasm3dgame/lib/w3dlog"
+	"github.com/kasworld/gowasm2dgame/lib/session"
+	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/rangestat"
 	"github.com/kasworld/uuidstr"
 	"github.com/kasworld/weblib"
@@ -37,7 +37,7 @@ func (sman SessionManager) String() string {
 }
 
 type SessionManager struct {
-	log   *w3dlog.LogBase `prettystring:"hide"`
+	log   *w2dlog.LogBase `prettystring:"hide"`
 	rnd   *g2rand.G2Rand  `prettystring:"hide"`
 	name  string
 	rstat *rangestat.RangeStat `prettystring:"simple"`
@@ -46,7 +46,7 @@ type SessionManager struct {
 	sessionid2session map[string]*session.Session `prettystring:"simple"`
 }
 
-func New(name string, size int, l *w3dlog.LogBase) *SessionManager {
+func New(name string, size int, l *w2dlog.LogBase) *SessionManager {
 	if name == "" {
 		name = "SessionManager"
 	}

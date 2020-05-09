@@ -19,13 +19,16 @@ import (
 	"syscall/js"
 	"time"
 
+	"github.com/kasworld/gowasm2dgame/lib/clientcookie"
+	"github.com/kasworld/gowasm2dgame/lib/jsobj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connwasm"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idnoti"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_obj"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_packet"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_pid2rspfn"
+	"github.com/kasworld/gowasmlib/jslog"
+	"github.com/kasworld/gowasmlib/wasmcookie"
 )
 
 func getConnURL() string {
@@ -40,7 +43,7 @@ func getConnURL() string {
 	return u.String()
 }
 
-func (app *WasmClient) NetInit(ctx context.Context) error {
+func (app *WasmClient) NetInit(ctx context.Context) (*w2d_obj.RspLogin_data, error) {
 	app.wsConn = w2d_connwasm.New(
 		getConnURL(),
 		w2d_gob.MarshalBodyFn,
@@ -50,17 +53,43 @@ func (app *WasmClient) NetInit(ctx context.Context) error {
 	fmt.Println(getConnURL())
 
 	var wg sync.WaitGroup
+
+	// connect
 	wg.Add(1)
 	go func() {
 		err := app.wsConn.Connect(ctx, &wg)
 		if err != nil {
-			fmt.Printf("wsConn.Connect err %v\n", err)
+			jslog.Errorf("wsConn.Connect err %v", err)
 			app.DoClose()
 		}
 	}()
+	authkey := clientcookie.GetQuery().Get("authkey")
+	nick := jsobj.GetTextValueFromInputText("nickname")
+	ck := wasmcookie.GetMap()
+	sessionkey := ck[clientcookie.SessionKeyName()]
 	wg.Wait()
+	jslog.Info("connected")
 
-	return nil
+	// login
+	var rtn *w2d_obj.RspLogin_data
+	wg.Add(1)
+	app.ReqWithRspFn(
+		w2d_idcmd.Login,
+		&w2d_obj.ReqLogin_data{
+			SessionKey: sessionkey,
+			NickName:   nick,
+			AuthKey:    authkey,
+		},
+		func(hd w2d_packet.Header, rsp interface{}) error {
+			rtn = rsp.(*w2d_obj.RspLogin_data)
+			wg.Done()
+			return nil
+		},
+	)
+	wg.Wait()
+	jslog.Info("logined")
+
+	return rtn, nil
 }
 
 func (app *WasmClient) Cleanup() {
@@ -126,58 +155,26 @@ func (app *WasmClient) reqHeartbeat() error {
 	)
 }
 
-var DemuxNoti2ObjFnMap = [...]func(me interface{}, hd w2d_packet.Header, body interface{}) error{
-	w2d_idnoti.Invalid:   objRecvNotiFn_Invalid,
-	w2d_idnoti.StageInfo: objRecvNotiFn_StageInfo,
-	w2d_idnoti.StatsInfo: objRecvNotiFn_StatsInfo,
-	w2d_idnoti.StageChat: objRecvNotiFn_StageChat,
+func (app *WasmClient) ReqWithRspFnWithAuth(cmd w2d_idcmd.CommandID, body interface{},
+	fn w2d_pid2rspfn.HandleRspFn) error {
+	if !app.CanUseCmd(cmd) {
+		return fmt.Errorf("Cmd not allowed %v", cmd)
+	}
+	return app.ReqWithRspFn(cmd, body, fn)
 }
 
-func objRecvNotiFn_Invalid(me interface{}, hd w2d_packet.Header, body interface{}) error {
-	robj, ok := body.(*w2d_obj.NotiInvalid_data)
-	if !ok {
-		return fmt.Errorf("packet mismatch %v", body)
+func (app *WasmClient) CanUseCmd(cmd w2d_idcmd.CommandID) bool {
+	if app.loginData == nil {
+		return false
 	}
-	return fmt.Errorf("Not implemented %v", robj)
+	return app.loginData.CmdList[cmd]
 }
 
-func objRecvNotiFn_StageInfo(me interface{}, hd w2d_packet.Header, body interface{}) error {
-	robj, ok := body.(*w2d_obj.NotiStageInfo_data)
-	if !ok {
-		return fmt.Errorf("packet mismatch %v", body)
-	}
-	app, ok := me.(*WasmClient)
-	if !ok {
-		return fmt.Errorf("packet mismatch %v", body)
-	}
-	app.vp.stageInfo = robj
-
-	app.ServerClientTictDiff = robj.Tick - time.Now().UnixNano()
-	return nil
-}
-
-func objRecvNotiFn_StatsInfo(me interface{}, hd w2d_packet.Header, body interface{}) error {
-	robj, ok := body.(*w2d_obj.NotiStatsInfo_data)
-	if !ok {
-		return fmt.Errorf("packet mismatch %v", body)
-	}
-	app, ok := me.(*WasmClient)
-	if !ok {
-		return fmt.Errorf("packet mismatch %v", body)
-	}
-	app.statsInfo = robj
-	return nil
-}
-
-func objRecvNotiFn_StageChat(me interface{}, hd w2d_packet.Header, body interface{}) error {
-	robj, ok := body.(*w2d_obj.NotiStageChat_data)
-	if !ok {
-		return fmt.Errorf("packet mismatch %v", body)
-	}
-	app, ok := me.(*WasmClient)
-	if !ok {
-		return fmt.Errorf("packet mismatch %v", body)
-	}
-	app.systemMessage.Appendf("%v : %v", robj.SenderNick, robj.Chat)
-	return nil
+func (app *WasmClient) sendPacket(cmd w2d_idcmd.CommandID, arg interface{}) {
+	app.ReqWithRspFnWithAuth(
+		cmd, arg,
+		func(hd w2d_packet.Header, rsp interface{}) error {
+			return nil
+		},
+	)
 }
