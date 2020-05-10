@@ -11,4 +11,66 @@
 
 package authdata
 
+import (
+	"fmt"
+
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_authorize"
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_idcmd"
+)
+
 var Authkey2Admin = map[string][2][]string{}
+
+func AddAdminKey(key string) error {
+	var err error
+	if _, exist := Authkey2Admin[key]; exist {
+		err = fmt.Errorf("key %v exist, overwright", key)
+	}
+	Authkey2Admin[key] = [2][]string{
+		[]string{"Login", "Admin"}, []string{"DelAfterLogin"},
+	}
+	return err
+}
+
+var allAuthorizationSet = map[string]*w2d_authorize.AuthorizedCmds{
+	"PreLogin": w2d_authorize.NewByCmdIDList([]w2d_idcmd.CommandID{
+		w2d_idcmd.Login,
+	}),
+
+	"DelAfterLogin": w2d_authorize.NewByCmdIDList([]w2d_idcmd.CommandID{
+		w2d_idcmd.Login,
+	}),
+
+	"Login": w2d_authorize.NewByCmdIDList([]w2d_idcmd.CommandID{
+		w2d_idcmd.Heartbeat,
+		w2d_idcmd.Chat,
+	}),
+	"Admin": w2d_authorize.NewByCmdIDList([]w2d_idcmd.CommandID{}),
+}
+
+func NewPreLoginAuthorCmdIDList() *w2d_authorize.AuthorizedCmds {
+	return allAuthorizationSet["PreLogin"].Duplicate()
+}
+
+func UpdateByAuthKey(acicl *w2d_authorize.AuthorizedCmds, key string) error {
+	ag, exist := Authkey2Admin[key]
+	if !exist {
+		ag = [2][]string{[]string{"Login"}, []string{"DelAfterLogin"}}
+	}
+	// process include
+	for _, authgroupname := range ag[0] {
+		cmdidList := allAuthorizationSet[authgroupname]
+		if cmdidList == nil {
+			return fmt.Errorf("Can't Found authgroup %v", authgroupname)
+		}
+		acicl.Union(cmdidList)
+	}
+	// process exclude
+	for _, authgroupname := range ag[1] {
+		cmdidList := allAuthorizationSet[authgroupname]
+		if cmdidList == nil {
+			return fmt.Errorf("Can't Found authgroup %v", authgroupname)
+		}
+		acicl.SubIntersection(cmdidList)
+	}
+	return nil
+}

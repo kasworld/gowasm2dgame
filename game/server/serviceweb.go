@@ -17,9 +17,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/kasworld/gowasm2dgame/config/authdata"
 	"github.com/kasworld/gowasm2dgame/config/gameconst"
 	"github.com/kasworld/gowasm2dgame/lib/conndata"
-	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_authorize"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_gob"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_serveconnbyte"
 	"github.com/kasworld/uuidstr"
@@ -65,7 +65,7 @@ func (svr *Server) serveWebSocketClient(ctx context.Context, w http.ResponseWrit
 	c2sc := w2d_serveconnbyte.NewWithStats(
 		connData,
 		gameconst.SendBufferSize,
-		w2d_authorize.NewPreLoginAuthorCmdIDList(),
+		authdata.NewPreLoginAuthorCmdIDList(),
 		svr.SendStat, svr.RecvStat,
 		svr.apiStat,
 		svr.notiStat,
