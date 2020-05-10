@@ -72,7 +72,7 @@ func InitApp() {
 	jsdoc.Call("getElementById", "rightinfo").Set("style",
 		"color: white; position: fixed; top: 0; right: 0; overflow: hidden; text-align: right;")
 	jsdoc.Call("getElementById", "centerinfo").Set("style",
-		"color: white; position: fixed; top: 0%; left: 25%; overflow: hidden;")
+		"color: white; position: fixed; bottom: 3%; left: 0%; overflow: hidden;")
 
 	app.ResizeCanvas()
 	win := js.Global().Get("window")
