@@ -22,6 +22,8 @@ github.com/kasworld/go-profile v0.0.0-20151115093915-b12be73c3c93 h1:VKUGnqkj5GP
 github.com/kasworld/go-profile v0.0.0-20151115093915-b12be73c3c93/go.mod h1:vaAHegt/rkNqbmVH8A+kFkk619vik1ZCg1mxwi/WnA0=
 github.com/kasworld/gowasmlib v0.0.0-20200306023233-6d534fae80d1 h1:tMsTrkLojw+wwZCpMogL232bnDWRab+jx0t8QOAQTho=
 github.com/kasworld/gowasmlib v0.0.0-20200306023233-6d534fae80d1/go.mod h1:RqjBGAv4PzJUgdynTRp/lP8UPy9GUwjcH38zLnEUxiA=
+github.com/kasworld/htmlcolors v0.0.0-20200329020336-66b48ba18ef9 h1:hq3ZIyVYPP2hpYGfKcO+aEqXZXOCJgsl7yuVy5rPaSQ=
+github.com/kasworld/htmlcolors v0.0.0-20200329020336-66b48ba18ef9/go.mod h1:bb/2P/wOUlDpfjbb9eD5VP9tzdRw3ej3xMitQ2kSJBk=
 github.com/kasworld/intervalduration v0.0.0-20191119062840-82a720a6b837 h1:eCOgfASDJABSynp0JzYTVopOtLO9/C9+nmKc4JYLAkY=
 github.com/kasworld/intervalduration v0.0.0-20191119062840-82a720a6b837/go.mod h1:c+qTHoJJf9gYXan7ZvRkPXgCdYBI5q4FydIa3ofjNpY=
 github.com/kasworld/launcherlib v0.0.0-20190513092519-5ce52b882f53 h1:Tu6vg+sX+b9vvXwMy6AerskRMmiYPVurpvnB24pQy7c=

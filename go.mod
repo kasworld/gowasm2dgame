@@ -13,6 +13,7 @@ require (
 	github.com/kasworld/go-abs v0.0.0-20190506031457-98e1b15a2888
 	github.com/kasworld/go-profile v0.0.0-20151115093915-b12be73c3c93
 	github.com/kasworld/gowasmlib v0.0.0-20200306023233-6d534fae80d1
+	github.com/kasworld/htmlcolors v0.0.0-20200329020336-66b48ba18ef9
 	github.com/kasworld/intervalduration v0.0.0-20191119062840-82a720a6b837
 	github.com/kasworld/launcherlib v0.0.0-20190513092519-5ce52b882f53 // indirect
 	github.com/kasworld/log v0.0.0-20191101013826-9bd2997eac10

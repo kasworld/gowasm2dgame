@@ -30,6 +30,9 @@ github.com/kasworld/go-profile
 github.com/kasworld/gowasmlib/jslog
 github.com/kasworld/gowasmlib/textncount
 github.com/kasworld/gowasmlib/wasmcookie
+# github.com/kasworld/htmlcolors v0.0.0-20200329020336-66b48ba18ef9
+## explicit
+github.com/kasworld/htmlcolors
 # github.com/kasworld/intervalduration v0.0.0-20191119062840-82a720a6b837
 ## explicit
 github.com/kasworld/intervalduration
