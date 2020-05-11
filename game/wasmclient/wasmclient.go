@@ -64,6 +64,7 @@ func InitApp() {
 	gSprites = LoadSprites()
 	app.vp = NewViewport()
 
+	clientcookie.InitNickname()
 	gameOptions = _gameopt // prevent compiler initialize loop
 	jsdoc := js.Global().Get("document")
 	jsobj.Hide(jsdoc.Call("getElementById", "loadmsg"))
@@ -73,6 +74,7 @@ func InitApp() {
 		"color: white; position: fixed; top: 0; right: 0; overflow: hidden; text-align: right;")
 	jsdoc.Call("getElementById", "centerinfo").Set("style",
 		"color: white; position: fixed; bottom: 3%; left: 0%; overflow: hidden;")
+	app.registerJSButton()
 
 	app.ResizeCanvas()
 	win := js.Global().Get("window")
@@ -87,7 +89,6 @@ func InitApp() {
 		go clientcookie.ClearSession()
 		return nil
 	}))
-	clientcookie.InitNickname()
 	// js.Global().Set("enterField", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 	// 	go app.enterStage()
 	// 	return nil
