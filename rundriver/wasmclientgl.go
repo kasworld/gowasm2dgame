@@ -1,3 +1,5 @@
+// +build ignore
+
 // Copyright 2015,2016,2017,2018,2019,2020 SeukWon Kang (kasworld@gmail.com)
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -9,21 +11,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package teamtype
+package main
 
-type iv struct {
-	Index int
-	Value int
-}
+import "github.com/kasworld/gowasm2dgame/game/wasmclientgl"
 
-var SpriteFilter = [TeamType_Count]struct {
-	Name string
-	IV   []iv
-}{
-	Red:    {"red", []iv{{0, 255}}},
-	Blue:   {"blue", []iv{{1, 255}}},
-	Green:  {"green", []iv{{2, 255}}},
-	RRed:   {"rred", []iv{{0, 0}}},
-	RBlue:  {"rblue", []iv{{1, 0}}},
-	RGreen: {"rgreen", []iv{{2, 0}}},
+var done chan struct{}
+
+func main() {
+	wasmclientgl.InitApp()
+	<-done
 }

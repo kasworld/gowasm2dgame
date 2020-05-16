@@ -11,19 +11,17 @@
 
 package teamtype
 
-type iv struct {
-	Index int
-	Value int
-}
+import (
+	"github.com/kasworld/htmlcolors"
+)
 
-var SpriteFilter = [TeamType_Count]struct {
-	Name string
-	IV   []iv
+var Attrib = [TeamType_Count]struct {
+	Color24 htmlcolors.Color24
 }{
-	Red:    {"red", []iv{{0, 255}}},
-	Blue:   {"blue", []iv{{1, 255}}},
-	Green:  {"green", []iv{{2, 255}}},
-	RRed:   {"rred", []iv{{0, 0}}},
-	RBlue:  {"rblue", []iv{{1, 0}}},
-	RGreen: {"rgreen", []iv{{2, 0}}},
+	Red:    {htmlcolors.Red},
+	Blue:   {htmlcolors.Blue},
+	Green:  {htmlcolors.Green},
+	RRed:   {htmlcolors.Red.Neg()},
+	RBlue:  {htmlcolors.Blue.Neg()},
+	RGreen: {htmlcolors.Green.Neg()},
 }

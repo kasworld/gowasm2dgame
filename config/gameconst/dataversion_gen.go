@@ -1,5 +1,5 @@
 
 package gameconst
 
-const DataVersion = "d2f216015f080474526c374c305d4424cd44197f8f183a01aca22e7ffbbd8221"
+const DataVersion = "f53acc35d34ca7b751fb12239c0aa5444298dd91a9532d3ad456dfee60776364"
 

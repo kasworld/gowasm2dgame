@@ -34,6 +34,11 @@ var Attrib = [GameObjType_Count]struct {
 	HommingBullet: {16, 0, 300, 30, int64(time.Second) * 60},
 }
 
+const (
+	// MaxRadius need quad tree boundary
+	MaxRadius = 32
+)
+
 var collisionRule = [GameObjType_Count][GameObjType_Count]bool{
 	Ball: {
 		Ball:          true,
