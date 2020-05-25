@@ -26,7 +26,7 @@ func (o *GameObj) GetUUID() string {
 	return o.UUID
 }
 func (o *GameObj) GetRect() vector2f.Rect {
-	r := gameobjtype.Attrib[o.GOType].Size
+	r := gameobjtype.Attrib[o.GOType].Radius
 	return vector2f.NewRectCenterWH(
 		o.PosVt,
 		vector2f.Vector2f{r, r},
@@ -155,8 +155,8 @@ func (o *GameObj) CalcCircularPos(center vector2f.Vector2f, r float64) vector2f.
 // return current len , len change with time
 // currentlen adjust with obj size
 func (o *GameObj) CalcLenChange(dsto *GameObj) (float64, float64) {
-	r1 := gameobjtype.Attrib[o.GOType].Size / 2
-	r2 := gameobjtype.Attrib[dsto.GOType].Size / 2
+	r1 := gameobjtype.Attrib[o.GOType].Radius / 2
+	r2 := gameobjtype.Attrib[dsto.GOType].Radius / 2
 	curLen := dsto.PosVt.Sub(o.PosVt).Abs()
 	nextLen := dsto.PosVt.Add(dsto.VelVt).Sub(
 		o.PosVt.Add(o.VelVt),

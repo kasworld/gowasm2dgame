@@ -19,7 +19,7 @@ import (
 const LongLife = 3600 * 24 * 365
 
 var Attrib = [GameObjType_Count]struct {
-	Size           float64
+	Radius         float64
 	RadiusToCenter float64 // from main ball center
 	SpeedLimit     float64 // speed pixel/sec or rad/sec
 	FramePerSec    float64 // animation speed
@@ -39,7 +39,7 @@ const (
 	MaxRadius = 32
 )
 
-var collisionRule = [GameObjType_Count][GameObjType_Count]bool{
+var interactRule = [GameObjType_Count][GameObjType_Count]bool{
 	Ball: {
 		Ball:          true,
 		Shield:        true,
@@ -94,5 +94,5 @@ var collisionRule = [GameObjType_Count][GameObjType_Count]bool{
 }
 
 func InteractTo(srcType, dstType GameObjType) bool {
-	return collisionRule[srcType][dstType]
+	return interactRule[srcType][dstType]
 }

@@ -91,7 +91,7 @@ func (vp *Viewport) initLight() {
 func (vp *Viewport) getGeometry(gotype gameobjtype.GameObjType) js.Value {
 	geo, exist := vp.geometryCache[gotype]
 	if !exist {
-		radius := gameobjtype.Attrib[gotype].Size
+		radius := gameobjtype.Attrib[gotype].Radius
 		switch gotype {
 		default:
 			geo = vp.ThreeJsNew("SphereGeometry", radius, 32, 16)
