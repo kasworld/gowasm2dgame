@@ -25,13 +25,13 @@ var Attrib = [GameObjType_Count]struct {
 	FramePerSec    float64 // animation speed
 	LifeTick       int64
 }{
-	Ball:          {32, 0, 300, 0, int64(time.Second) * LongLife},
-	Shield:        {16, 28, math.Pi, 0, int64(time.Second) * LongLife},
-	SuperShield:   {16, 48, math.Pi, 30, int64(time.Second) * 60},
-	HommingShield: {16, 0, 50, 30, int64(time.Second) * 60},
-	Bullet:        {16, 0, 500, 0, int64(time.Second) * LongLife},
-	SuperBullet:   {32, 0, 600, 30, int64(time.Second) * LongLife},
-	HommingBullet: {16, 0, 300, 30, int64(time.Second) * 60},
+	Ball:          {16, 0, 300, 0, int64(time.Second) * LongLife},
+	Shield:        {8, 28, math.Pi, 0, int64(time.Second) * LongLife},
+	SuperShield:   {8, 48, math.Pi, 30, int64(time.Second) * 60},
+	HommingShield: {8, 0, 50, 30, int64(time.Second) * 60},
+	Bullet:        {8, 0, 500, 0, int64(time.Second) * LongLife},
+	SuperBullet:   {16, 0, 600, 30, int64(time.Second) * LongLife},
+	HommingBullet: {8, 0, 300, 30, int64(time.Second) * 60},
 }
 
 const (

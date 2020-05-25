@@ -113,7 +113,7 @@ func (vp *Viewport) drawTeam(bl *w2d_obj.Team, now int64) {
 
 func (vp *Viewport) drawGameObj(
 	teamtype teamtype.TeamType, v *w2d_obj.GameObj, now int64) {
-	dispSize := gameobjtype.Attrib[v.GOType].Radius
+	dispSize := gameobjtype.Attrib[v.GOType].Radius * 2
 	sp := gSprites.BallSprites[teamtype][v.GOType]
 	frame := CalcCurrentFrame(now-v.BirthTick,
 		gameobjtype.Attrib[v.GOType].FramePerSec,

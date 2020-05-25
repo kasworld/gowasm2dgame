@@ -187,46 +187,46 @@ func LoadBallSprite(teamname string) [gameobjtype.GameObjType_Count]*Sprite {
 	rtn[gameobjtype.Ball] = LoadSpriteXYNResize(
 		"grayball",
 		1, 1,
-		gameobjtype.Attrib[gameobjtype.Ball].Radius,
-		gameobjtype.Attrib[gameobjtype.Ball].Radius,
+		gameobjtype.Attrib[gameobjtype.Ball].Radius*2,
+		gameobjtype.Attrib[gameobjtype.Ball].Radius*2,
 	)
 
 	rtn[gameobjtype.Shield] = LoadSpriteXYNResize(
 		"grayball",
 		1, 1,
-		gameobjtype.Attrib[gameobjtype.Shield].Radius,
-		gameobjtype.Attrib[gameobjtype.Shield].Radius,
+		gameobjtype.Attrib[gameobjtype.Shield].Radius*2,
+		gameobjtype.Attrib[gameobjtype.Shield].Radius*2,
 	)
 
 	rtn[gameobjtype.SuperShield] = LoadSpriteRotateResize(
 		"spiral",
 		0, 360, 10,
-		gameobjtype.Attrib[gameobjtype.SuperShield].Radius,
-		gameobjtype.Attrib[gameobjtype.SuperShield].Radius,
+		gameobjtype.Attrib[gameobjtype.SuperShield].Radius*2,
+		gameobjtype.Attrib[gameobjtype.SuperShield].Radius*2,
 	)
 	rtn[gameobjtype.HommingShield] = LoadSpriteRotateResize(
 		"spiral",
 		0, 360, 10,
-		gameobjtype.Attrib[gameobjtype.HommingShield].Radius,
-		gameobjtype.Attrib[gameobjtype.HommingShield].Radius,
+		gameobjtype.Attrib[gameobjtype.HommingShield].Radius*2,
+		gameobjtype.Attrib[gameobjtype.HommingShield].Radius*2,
 	)
 	rtn[gameobjtype.Bullet] = LoadSpriteXYNResize(
 		"grayball",
 		1, 1,
-		gameobjtype.Attrib[gameobjtype.Bullet].Radius,
-		gameobjtype.Attrib[gameobjtype.Bullet].Radius,
+		gameobjtype.Attrib[gameobjtype.Bullet].Radius*2,
+		gameobjtype.Attrib[gameobjtype.Bullet].Radius*2,
 	)
 	rtn[gameobjtype.SuperBullet] = LoadSpriteRotateResize(
 		"spiral",
 		0, 360, 10,
-		gameobjtype.Attrib[gameobjtype.SuperBullet].Radius,
-		gameobjtype.Attrib[gameobjtype.SuperBullet].Radius,
+		gameobjtype.Attrib[gameobjtype.SuperBullet].Radius*2,
+		gameobjtype.Attrib[gameobjtype.SuperBullet].Radius*2,
 	)
 	rtn[gameobjtype.HommingBullet] = LoadSpriteRotateResize(
 		"spiral",
 		0, 360, 10,
-		gameobjtype.Attrib[gameobjtype.HommingBullet].Radius,
-		gameobjtype.Attrib[gameobjtype.HommingBullet].Radius,
+		gameobjtype.Attrib[gameobjtype.HommingBullet].Radius*2,
+		gameobjtype.Attrib[gameobjtype.HommingBullet].Radius*2,
 	)
 	return rtn
 }

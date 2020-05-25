@@ -173,6 +173,10 @@ func (vp *Viewport) processRecvStageInfo(stageInfo *w2d_obj.NotiStageInfo_data) 
 			)
 			vp.camera.Call("updateProjectionMatrix")
 		}
+		v := tm.Ball
+		vp.add2Scene(v,
+			uint32(teamtype.Attrib[tm.TeamType].Color24))
+		addUUID[v.UUID] = true
 		for _, v := range tm.Objs {
 			if v == nil {
 				continue
