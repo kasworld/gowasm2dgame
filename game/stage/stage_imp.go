@@ -11,29 +11,20 @@
 
 package stage
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connbytemanager"
+)
 
 func (stg *Stage) String() string {
-	return fmt.Sprintf("Stage[%v Conn%v , Team%v]",
-		stg.UUID, stg.Conns, stg.Teams,
-	)
+	return fmt.Sprintf("Team(%v)", len(stg.Teams))
 }
 
-const (
-	HTML_tableheader = `
-<tr>
-<th>UUID</th>
-<th>Conn</th>
-<th>Team</th>
-<th>Command</th>
-</tr>`
+func (stg *Stage) GetUUID() string {
+	return stg.UUID
+}
 
-	HTML_row = `
-<tr>
-<td>{{$v.UUID}}</td>
-<td>{{$v.Conns}}</td>
-<td>{{$v.Teams}}</td>
-<td><a href="/Del?id={{$v.UUID}}" target="_blank">[Del]</a></td>
-</tr>
-`
-)
+func (stg *Stage) GetConnManager() *w2d_connbytemanager.Manager {
+	return stg.Conns
+}
