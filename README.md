@@ -1,6 +1,12 @@
-# gowasm2dgame
+# html canvas 와 webgl 버전의 클라이언트를 지원하는 2d 게임 프레임웍
 
-golang port of [wxgame2](https://github.com/kasworld/wxgame2)
+html canvas version 
+![screenshot](2d.png)
+
+webgl version
+![screenshot](3d.png)
+
+
 
 python 2.x 와 wxpython tcp connection 으로 만들었던 wxgame2 를 
 
@@ -49,12 +55,11 @@ wxgame2 의 go언어 포팅 이라는 원래 목적을 넘어 서는 것 같기 
 
 ## 서버 실행후 브라우저 서비스 포트 (config에서 수정 가능)
 
-open admin web
-
+    open admin web
     http://localhost:24201/
-
-open client web
-    
+    open client web
     http://localhost:24101/
+    open glclient web
+    http://localhost:24101/gl.html
 
-![screenshot](gowasm2dgame.png)
+
