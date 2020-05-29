@@ -54,13 +54,11 @@ type RspChat_data struct {
 	Dummy uint8
 }
 
-type ReqEnterStage_data struct {
-	StageUUID string // may be not same to req stage
-	NickToUse string
+type ReqAct_data struct {
+	Dummy uint8
 }
-type RspEnterStage_data struct {
-	StageUUID string // may be not same to req stage
-	NickToUse string // may be not same to req nick
+type RspAct_data struct {
+	Dummy uint8
 }
 
 //////////////////////////////////////////////////////////////////////////////

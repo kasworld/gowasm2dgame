@@ -35,11 +35,12 @@ func (svr *Server) setFnMap() {
 	svr.DemuxReq2BytesAPIFnMap = [...]func(
 		me interface{}, hd w2d_packet.Header, rbody []byte) (
 		w2d_packet.Header, interface{}, error){
-		w2d_idcmd.Invalid:    svr.bytesAPIFn_ReqInvalid,
-		w2d_idcmd.Login:      svr.bytesAPIFn_ReqLogin,
-		w2d_idcmd.EnterStage: svr.bytesAPIFn_ReqEnterStage,
-		w2d_idcmd.Chat:       svr.bytesAPIFn_ReqChat,
-		w2d_idcmd.Heartbeat:  svr.bytesAPIFn_ReqHeartbeat,
+
+		w2d_idcmd.Invalid:   svr.bytesAPIFn_ReqInvalid,   // Invalid not used, make empty packet error
+		w2d_idcmd.Login:     svr.bytesAPIFn_ReqLogin,     // Login make session with nickname and enter stage
+		w2d_idcmd.Heartbeat: svr.bytesAPIFn_ReqHeartbeat, // Heartbeat prevent connection timeout
+		w2d_idcmd.Chat:      svr.bytesAPIFn_ReqChat,      // Chat chat to stage
+		w2d_idcmd.Act:       svr.bytesAPIFn_ReqAct,       // Act send user action
 	}
 }
 
@@ -189,14 +190,15 @@ func (svr *Server) bytesAPIFn_ReqHeartbeat(
 	return sendHeader, sendBody, nil
 }
 
-func (svr *Server) bytesAPIFn_ReqEnterStage(
+// Act send user action
+func (svr *Server) bytesAPIFn_ReqAct(
 	me interface{}, hd w2d_packet.Header, rbody []byte) (
 	w2d_packet.Header, interface{}, error) {
 	robj, err := w2d_gob.UnmarshalPacket(hd, rbody)
 	if err != nil {
 		return hd, nil, fmt.Errorf("Packet type miss match %v", rbody)
 	}
-	recvBody, ok := robj.(*w2d_obj.ReqEnterStage_data)
+	recvBody, ok := robj.(*w2d_obj.ReqAct_data)
 	if !ok {
 		return hd, nil, fmt.Errorf("Packet type miss match %v", robj)
 	}
@@ -205,6 +207,6 @@ func (svr *Server) bytesAPIFn_ReqEnterStage(
 	sendHeader := w2d_packet.Header{
 		ErrorCode: w2d_error.None,
 	}
-	sendBody := &w2d_obj.RspEnterStage_data{}
+	sendBody := &w2d_obj.RspAct_data{}
 	return sendHeader, sendBody, nil
 }
