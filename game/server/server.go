@@ -31,7 +31,6 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statnoti"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statserveapi"
 	"github.com/kasworld/prettystring"
-	"github.com/kasworld/signalhandle"
 	"github.com/kasworld/weblib/retrylistenandserve"
 )
 
@@ -93,7 +92,8 @@ func (svr *Server) GetServiceLockFilename() string {
 }
 
 // called from signal handler
-func (svr *Server) GetLogger() signalhandle.LoggerI {
+// return implement signalhandle.LoggerI
+func (svr *Server) GetLogger() interface{} {
 	return w2dlog.GlobalLogger
 }
 

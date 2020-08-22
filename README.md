@@ -63,3 +63,6 @@ wxgame2 의 go언어 포팅 이라는 원래 목적을 넘어 서는 것 같기 
     http://localhost:24101/gl.html
 
 
+# windows 에서 작동시키려면?
+
+signalhandlewin을 사용하는 rundriver/serverwin.go 를 사용하시면 됩니다. 
