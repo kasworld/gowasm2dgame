@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/kasworld/actpersec"
-	"github.com/kasworld/gowasm2dgame/config/gameconst"
+	"github.com/kasworld/gowasm2dgame/config/dataversion"
 	"github.com/kasworld/gowasm2dgame/config/serverconfig"
 	"github.com/kasworld/gowasm2dgame/game/stagemanager"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_connbytemanager"
@@ -41,7 +41,7 @@ func (svr *Server) GetProtocolVersion() string {
 }
 
 func (svr *Server) GetDataVersion() string {
-	return gameconst.DataVersion
+	return dataversion.DataVersion
 }
 
 func (svr *Server) NumGoroutine() int {

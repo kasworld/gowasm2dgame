@@ -15,7 +15,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/kasworld/gowasm2dgame/config/gameconst"
+	"github.com/kasworld/gowasm2dgame/config/dataversion"
 	"github.com/kasworld/gowasm2dgame/enum/acttype"
 	"github.com/kasworld/gowasm2dgame/enum/teamtype"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_version"
@@ -40,7 +40,7 @@ func (app *WasmClient) makeServiceInfo() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "gowasm2dgame webclient<br/>")
 	fmt.Fprintf(&buf, "Protocol %v<br/>", w2d_version.ProtocolVersion)
-	fmt.Fprintf(&buf, "Data %v<br/>", gameconst.DataVersion)
+	fmt.Fprintf(&buf, "Data %v<br/>", dataversion.DataVersion)
 	fmt.Fprintf(&buf, "%v<br/>", msgCopyright)
 	return buf.String()
 }

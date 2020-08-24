@@ -18,7 +18,7 @@ import (
 	"github.com/kasworld/argdefault"
 	"github.com/kasworld/configutil"
 	"github.com/kasworld/go-profile"
-	"github.com/kasworld/gowasm2dgame/config/gameconst"
+	"github.com/kasworld/gowasm2dgame/config/dataversion"
 	"github.com/kasworld/gowasm2dgame/config/serverconfig"
 	"github.com/kasworld/gowasm2dgame/game/server"
 	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
@@ -37,7 +37,7 @@ func init() {
 func printVersion() {
 	fmt.Println("gowasm2dgame")
 	fmt.Println("Build     ", version.GetVersion())
-	fmt.Println("Data      ", gameconst.DataVersion)
+	fmt.Println("Data      ", dataversion.DataVersion)
 	fmt.Println("Protocol  ", w2d_version.ProtocolVersion)
 	fmt.Println()
 }

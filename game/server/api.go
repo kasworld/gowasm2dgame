@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/kasworld/gowasm2dgame/config/authdata"
-	"github.com/kasworld/gowasm2dgame/config/gameconst"
+	"github.com/kasworld/gowasm2dgame/config/dataversion"
 	"github.com/kasworld/gowasm2dgame/lib/conndata"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_authorize"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_error"
@@ -114,7 +114,7 @@ func (svr *Server) bytesAPIFn_ReqLogin(
 		sendBody := &w2d_obj.RspLogin_data{
 			Version:         version.GetVersion(),
 			ProtocolVersion: w2d_version.ProtocolVersion,
-			DataVersion:     gameconst.DataVersion,
+			DataVersion:     dataversion.DataVersion,
 			SessionKey:      recvBody.SessionKey,
 			NickName:        recvBody.NickName,
 			CmdList:         *w2d_authorize.NewAllSet(),
