@@ -1,4 +1,10 @@
 
+# del generated code 
+# Get-ChildItem .\enum\ -Recurse -Include *_gen.go | Remove-Item
+# Get-ChildItem .\protocol_w2d\ -Recurse -Include *_gen.go | Remove-Item
+# Remove-Item lib\w2dlog\log_gen.go
+# Remove-Item config/dataversion/dataversion_gen.go 
+
 ################################################################################
 Set-Location lib
 Write-Output "genlog -leveldatafile ./w2dlog/w2dlog.data -packagename w2dlog "
