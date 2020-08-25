@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
 
-
-
 ################################################################################
 echo "genlog -leveldatafile ./w2dlog/w2dlog.data -packagename w2dlog "
 cd lib
 genlog -leveldatafile ./w2dlog/w2dlog.data -packagename w2dlog 
 cd ..
 
-
 ################################################################################
 ProtocolW2DFiles="protocol_w2d/*.enum protocol_w2d/w2d_obj/protocol_*.go"
 PROTOCOL_W2D_VERSION=`makesha256sum ${ProtocolW2DFiles}`
-echo "Protocol W2D Version:" ${PROTOCOL_W2D_VERSION}
+echo "Protocol W2D Version: ${PROTOCOL_W2D_VERSION}"
 
 genprotocol -ver=${PROTOCOL_W2D_VERSION} -basedir=protocol_w2d -prefix=w2d -statstype=int
 cd protocol_w2d
@@ -32,11 +29,9 @@ cd ..
 
 GameDataFiles="config/gameconst/*.go config/gamedata/*.go enum/*.enum"
 Data_VERSION=`makesha256sum ${GameDataFiles}`
-echo "Data Version:" ${Data_VERSION}
+echo "Data Version: ${Data_VERSION}"
 mkdir -p config/dataversion
-echo "
-package dataversion
-
+echo "package dataversion
 const DataVersion = \"${Data_VERSION}\"
 " > config/dataversion/dataversion_gen.go 
 
@@ -64,7 +59,7 @@ BuildBin() {
 DATESTR=`date -Iseconds`
 GITSTR=`git rev-parse HEAD`
 BUILD_VER=${DATESTR}_${GITSTR}_release_linux
-echo "Build" ${BUILD_VER}
+echo "Build version ${BUILD_VER}"
 
 BIN_DIR="bin"
 SRC_DIR="rundriver"
