@@ -1,20 +1,11 @@
 #!/usr/bin/env bash
 
+BUILD_VER=${1}
 
-rm wasmclient.wasm
+echo "GOOS=js GOARCH=wasm go build -o clientdata/wasmclient.wasm -ldflags "-X main.Ver=${BUILD_VER}" wasmclient.go"
+GOOS=js GOARCH=wasm go build -o clientdata/wasmclient.wasm -ldflags "-X main.Ver=${BUILD_VER}" wasmclient.go
 
-echo "GOOS=js GOARCH=wasm go build -o wasmclient.wasm"
-GOOS=js GOARCH=wasm go build -o wasmclient.wasm wasmclient.go
+echo "GOOS=js GOARCH=wasm go build -o clientdata/wasmclientgl.wasm -ldflags "-X main.Ver=${BUILD_VER}" wasmclientgl.go"
+GOOS=js GOARCH=wasm go build -o clientdata/wasmclientgl.wasm -ldflags "-X main.Ver=${BUILD_VER}" wasmclientgl.go
 
-echo "move files"
-mv wasmclient.wasm ./clientdata/
 
-##########################
-
-rm wasmclientgl.wasm
-
-echo "GOOS=js GOARCH=wasm go build -o wasmclientgl.wasm"
-GOOS=js GOARCH=wasm go build -o wasmclientgl.wasm wasmclientgl.go
-
-echo "move files"
-mv wasmclientgl.wasm ./clientdata/
