@@ -1,11 +1,47 @@
 #!/usr/bin/env bash
 
 
-DATESTR=`date -Iseconds`
-GITSTR=`git rev-parse HEAD`
-BUILD_VER=${DATESTR}_${GITSTR}_release
-echo "Build" ${BUILD_VER}
 
+################################################################################
+echo "genlog -leveldatafile ./w2dlog/w2dlog.data -packagename w2dlog "
+cd lib
+genlog -leveldatafile ./w2dlog/w2dlog.data -packagename w2dlog 
+cd ..
+
+
+################################################################################
+ProtocolW2DFiles="protocol_w2d/*.enum protocol_w2d/w2d_obj/protocol_*.go"
+PROTOCOL_W2D_VERSION=`makesha256sum ${ProtocolW2DFiles}`
+echo "Protocol W2D Version:" ${PROTOCOL_W2D_VERSION}
+
+genprotocol -ver=${PROTOCOL_W2D_VERSION} -basedir=protocol_w2d -prefix=w2d -statstype=int
+cd protocol_w2d
+goimports -w .
+cd ..
+
+################################################################################
+# generate enum
+genenum -typename=TeamType -packagename=teamtype -basedir=enum -vectortype=int
+genenum -typename=ActType -packagename=acttype -basedir=enum -vectortype=int
+genenum -typename=GameObjType -packagename=gameobjtype -basedir=enum -vectortype=int
+genenum -typename=EffectType -packagename=effecttype -basedir=enum -vectortype=int
+
+cd enum 
+goimports -w .
+cd .. 
+
+GameDataFiles="config/gameconst/*.go config/gamedata/*.go enum/*.enum"
+Data_VERSION=`makesha256sum ${GameDataFiles}`
+echo "Data Version:" ${Data_VERSION}
+mkdir -p config/dataversion
+echo "
+package dataversion
+
+const DataVersion = \"${Data_VERSION}\"
+" > config/dataversion/dataversion_gen.go 
+
+################################################################################
+# build bin
 
 BuildBin() {
     local srcfile=${1}
@@ -25,56 +61,15 @@ BuildBin() {
     strip "${dstdir}/${dstfile}"
 }
 
-
-cd lib
-genlog -leveldatafile ./w2dlog/w2dlog.data -packagename w2dlog 
-cd ..
-
-
-ProtocolW2DFiles="protocol_w2d/*.enum"
-
-PROTOCOL_W2D_VERSION=`cat ${ProtocolW2DFiles}| sha256sum | awk '{print $1}'`
-echo "Protocol W2D Version:" ${PROTOCOL_W2D_VERSION}
-
-cd protocol_w2d
-genprotocol -ver=${PROTOCOL_W2D_VERSION} \
-    -basedir=. \
-    -prefix=w2d -statstype=int
-
-goimports -w .
-
-cd ..
-
-genenum -typename=TeamType -packagename=teamtype -basedir=enum -vectortype=int
-genenum -typename=ActType -packagename=acttype -basedir=enum -vectortype=int
-genenum -typename=GameObjType -packagename=gameobjtype -basedir=enum -vectortype=int
-genenum -typename=EffectType -packagename=effecttype -basedir=enum -vectortype=int
-
-cd enum 
-goimports -w .
-cd .. 
-
-GameDataFiles="
-config/gameconst/gameconst.go \
-config/gameconst/serviceconst.go \
-config/gamedata/*.go \
-enum/*.enum \
-"
-Data_VERSION=`cat ${GameDataFiles}| sha256sum | awk '{print $1}'`
-echo "Data Version:" ${Data_VERSION}
-mkdir -p config/dataversion
-echo "
-package dataversion
-
-const DataVersion = \"${Data_VERSION}\"
-" > config/dataversion/dataversion_gen.go 
-
-# build bin
+DATESTR=`date -Iseconds`
+GITSTR=`git rev-parse HEAD`
+BUILD_VER=${DATESTR}_${GITSTR}_release_linux
+echo "Build" ${BUILD_VER}
 
 BIN_DIR="bin"
 SRC_DIR="rundriver"
 
-echo ${BUILD_VER} > ${BIN_DIR}/BUILD
+echo ${BUILD_VER} > ${BIN_DIR}/BUILD_linux
 
 BuildBin ${SRC_DIR}/server.go ${BIN_DIR} server
 BuildBin ${SRC_DIR}/multiclient.go ${BIN_DIR} multiclient

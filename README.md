@@ -1,5 +1,6 @@
 # html canvas 와 webgl 버전의 클라이언트를 지원하는 2d 게임 프레임웍
 
+
 html canvas version 
 ![screenshot](2d.png)
 
@@ -7,6 +8,33 @@ webgl version
 ![screenshot](3d.png)
 
 
+# 사전 준비 사항 ( goguelike 의 INSTALL.md 참고)
+
+준비물 : linux(debian,ubuntu,mint) , chrome web brower , golang 
+
+goimports : 소스 코드 정리, import 해결
+
+    go get golang.org/x/tools/cmd/goimports
+
+버전 string 생성시 사용 : windows, linux 간에 같은 string생성
+
+    go get github.com/kasworld/makesha256sum
+
+프로토콜 생성기 : https://github.com/kasworld/genprotocol
+
+    go get github.com/kasworld/genprotocol
+
+Enum 생성기 : https://github.com/kasworld/genenum
+
+    go get github.com/kasworld/genenum
+
+Log 패키지 및 커스텀 로그레벨 로거 생성기 : https://github.com/kasworld/log
+
+    go get github.com/kasworld/log
+    install.sh 실행해서 genlog 생성 
+
+
+# 개요 
 
 python 2.x 와 wxpython tcp connection 으로 만들었던 wxgame2 를 
 
@@ -30,7 +58,7 @@ goguelike를 만들면서 정리한 go언어 서버 제작 용 라이브러리(�
 
 [signalhandle](https://github.com/kasworld/signalhandle) : signal을 관리해서 프로그램의 linux 서비스화, start,stop,forcestart,logreopen
 
-    windows에서 동작 시키려면 이 signalhandle을 사용하지 않도록 수정해야 합니다. 
+    windows에서 동작 시키려면 이 signalhandle을 signalhandlewin 으로 교체한 serverwin 을 사용합니다.  
 
 정도 입니다. 
 
