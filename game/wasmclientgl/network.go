@@ -96,7 +96,7 @@ func (app *WasmClient) Cleanup() {
 	app.wsConn.SendRecvStop()
 }
 
-func (app *WasmClient) handleSentPacket(header w2d_packet.Header) error {
+func (app *WasmClient) handleSentPacket(pk *w2d_packet.Packet) error {
 	return nil
 }
 
@@ -133,7 +133,7 @@ func (app *WasmClient) ReqWithRspFn(cmd w2d_idcmd.CommandID, body interface{},
 		},
 		Body: body,
 	}
-	if err := app.wsConn.EnqueueSendPacket(spk); err != nil {
+	if err := app.wsConn.EnqueueSendPacket(&spk); err != nil {
 		app.wsConn.SendRecvStop()
 		return fmt.Errorf("Send fail %s %v:%v %v", app, cmd, pid, err)
 	}
