@@ -13,9 +13,9 @@ package stage
 
 import (
 	"context"
-	"math/rand"
 	"time"
 
+	"github.com/kasworld/g2rand"
 	"github.com/kasworld/gowasm2dgame/config/gameconst"
 	"github.com/kasworld/gowasm2dgame/config/serverconfig"
 	"github.com/kasworld/gowasm2dgame/enum/effecttype"
@@ -31,7 +31,7 @@ import (
 )
 
 type Stage struct {
-	rnd    *rand.Rand      `prettystring:"hide"`
+	rnd    *g2rand.G2Rand  `prettystring:"hide"`
 	log    *w2dlog.LogBase `prettystring:"hide"`
 	config serverconfig.Config
 
@@ -44,12 +44,12 @@ type Stage struct {
 	Teams      []*Team
 }
 
-func New(l *w2dlog.LogBase, config serverconfig.Config) *Stage {
+func New(l *w2dlog.LogBase, config serverconfig.Config, seed int64) *Stage {
 	stg := &Stage{
 		UUID:   uuidstr.New(),
 		config: config,
 		log:    l,
-		rnd:    rand.New(rand.NewSource(time.Now().UnixNano())),
+		rnd:    g2rand.NewWithSeed(seed),
 		Conns:  w2d_connbytemanager.New(),
 	}
 
@@ -60,7 +60,7 @@ func New(l *w2dlog.LogBase, config serverconfig.Config) *Stage {
 	}
 	stg.Teams = make([]*Team, teamtype.TeamType_Count)
 	for i := range stg.Teams {
-		stg.Teams[i] = NewTeam(l, teamtype.TeamType(i))
+		stg.Teams[i] = NewTeam(l, teamtype.TeamType(i), stg.rnd.Int63())
 	}
 	return stg
 }

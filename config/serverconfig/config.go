@@ -11,13 +11,16 @@ import (
 )
 
 type Config struct {
-	LogLevel              w2dlog.LL_Type `argname:""`
-	SplitLogLevel         w2dlog.LL_Type `argname:""`
+	LogLevel              w2dlog.LL_Type `default:"31" argname:""`
+	SplitLogLevel         w2dlog.LL_Type `default:"0" argname:""`
 	BaseLogDir            string         `default:"/tmp/"  argname:""`
 	ServerDataFolder      string         `default:"./serverdata" argname:""`
 	ClientDataFolder      string         `default:"./clientdata" argname:""`
-	ServicePort           string         `default:":24101"  argname:""`
-	AdminPort             string         `default:":24201"  argname:""`
+	ServicePort           string         `default:"24101"  argname:""`
+	AdminPort             string         `default:"24201"  argname:""`
+	WebAdminID            string         `default:"root" argname:""`
+	WebAdminPass          string         `default:"password" argname:"" prettystring:"hidevalue"`
+	ServiceHostBase       string         `default:"http://localhost" argname:""`
 	ConcurrentConnections int            `default:"1000" argname:""`
 	ActTurnPerSec         float64        `default:"30.0" argname:""`
 }

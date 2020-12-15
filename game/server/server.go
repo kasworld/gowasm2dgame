@@ -14,11 +14,12 @@ package server
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"time"
 
 	"github.com/kasworld/actpersec"
+	"github.com/kasworld/g2rand"
+	"github.com/kasworld/gowasm2dgame/config/gameconst"
 	"github.com/kasworld/gowasm2dgame/config/serverconfig"
 	"github.com/kasworld/gowasm2dgame/game/stage"
 	"github.com/kasworld/gowasm2dgame/game/stagemanager"
@@ -30,12 +31,13 @@ import (
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statapierror"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statnoti"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_statserveapi"
+	"github.com/kasworld/log/logflags"
 	"github.com/kasworld/prettystring"
 	"github.com/kasworld/weblib/retrylistenandserve"
 )
 
 type Server struct {
-	rnd       *rand.Rand      `prettystring:"hide"`
+	rnd       *g2rand.G2Rand  `prettystring:"hide"`
 	log       *w2dlog.LogBase `prettystring:"hide"`
 	config    serverconfig.Config
 	adminWeb  *http.Server `prettystring:"simple"`
@@ -63,11 +65,35 @@ type Server struct {
 }
 
 func New(config serverconfig.Config) *Server {
-	l := w2dlog.GlobalLogger
+	fmt.Printf("%v\n", config.StringForm())
+
+	if config.BaseLogDir != "" {
+		log, err := w2dlog.NewWithDstDir(
+			"",
+			config.MakeLogDir(),
+			logflags.DefaultValue(false).BitClear(logflags.LF_functionname),
+			config.LogLevel,
+			config.SplitLogLevel,
+		)
+		if err == nil {
+			w2dlog.GlobalLogger = log
+		} else {
+			fmt.Printf("%v\n", err)
+			w2dlog.GlobalLogger.SetFlags(
+				w2dlog.GlobalLogger.GetFlags().BitClear(logflags.LF_functionname))
+			w2dlog.GlobalLogger.SetLevel(
+				config.LogLevel)
+		}
+	} else {
+		w2dlog.GlobalLogger.SetFlags(
+			w2dlog.GlobalLogger.GetFlags().BitClear(logflags.LF_functionname))
+		w2dlog.GlobalLogger.SetLevel(
+			config.LogLevel)
+	}
 	svr := &Server{
 		config: config,
-		log:    l,
-		rnd:    rand.New(rand.NewSource(time.Now().UnixNano())),
+		log:    w2dlog.GlobalLogger,
+		rnd:    g2rand.New(),
 
 		SendStat: actpersec.New(),
 		RecvStat: actpersec.New(),
@@ -76,9 +102,9 @@ func New(config serverconfig.Config) *Server {
 		notiStat:       w2d_statnoti.New(),
 		errorStat:      w2d_statapierror.New(),
 		connManager:    w2d_connbytemanager.New(),
-		sessionManager: sessionmanager.New("", 100, l),
+		sessionManager: sessionmanager.New("", 100, w2dlog.GlobalLogger),
 
-		stageManager: stagemanager.New(l),
+		stageManager: stagemanager.New(w2dlog.GlobalLogger),
 	}
 	svr.sendRecvStop = func() {
 		fmt.Printf("Too early sendRecvStop call\n")
@@ -118,15 +144,16 @@ func (svr *Server) ServiceMain(mainctx context.Context) {
 	svr.initAdminWeb()
 	svr.initServiceWeb(ctx)
 
-	fmt.Printf("open admin web\nhttp://localhost%v/\n", svr.config.AdminPort)
-	fmt.Printf("open client web\nhttp://localhost%v/\n", svr.config.ServicePort)
-	fmt.Printf("open glclient web\nhttp://localhost%v/gl.html\n", svr.config.ServicePort)
+	fmt.Printf("WebAdmin  : %v:%v id:%v pass:%v\n",
+		svr.config.ServiceHostBase, svr.config.AdminPort, svr.config.WebAdminID, svr.config.WebAdminPass)
+	fmt.Printf("WebClient : %v:%v/\n", svr.config.ServiceHostBase, svr.config.ServicePort)
+	fmt.Printf("WebClientGL : %v:%v//gl.html\n", svr.config.ServiceHostBase, svr.config.ServicePort)
 
 	go retrylistenandserve.RetryListenAndServe(svr.adminWeb, svr.log, "serveAdminWeb")
 	go retrylistenandserve.RetryListenAndServe(svr.clientWeb, svr.log, "serveServiceWeb")
 
-	for i := 0; i < 100; i++ {
-		stg := stage.New(svr.log, svr.config)
+	for i := 0; i < gameconst.StagePerServer; i++ {
+		stg := stage.New(svr.log, svr.config, svr.rnd.Int63())
 		svr.stageManager.Add(stg)
 		go stg.Run(ctx)
 	}

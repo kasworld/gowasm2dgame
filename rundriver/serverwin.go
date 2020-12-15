@@ -21,9 +21,7 @@ import (
 	"github.com/kasworld/gowasm2dgame/config/dataversion"
 	"github.com/kasworld/gowasm2dgame/config/serverconfig"
 	"github.com/kasworld/gowasm2dgame/game/server"
-	"github.com/kasworld/gowasm2dgame/lib/w2dlog"
 	"github.com/kasworld/gowasm2dgame/protocol_w2d/w2d_version"
-	"github.com/kasworld/log/logflags"
 	"github.com/kasworld/signalhandlewin"
 	"github.com/kasworld/version"
 )
@@ -52,14 +50,11 @@ func main() {
 	ads := argdefault.New(&serverconfig.Config{})
 	ads.RegisterFlag()
 	flag.Parse()
-	config := &serverconfig.Config{
-		LogLevel:      w2dlog.LL_All,
-		SplitLogLevel: 0,
-	}
+	config := &serverconfig.Config{}
 	ads.SetDefaultToNonZeroField(config)
 	if *configurl != "" {
 		if err := configutil.LoadIni(*configurl, &config); err != nil {
-			w2dlog.Fatal("%v", err)
+			fmt.Printf("%v\n", err)
 		}
 	}
 	ads.ApplyFlagTo(config)
@@ -71,22 +66,9 @@ func main() {
 		defer fn()
 	}
 
-	l, err := w2dlog.NewWithDstDir(
-		"",
-		config.MakeLogDir(),
-		logflags.DefaultValue(false).BitClear(logflags.LF_functionname),
-		config.LogLevel,
-		config.SplitLogLevel,
-	)
-	if err != nil {
-		fmt.Printf("%v\n", err)
-		return
-	}
-	w2dlog.GlobalLogger = l
-
 	svr := server.New(*config)
 	if err := signalhandlewin.StartByArgs(svr); err != nil {
-		w2dlog.Error("%v", err)
+		fmt.Printf("%v\n", err)
 	}
 
 	if profile.IsMem() {

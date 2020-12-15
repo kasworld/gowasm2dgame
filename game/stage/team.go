@@ -13,9 +13,9 @@ package stage
 
 import (
 	"math"
-	"math/rand"
 	"time"
 
+	"github.com/kasworld/g2rand"
 	"github.com/kasworld/gowasm2dgame/config/gameconst"
 	"github.com/kasworld/gowasm2dgame/enum/acttype"
 	"github.com/kasworld/gowasm2dgame/enum/acttype_vector"
@@ -28,7 +28,7 @@ import (
 )
 
 type Team struct {
-	rnd *rand.Rand      `prettystring:"hide"`
+	rnd *g2rand.G2Rand  `prettystring:"hide"`
 	log *w2dlog.LogBase `prettystring:"hide"`
 
 	ActStats acttype_vector.ActTypeVector
@@ -42,28 +42,28 @@ type Team struct {
 	Objs []*GameObj
 }
 
-func NewTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType) *Team {
+func NewTeam(l *w2dlog.LogBase, TeamType teamtype.TeamType, seed int64) *Team {
 	nowtick := time.Now().UnixNano()
-	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 	bt := &Team{
-		rnd:      rnd,
+		rnd:      g2rand.NewWithSeed(seed),
 		log:      l,
 		IsAlive:  true,
 		TeamType: TeamType,
 		UUID:     uuidstr.New(),
-		Ball: &GameObj{
-			teamType:     TeamType,
-			GOType:       gameobjtype.Ball,
-			UUID:         uuidstr.New(),
-			BirthTick:    nowtick,
-			LastMoveTick: nowtick,
-			PosVt: vector2f.Vector2f{
-				rnd.Float64() * gameconst.StageW,
-				rnd.Float64() * gameconst.StageH,
-			},
-		},
-		Objs: make([]*GameObj, 0),
+		Objs:     make([]*GameObj, 0),
 	}
+	bt.Ball = &GameObj{
+		teamType:     TeamType,
+		GOType:       gameobjtype.Ball,
+		UUID:         uuidstr.New(),
+		BirthTick:    nowtick,
+		LastMoveTick: nowtick,
+		PosVt: vector2f.Vector2f{
+			bt.rnd.Float64() * gameconst.StageW,
+			bt.rnd.Float64() * gameconst.StageH,
+		},
+	}
+
 	maxv := gameobjtype.Attrib[gameobjtype.Ball].SpeedLimit
 
 	vt := vector2f.NewVectorLenAngle(
